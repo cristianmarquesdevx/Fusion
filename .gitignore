@@ -1,0 +1,26 @@
+node_modules/
+dist/
+.vite/
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini
+*.local
+.env
+.env.local
+coverage/
+config/env.generated.js
+
+# Vite
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store

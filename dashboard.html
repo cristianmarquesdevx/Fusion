@@ -1,0 +1,2320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fusion — Painel do Centro Vitta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css">
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239C7A3E'><path d='M12 2L2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/></svg>" type="image/svg+xml">
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand-mark">
+      <img src="assets/images/logo.png" alt="Fusion ERP" class="brand-logo">
+      <span class="name">Fusion</span>
+      <span class="tag">ERP Estética</span>
+    </div>
+
+    <nav style="flex:1;">
+      <div class="nav-group">
+        <div class="nav-group-label">Visão geral</div>
+        <button type="button" class="nav-item active" data-view="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+          Painel do dia
+        </button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">Atendimento</div>
+        <button type="button" class="nav-item" data-view="clientes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17.5" cy="9" r="2.5"/><path d="M15 20c0-2.8 1.6-4.8 4-5.4"/></svg>
+          Clientes
+          <span class="badge clientes-badge"></span>
+        </button>
+        <button type="button" class="nav-item" data-view="agenda">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 3v3M16 3v3"/></svg>
+          Agenda
+          <span class="badge agenda-badge"></span>
+        </button>
+        <button type="button" class="nav-item" data-view="prontuario">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+          Prontuário Eletrônico
+        </button>
+        <button type="button" class="nav-item" data-view="fila-atendimento">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h18M3 12h18M3 20h18"/><circle cx="7" cy="12" r="1.5" fill="currentColor"/><circle cx="7" cy="4" r="1.5" fill="currentColor"/><circle cx="7" cy="20" r="1.5" fill="currentColor"/></svg>
+          Fila de Atendimento
+        </button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">Operações</div>
+        <button type="button" class="nav-item" data-view="estoque">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v9l9 5 9-5V8M12 13v9"/></svg>
+          Estoque
+        </button>
+        <button type="button" class="nav-item" data-view="pdv">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18l-1.6 9.4a2 2 0 01-2 1.6H6.6a2 2 0 01-2-1.6L3 6z"/><path d="M8 6V4.5A2.5 2.5 0 0110.5 2h3A2.5 2.5 0 0116 4.5V6"/></svg>
+          PDV
+        </button>
+        <button type="button" class="nav-item" data-view="salas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Gestão de Salas
+        </button>
+        <button type="button" class="nav-item" data-view="pacotes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+          Pacotes de Sessões
+        </button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">Relacionamento</div>
+        <button type="button" class="nav-item" data-view="fidelidade">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.5 6.5L21 9l-5 4.5 1.5 7L12 17l-5.5 3.5 1.5-7L3 9l6.5-.5z"/></svg>
+          Fidelidade
+        </button>
+        <button type="button" class="nav-item" data-view="planos-recorrentes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 8v4l3 3M3.05 11a9 9 0 1117.9 0"/></svg>
+          Planos Recorrentes
+        </button>
+        <button type="button" class="nav-item" data-view="lista-espera">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 6v6l4 2M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>
+          Lista de Espera
+        </button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">Inteligência</div>
+        <button type="button" class="nav-item" data-view="bi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 20V10M10 20V4M17 20v-7M21 20H2"/><path d="M10 4l7 7-7 7"/></svg>
+          Business Intelligence
+        </button>
+        <a class="nav-item" href="agendar.html" target="_blank" style="text-decoration:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 3v3M16 3v3"/></svg>
+          Agendamento Público
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px;margin-left:auto;opacity:0.5;"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">Gestão</div>
+        <button type="button" class="nav-item" data-view="financeiro">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 20V10M10 20V4M17 20v-7M21 20H2"/></svg>
+          Financeiro
+        </button>
+        <button type="button" class="nav-item" data-view="relatorios">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h9l4 4v13a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M9 13h6M9 17h6M9 9h2"/></svg>
+          Relatórios
+        </button>
+        <button type="button" class="nav-item" data-view="configuracoes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.7 7.7 0 000-2l2-1.5-2-3.4-2.3.8a7.7 7.7 0 00-1.7-1L15 3h-6l-.4 2.4a7.7 7.7 0 00-1.7 1l-2.3-.8-2 3.4L4.6 11a7.7 7.7 0 000 2l-2 1.5 2 3.4 2.3-.8a7.7 7.7 0 001.7 1L9 21h6l.4-2.4a7.7 7.7 0 001.7-1l2.3.8 2-3.4-2-1.5z"/></svg>
+          Configurações
+        </button>
+      </div>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="plan-card">
+        <div class="plan-name">Plano Premium</div>
+        <div class="plan-desc">3 unidades ativas · 22 módulos habilitados</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+
+      <button class="unit-switch">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.3 7-11.5A7 7 0 005 9.5C5 14.7 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.3"/></svg>
+        <span class="u-label">Centro Vitta — Unidade Jardins</span>
+      </button>
+
+      <div class="topbar-spacer"></div>
+
+      <div class="db-status" id="dbStatusIndicator">
+        <span class="db-status-dot checking"></span>
+        <span class="db-status-label">Verificando…</span>
+      </div>
+
+      <button class="icon-btn" id="themeToggle" aria-label="Alternar tema claro e escuro">
+        <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 14.5A8.5 8.5 0 119.5 4a7 7 0 0010.5 10.5z"/></svg>
+      </button>
+      <button class="icon-btn" aria-label="Notificações">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8a6 6 0 0112 0c0 3.5 1 5.5 2 7H4c1-1.5 2-3.5 2-7z"/><path d="M10 20a2 2 0 004 0"/></svg>
+        <span class="dot"></span>
+      </button>
+
+      <div class="topbar-user">
+        <div class="avatar">AS</div>
+        <div>
+          <div class="who">Ana Souza</div>
+          <div class="role">Recepção</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- ============ DASHBOARD ============ -->
+      <section class="view active" data-view="dashboard">
+        <div class="page-head">
+          <div class="eyebrow" id="dashDate">Carregando...</div>
+          <h1 id="dashGreeting">Bem-vinda, Ana. O Vitta Jardins está a 82% da agenda hoje.</h1>
+          <p>12 clientes já passaram pela recepção, 6 estão a caminho e 2 aguardam vaga na fila de espera.</p>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-label">Faturamento do dia</div>
+            <div class="kpi-value">R$ 4.280</div>
+            <div class="kpi-delta up">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>
+              12% vs. terça passada
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Agendamentos hoje</div>
+            <div class="kpi-value">18</div>
+            <div class="kpi-delta up">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>
+              3 encaixes confirmados
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Taxa de ocupação das salas</div>
+            <div class="kpi-value">82%</div>
+            <div class="kpi-delta down">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+              Sala de Laser livre às 15h
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Ticket médio</div>
+            <div class="kpi-value">R$ 238</div>
+            <div class="kpi-delta up">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>
+              8% acima da meta
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Fila de atendimento — agora</h2>
+                <div class="sub">Ordem cronológica das sessões de hoje, por sala e profissional</div>
+              </div>
+              <a class="panel-link" href="#" id="linkVerAgenda">Ver agenda completa</a>
+            </div>
+            <div class="panel-body">
+              <div class="timeline">
+                <div class="tl-row">
+                  <div class="tl-time">09:00</div>
+                  <div class="tl-dot-wrap"><span class="tl-dot done"></span></div>
+                  <div class="tl-info">
+                    <div class="cliente">Marina Costa</div>
+                    <div class="detalhe">Limpeza de pele profunda · Fernanda (esteticista)</div>
+                  </div>
+                  <div class="tl-tags"><span class="tag room">Sala 1</span><span class="tag status-done">Concluído</span></div>
+                </div>
+                <div class="tl-row">
+                  <div class="tl-time">10:00</div>
+                  <div class="tl-dot-wrap"><span class="tl-dot done"></span></div>
+                  <div class="tl-info">
+                    <div class="cliente">Renata Alves</div>
+                    <div class="detalhe">Peeling de diamante · Dra. Camila</div>
+                  </div>
+                  <div class="tl-tags"><span class="tag room">Sala 2</span><span class="tag status-done">Concluído</span></div>
+                </div>
+                <div class="tl-row">
+                  <div class="tl-time">11:30</div>
+                  <div class="tl-dot-wrap"><span class="tl-dot active"></span></div>
+                  <div class="tl-info">
+                    <div class="cliente">Juliana Prado</div>
+                    <div class="detalhe">Toxina botulínica · Dra. Camila</div>
+                  </div>
+                  <div class="tl-tags"><span class="tag room">Sala de Procedimentos</span><span class="tag status-active">Em atendimento</span></div>
+                </div>
+                <div class="tl-row">
+                  <div class="tl-time">12:15</div>
+                  <div class="tl-dot-wrap"><span class="tl-dot late"></span></div>
+                  <div class="tl-info">
+                    <div class="cliente">Beatriz Lima</div>
+                    <div class="detalhe">Drenagem linfática · Fernanda (esteticista)</div>
+                  </div>
+                  <div class="tl-tags"><span class="tag room">Sala 1</span><span class="tag status-late">Atrasado 12 min</span></div>
+                </div>
+                <div class="tl-row">
+                  <div class="tl-time">13:00</div>
+                  <div class="tl-dot-wrap"><span class="tl-dot waiting"></span></div>
+                  <div class="tl-info">
+                    <div class="cliente">Camila Ferreira</div>
+                    <div class="detalhe">Microagulhamento · Dra. Camila</div>
+                  </div>
+                  <div class="tl-tags"><span class="tag room">Sala 2</span><span class="tag status-waiting">Aguardando</span></div>
+                </div>
+                <div class="tl-row">
+                  <div class="tl-time">14:30</div>
+                  <div class="tl-dot-wrap"><span class="tl-dot waiting"></span></div>
+                  <div class="tl-info">
+                    <div class="cliente">Patrícia Nogueira</div>
+                    <div class="detalhe">Laser CO2 fracionado · Dra. Camila</div>
+                  </div>
+                  <div class="tl-tags"><span class="tag room">Sala de Laser</span><span class="tag status-waiting">Aguardando</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-stack">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>Faturamento — últimos 7 dias</h2>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="chart">
+                  <div class="bar-wrap"><span class="val">3.1k</span><div class="bar" style="height:58%"></div><span class="day-label">Qui</span></div>
+                  <div class="bar-wrap"><span class="val">2.8k</span><div class="bar" style="height:52%"></div><span class="day-label">Sex</span></div>
+                  <div class="bar-wrap"><span class="val">1.9k</span><div class="bar" style="height:36%"></div><span class="day-label">Sáb</span></div>
+                  <div class="bar-wrap"><span class="val">0</span><div class="bar" style="height:4%"></div><span class="day-label">Dom</span></div>
+                  <div class="bar-wrap"><span class="val">2.4k</span><div class="bar" style="height:45%"></div><span class="day-label">Seg</span></div>
+                  <div class="bar-wrap"><span class="val">3.6k</span><div class="bar" style="height:67%"></div><span class="day-label">Ter</span></div>
+                  <div class="bar-wrap"><span class="val">4.28k</span><div class="bar today" style="height:80%"></div><span class="day-label">Qua</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>Estoque crítico</h2>
+                  <div class="sub">3 itens abaixo do mínimo</div>
+                </div>
+                <a class="panel-link" href="#" id="linkReporEstoque">Repor tudo</a>
+              </div>
+              <div class="panel-body">
+                <div class="list-row">
+                  <div>
+                    <div class="li-name">Toxina botulínica 100U</div>
+                    <div class="li-sub">Mínimo: 5 unidades</div>
+                  </div>
+                  <span class="stock-qty critical">2 un.</span>
+                </div>
+                <div class="list-row">
+                  <div>
+                    <div class="li-name">Ácido hialurônico 1ml</div>
+                    <div class="li-sub">Mínimo: 8 unidades</div>
+                  </div>
+                  <span class="stock-qty critical">3 un.</span>
+                </div>
+                <div class="list-row">
+                  <div>
+                    <div class="li-name">Máscara pós-peeling</div>
+                    <div class="li-sub">Mínimo: 20 unidades</div>
+                  </div>
+                  <span class="stock-qty low">14 un.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>Lista de espera</h2>
+                  <div class="sub">Encaixe automático quando houver vaga</div>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="list-row">
+                  <div style="display:flex; align-items:center; gap:11px;">
+                    <span class="wait-avatar">LT</span>
+                    <div>
+                      <div class="li-name">Larissa Teixeira</div>
+                      <div class="li-sub">Botox · prefere manhã</div>
+                    </div>
+                  </div>
+                  <button class="pill-btn">Encaixar</button>
+                </div>
+                <div class="list-row">
+                  <div style="display:flex; align-items:center; gap:11px;">
+                    <span class="wait-avatar">RG</span>
+                    <div>
+                      <div class="li-name">Rafael Gomes</div>
+                      <div class="li-sub">Limpeza de pele · qualquer horário</div>
+                    </div>
+                  </div>
+                  <button class="pill-btn">Encaixar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CLIENTES ============ -->
+      <section class="view" data-view="clientes">
+        <div class="page-head">
+          <div class="eyebrow">Atendimento</div>
+          <h1>Clientes</h1>
+          <p>328 clientes cadastradas no Vitta Jardins. Toque em uma linha para abrir o prontuário completo.</p>
+        </div>
+        <div class="toolbar">
+          <div class="search-field">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input type="text" id="searchClientes" placeholder="Buscar por nome, telefone ou CPF">
+          </div>
+          <button class="btn ghost" id="btnFiltrarClientes">Filtrar</button>
+          <span class="result-counter" id="counterClientes"></span>
+          <button class="btn" id="btnNovaCliente">Nova cliente</button>
+        </div>
+        <div class="panel">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Cliente</th><th>Contato</th><th>Última visita</th><th>Pacote ativo</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><div class="cell-primary">Marina Costa</div><div class="cell-sub">Cliente desde 2022</div></td>
+                  <td>(11) 98221-4410</td>
+                  <td>Hoje, 09:00</td>
+                  <td>Limpeza facial · 4/10 sessões</td>
+                  <td><span class="status-chip ok">Em dia</span></td>
+                </tr>
+                <tr>
+                  <td><div class="cell-primary">Renata Alves</div><div class="cell-sub">Cliente desde 2021</div></td>
+                  <td>(11) 99110-2287</td>
+                  <td>Hoje, 10:00</td>
+                  <td>Peeling · 2/6 sessões</td>
+                  <td><span class="status-chip ok">Em dia</span></td>
+                </tr>
+                <tr>
+                  <td><div class="cell-primary">Juliana Prado</div><div class="cell-sub">Cliente desde 2023</div></td>
+                  <td>(11) 98833-7765</td>
+                  <td>Hoje, 11:30</td>
+                  <td>Plano recorrente Premium</td>
+                  <td><span class="status-chip ok">Em dia</span></td>
+                </tr>
+                <tr>
+                  <td><div class="cell-primary">Beatriz Lima</div><div class="cell-sub">Cliente desde 2020</div></td>
+                  <td>(11) 97744-9021</td>
+                  <td>Hoje, 12:15</td>
+                  <td>Drenagem · 6/8 sessões</td>
+                  <td><span class="status-chip warn">Pagamento pendente</span></td>
+                </tr>
+                <tr>
+                  <td><div class="cell-primary">Larissa Teixeira</div><div class="cell-sub">Cliente desde 2024</div></td>
+                  <td>(11) 96652-3398</td>
+                  <td>18 de junho</td>
+                  <td>Sem pacote ativo</td>
+                  <td><span class="status-chip crit">Fidelidade expirando</span></td>
+                </tr>
+                <tr>
+                  <td><div class="cell-primary">Patrícia Nogueira</div><div class="cell-sub">Cliente desde 2019</div></td>
+                  <td>(11) 98123-5567</td>
+                  <td>Hoje, 14:30</td>
+                  <td>Laser CO2 · 1/5 sessões</td>
+                  <td><span class="status-chip ok">Em dia</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- === PRONTUÁRIO MODAL === -->
+        <div class="pront-modal" id="prontModal">
+          <div class="pront-overlay" id="prontOverlay"></div>
+          <div class="pront-card">
+            <div class="pront-head">
+              <div class="pront-avatar" id="prontAvatar">MC</div>
+              <div class="pront-head-info">
+                <h2 id="prontName">Marina Costa</h2>
+                <div class="pront-meta" id="prontMeta">Cliente desde 2022 · CPF: ***.123.456-** · 34 anos</div>
+              </div>
+              <div class="pront-head-actions">
+                <button class="btn" style="padding:8px 14px;font-size:12.5px;" id="btnProntNovoAgenda">Novo agendamento</button>
+                <button class="pront-close" id="prontClose" aria-label="Fechar prontuário">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="pront-body">
+              <div class="pront-tabs">
+                <button class="pront-tab active" data-ptab="dados">Dados pessoais</button>
+                <button class="pront-tab" data-ptab="historico">Histórico</button>
+                <button class="pront-tab" data-ptab="pacotes">Pacotes</button>
+                <button class="pront-tab" data-ptab="anotacoes">Anotações</button>
+              </div>
+
+              <!-- DADOS PESSOAIS -->
+              <div class="pront-panel active" data-ppanel="dados">
+                <div class="pront-field"><span class="pf-label">Nome completo</span><span class="pf-value" id="pdNome">Marina Costa</span></div>
+                <div class="pront-field"><span class="pf-label">CPF</span><span class="pf-value" id="pdCpf">123.456.789-00</span></div>
+                <div class="pront-field"><span class="pf-label">Data de nasc.</span><span class="pf-value" id="pdNasc">15/03/1990 (34 anos)</span></div>
+                <div class="pront-field"><span class="pf-label">Telefone</span><span class="pf-value" id="pdTel">(11) 98221-4410</span></div>
+                <div class="pront-field"><span class="pf-label">Email</span><span class="pf-value" id="pdEmail">marina.costa@email.com</span></div>
+                <div class="pront-field"><span class="pf-label">Endereço</span><span class="pf-value" id="pdEnd">Rua Oscar Freire, 500 — Jardins, SP</span></div>
+                <div class="pront-field"><span class="pf-label">Cliente desde</span><span class="pf-value" id="pdDesde">Março de 2022</span></div>
+                <div class="pront-field"><span class="pf-label">Fidelidade</span><span class="pf-value" id="pdFid"><span class="status-chip ok" style="font-size:12px;">Nível Ouro · 320 pts</span></span></div>
+              </div>
+
+              <!-- HISTÓRICO -->
+              <div class="pront-panel" data-ppanel="historico">
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Data</th><th>Serviço</th><th>Profissional</th><th>Valor</th><th>Status</th></tr></thead>
+                    <tbody id="prontHistorico">
+                      <tr><td>30/06</td><td>Limpeza de pele profunda</td><td>Fernanda</td><td>R$ 180,00</td><td><span class="status-chip ok">Concluído</span></td></tr>
+                      <tr><td>15/06</td><td>Hidratação facial</td><td>Fernanda</td><td>R$ 120,00</td><td><span class="status-chip ok">Concluído</span></td></tr>
+                      <tr><td>02/06</td><td>Limpeza de pele</td><td>Fernanda</td><td>R$ 180,00</td><td><span class="status-chip ok">Concluído</span></td></tr>
+                      <tr><td>20/05</td><td>Peeling de diamante</td><td>Dra. Camila</td><td>R$ 250,00</td><td><span class="status-chip ok">Concluído</span></td></tr>
+                      <tr><td>10/05</td><td>Consulta avaliação</td><td>Dra. Camila</td><td>R$ 0,00</td><td><span class="status-chip ok">Concluído</span></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- PACOTES -->
+              <div class="pront-panel" data-ppanel="pacotes">
+                <div class="list-row">
+                  <div><div class="li-name">Limpeza facial</div><div class="li-sub">4 de 10 sessões utilizadas · Válido até 12/2026</div></div>
+                  <span class="stock-qty" style="color:var(--sage);">4/10</span>
+                </div>
+                <div class="list-row">
+                  <div><div class="li-name">Peeling de diamante</div><div class="li-sub">2 de 6 sessões utilizadas · Válido até 10/2026</div></div>
+                  <span class="stock-qty" style="color:var(--sage);">2/6</span>
+                </div>
+                <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+                  <div class="kpi-label" style="margin-bottom:8px;">Fidelidade</div>
+                  <div class="report-hbar">
+                    <div class="hb-row">
+                      <span class="hb-label">Bronze</span>
+                      <div class="hb-bar-wrap"><div class="hb-bar" style="width:100%;background:var(--gold-soft);"></div></div>
+                    </div>
+                    <div class="hb-row">
+                      <span class="hb-label">Prata</span>
+                      <div class="hb-bar-wrap"><div class="hb-bar" style="width:100%;background:var(--gold-soft);"></div></div>
+                    </div>
+                    <div class="hb-row">
+                      <span class="hb-label">Ouro</span>
+                      <div class="hb-bar-wrap"><div class="hb-bar" style="width:40%;background:var(--gold);"></div></div>
+                    </div>
+                    <div class="hb-row">
+                      <span class="hb-label">Platina</span>
+                      <div class="hb-bar-wrap"><div class="hb-bar" style="width:0%;"></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ANOTAÇÕES -->
+              <div class="pront-panel" data-ppanel="anotacoes">
+                <div class="pront-notes">
+                  <textarea placeholder="Adicionar anotação sobre a cliente…" id="prontNotas">Cliente prefere horários pela manhã. Alergia a ácido salicílico (anotado no prontuário físico). Já fez procedimentos com Dra. Camila e com Fernanda. Indicou 2 amigas que se tornaram clientes.</textarea>
+                </div>
+                <button class="btn" style="margin-top:14px;" id="btnProntSalvarAnotacao">Salvar anotação</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PRONTUÁRIO ELETRÔNICO ============ -->
+      <section class="view" data-view="prontuario">
+        <div class="page-head">
+          <div class="eyebrow">Atendimento</div>
+          <h1>Prontuário Eletrônico</h1>
+          <p>Histórico completo de procedimentos, pacotes e anotações por cliente. Selecione uma cliente abaixo para visualizar.</p>
+        </div>
+
+        <div class="toolbar">
+          <div class="search-field" style="max-width:320px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input type="text" id="prontSearchInput" placeholder="Buscar cliente…" autocomplete="off">
+          </div>
+          <select class="form-select" id="prontClientSelect" style="max-width:300px;">
+            <option value="">Selecione uma cliente…</option>
+            <option value="Marina Costa">Marina Costa</option>
+            <option value="Renata Alves">Renata Alves</option>
+            <option value="Juliana Prado">Juliana Prado</option>
+            <option value="Beatriz Lima">Beatriz Lima</option>
+            <option value="Larissa Teixeira">Larissa Teixeira</option>
+            <option value="Patrícia Nogueira">Patrícia Nogueira</option>
+          </select>
+        </div>
+
+        <!-- Estado vazio -->
+        <div class="panel" id="prontEmptyState" style="padding:60px 22px;text-align:center;color:var(--ink-faint);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;margin-bottom:14px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+          <div style="font-size:15px;font-weight:600;">Nenhuma cliente selecionada</div>
+          <div style="font-size:13px;margin-top:6px;">Use o campo de busca acima ou o dropdown para escolher uma cliente e visualizar o prontuário completo.</div>
+        </div>
+
+        <!-- Card do prontuário (aparece quando cliente selecionada) -->
+        <div id="prontViewContent" style="display:none;">
+          <div class="panel" style="overflow:visible;">
+            <div class="pront-head" style="padding:22px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;">
+              <div class="pront-avatar" id="pvAvatar">MC</div>
+              <div class="pront-head-info" style="flex:1;">
+                <h2 id="pvName" style="font-family:var(--font-display);font-size:20px;margin:0;">Marina Costa</h2>
+                <div class="pront-meta" id="pvMeta" style="font-size:13px;color:var(--ink-faint);margin-top:2px;">Cliente desde 2022 · CPF: ***.123.456-** · 34 anos</div>
+              </div>
+              <div class="pront-head-actions" style="display:flex;gap:8px;">
+                <button class="btn" style="padding:8px 14px;font-size:12.5px;" id="pvNovoAgenda">Novo agendamento</button>
+                <a class="btn ghost" style="padding:8px 14px;font-size:12.5px;text-decoration:none;" href="#" id="linkVerNaLista">Ver na lista</a>
+              </div>
+            </div>
+
+            <!-- Abas -->
+            <div class="pront-tabs" style="padding:0 24px;border-bottom:1px solid var(--border);">
+              <button class="pront-tab active" data-pvtab="dados">Dados pessoais</button>
+              <button class="pront-tab" data-pvtab="historico">Histórico</button>
+              <button class="pront-tab" data-pvtab="pacotes">Pacotes</button>
+              <button class="pront-tab" data-pvtab="anotacoes">Anotações</button>
+            </div>
+
+            <!-- DADOS PESSOAIS -->
+            <div class="pront-panel active" data-ppanel-v="dados" style="padding:20px 24px;">
+              <div class="pront-field"><span class="pf-label">Nome completo</span><span class="pf-value" id="pvNome">—</span></div>
+              <div class="pront-field"><span class="pf-label">CPF</span><span class="pf-value" id="pvCpf">—</span></div>
+              <div class="pront-field"><span class="pf-label">Data de nasc.</span><span class="pf-value" id="pvNasc">—</span></div>
+              <div class="pront-field"><span class="pf-label">Telefone</span><span class="pf-value" id="pvTel">—</span></div>
+              <div class="pront-field"><span class="pf-label">Email</span><span class="pf-value" id="pvEmail">—</span></div>
+              <div class="pront-field"><span class="pf-label">Endereço</span><span class="pf-value" id="pvEnd">—</span></div>
+              <div class="pront-field"><span class="pf-label">Cliente desde</span><span class="pf-value" id="pvDesde">—</span></div>
+              <div class="pront-field"><span class="pf-label">Fidelidade</span><span class="pf-value" id="pvFid">—</span></div>
+            </div>
+
+            <!-- HISTÓRICO -->
+            <div class="pront-panel" data-ppanel-v="historico" style="padding:20px 24px;display:none;">
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Data</th><th>Serviço</th><th>Profissional</th><th>Valor</th><th>Status</th></tr></thead>
+                  <tbody id="pvHistorico">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- PACOTES -->
+            <div class="pront-panel" data-ppanel-v="pacotes" style="padding:20px 24px;display:none;">
+              <div id="pvPacotes">
+                <div class="list-row">
+                  <div><div class="li-name">Limpeza facial</div><div class="li-sub">4 de 10 sessões utilizadas · Válido até 12/2026</div></div>
+                  <span class="stock-qty" style="color:var(--sage);">4/10</span>
+                </div>
+                <div class="list-row">
+                  <div><div class="li-name">Peeling de diamante</div><div class="li-sub">2 de 6 sessões utilizadas · Válido até 10/2026</div></div>
+                  <span class="stock-qty" style="color:var(--sage);">2/6</span>
+                </div>
+              </div>
+              <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+                <div class="kpi-label" style="margin-bottom:8px;">Fidelidade</div>
+                <div class="report-hbar" id="pvFidBars">
+                  <div class="hb-row">
+                    <span class="hb-label">Bronze</span>
+                    <div class="hb-bar-wrap"><div class="hb-bar" style="width:100%;background:var(--gold-soft);"></div></div>
+                  </div>
+                  <div class="hb-row">
+                    <span class="hb-label">Prata</span>
+                    <div class="hb-bar-wrap"><div class="hb-bar" style="width:100%;background:var(--gold-soft);"></div></div>
+                  </div>
+                  <div class="hb-row">
+                    <span class="hb-label">Ouro</span>
+                    <div class="hb-bar-wrap"><div class="hb-bar" style="width:40%;background:var(--gold);"></div></div>
+                  </div>
+                  <div class="hb-row">
+                    <span class="hb-label">Platina</span>
+                    <div class="hb-bar-wrap"><div class="hb-bar" style="width:0%;"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ANOTAÇÕES -->
+            <div class="pront-panel" data-ppanel-v="anotacoes" style="padding:20px 24px;display:none;">
+              <div class="pront-notes">
+                <textarea id="pvNotas" placeholder="Adicionar anotação sobre a cliente…" style="width:100%;min-height:120px;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--ink);font-family:inherit;font-size:13.5px;resize:vertical;"></textarea>
+              </div>
+              <button class="btn" style="margin-top:14px;" id="btnPvCopiarAnotacao">Copiar anotação</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ AGENDA ============ -->
+      <section class="view" data-view="agenda">
+        <div class="page-head">
+          <div class="eyebrow">Atendimento</div>
+          <h1>Agenda inteligente</h1>
+          <p>O sistema bloqueia automaticamente conflitos de sala, profissional e equipamento.</p>
+        </div>
+        <div class="toolbar">
+          <button class="btn ghost">Semana de 29 de jun a 4 de jul</button>
+          <div class="topbar-spacer"></div>
+          <button class="btn ghost">Ver por sala</button>
+          <button class="btn" id="btnNovoAgenda">Novo agendamento</button>
+        </div>
+        <div class="week-grid">
+          <div class="wg-head corner"></div>
+          <div class="wg-head">Seg 29</div>
+          <div class="wg-head">Ter 30</div>
+          <div class="wg-head">Qua 1</div>
+          <div class="wg-head">Qui 2</div>
+          <div class="wg-head">Sex 3</div>
+          <div class="wg-head">Sáb 4</div>
+
+          <div class="wg-time">09:00</div>
+          <div class="wg-cell"><div class="appt c1"><strong>Ana P.</strong>Limpeza</div></div>
+          <div class="wg-cell"><div class="appt c1"><strong>Marina C.</strong>Limpeza</div></div>
+          <div class="wg-cell"></div>
+          <div class="wg-cell"><div class="appt c2"><strong>Sofia R.</strong>Botox</div></div>
+          <div class="wg-cell"></div>
+          <div class="wg-cell"><div class="appt c1"><strong>Bia S.</strong>Drenagem</div></div>
+
+          <div class="wg-time">10:00</div>
+          <div class="wg-cell"></div>
+          <div class="wg-cell"><div class="appt c1"><strong>Renata A.</strong>Peeling</div></div>
+          <div class="wg-cell"><div class="appt c3"><strong>Laura M.</strong>Laser</div></div>
+          <div class="wg-cell"></div>
+          <div class="wg-cell"><div class="appt c1"><strong>Tais F.</strong>Limpeza</div></div>
+          <div class="wg-cell"></div>
+
+          <div class="wg-time">11:30</div>
+          <div class="wg-cell"><div class="appt c2"><strong>Carla D.</strong>Botox</div></div>
+          <div class="wg-cell"><div class="appt c2"><strong>Juliana P.</strong>Botox</div></div>
+          <div class="wg-cell"></div>
+          <div class="wg-cell"><div class="appt c1"><strong>Nina K.</strong>Micro.</div></div>
+          <div class="wg-cell"><div class="appt c3"><strong>Vera L.</strong>Laser</div></div>
+          <div class="wg-cell"></div>
+
+          <div class="wg-time">13:00</div>
+          <div class="wg-cell"><div class="appt c1"><strong>Elis M.</strong>Micro.</div></div>
+          <div class="wg-cell"><div class="appt c1"><strong>Camila F.</strong>Micro.</div></div>
+          <div class="wg-cell"><div class="appt c2"><strong>Duda A.</strong>Botox</div></div>
+          <div class="wg-cell"></div>
+          <div class="wg-cell"></div>
+          <div class="wg-cell"><div class="appt c1"><strong>Iris B.</strong>Peeling</div></div>
+
+          <div class="wg-time">14:30</div>
+          <div class="wg-cell"></div>
+          <div class="wg-cell"><div class="appt c3"><strong>Patrícia N.</strong>Laser</div></div>
+          <div class="wg-cell"></div>
+          <div class="wg-cell"><div class="appt c1"><strong>Sara T.</strong>Drenagem</div></div>
+          <div class="wg-cell"><div class="appt c2"><strong>Bruna O.</strong>Botox</div></div>
+          <div class="wg-cell"></div>
+        </div>
+      </section>
+
+      <!-- ============ FINANCEIRO ============ -->
+      <section class="view" data-view="financeiro">
+        <div class="page-head">
+          <div class="eyebrow">Gestão</div>
+          <h1>Financeiro</h1>
+          <p>Visão consolidada de entradas, saídas e comissões do Vitta Jardins em junho.</p>
+        </div>
+        <div class="toolbar">
+          <div class="search-field">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input type="text" id="searchFinanceiro" placeholder="Buscar transação">
+          </div>
+          <button class="btn ghost" id="btnFiltrarFinanceiro">Filtrar</button>
+          <span class="result-counter" id="counterFinanceiro"></span>
+          <button class="btn" id="btnNovaTransacao">Nova transação</button>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-label">Receita do mês</div>
+            <div class="kpi-value">R$ 86.420</div>
+            <div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>9% vs. maio</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Despesas do mês</div>
+            <div class="kpi-value">R$ 31.150</div>
+            <div class="kpi-delta down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>3% vs. maio</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Lucro líquido</div>
+            <div class="kpi-value">R$ 55.270</div>
+            <div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>14% vs. maio</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Comissões a pagar</div>
+            <div class="kpi-value">R$ 8.940</div>
+            <div class="kpi-delta down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>Fecha em 5 dias</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <div><h2>Últimas transações</h2></div>
+            <a class="panel-link" href="#" id="linkExportarExtrato">Exportar extrato</a>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Descrição</th><th>Categoria</th><th>Data</th><th>Valor</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td class="cell-primary">Sessão · Juliana Prado</td><td>Procedimento</td><td>30/06</td><td>R$ 890,00</td><td><span class="status-chip ok">Pago</span></td></tr>
+                <tr><td class="cell-primary">Compra de insumos · Distribuidora Bela Pele</td><td>Estoque</td><td>29/06</td><td>− R$ 2.340,00</td><td><span class="status-chip ok">Pago</span></td></tr>
+                <tr><td class="cell-primary">Sessão · Beatriz Lima</td><td>Procedimento</td><td>30/06</td><td>R$ 180,00</td><td><span class="status-chip warn">Pendente</span></td></tr>
+                <tr><td class="cell-primary">Comissão · Dra. Camila</td><td>Comissão</td><td>28/06</td><td>− R$ 1.120,00</td><td><span class="status-chip warn">A pagar</span></td></tr>
+                <tr><td class="cell-primary">Plano recorrente · Renata Alves</td><td>Assinatura</td><td>27/06</td><td>R$ 349,00</td><td><span class="status-chip ok">Pago</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ESTOQUE ============ -->
+      <section class="view" data-view="estoque">
+        <div class="page-head">
+          <div class="eyebrow">Operações</div>
+          <h1>Estoque</h1>
+          <p>Baixa automática a cada procedimento registrado. 3 itens precisam de reposição.</p>
+        </div>
+        <div class="toolbar">
+          <div class="search-field">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input type="text" id="searchEstoque" placeholder="Buscar item ou lote">
+          </div>
+          <button class="btn ghost" id="btnFiltrarEstoque">Categorias</button>
+          <span class="result-counter" id="counterEstoque"></span>
+          <button class="btn" id="btnRegistrarEntrada">Registrar entrada</button>
+        </div>
+        <div class="panel">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Item</th><th>Categoria</th><th>Quantidade</th><th>Mínimo</th><th>Status</th></tr></thead>
+              <tbody id="estoqueTbody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- === LOG DE ENTRADAS === -->
+        <div class="panel" style="margin-top:18px;">
+          <div class="panel-head">
+            <div>
+              <h2>Log de entradas</h2>
+              <div class="sub" id="entradasSub">Nenhuma entrada registrada ainda</div>
+            </div>
+            <span class="stock-qty" id="totalEntradas" style="font-size:13px;"></span>
+          </div>
+          <div class="table-wrap" id="entradasTableWrap" style="display:none;">
+            <table>
+              <thead><tr><th>Item</th><th>Quantidade</th><th>Valor unit.</th><th>Total</th><th>Fornecedor</th><th>Data</th><th>NF</th></tr></thead>
+              <tbody id="entradasTbody">
+              </tbody>
+            </table>
+          </div>
+          <div class="panel-body" id="entradasEmpty" style="padding:30px 22px; text-align:center; color:var(--ink-faint);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:32px;height:32px;margin-bottom:10px;"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v9l9 5 9-5V8M12 13v9"/></svg>
+            <div style="font-size:14px;">Nenhuma entrada registrada ainda.</div>
+            <div style="font-size:12.5px;margin-top:4px;">Use o botão "Registrar entrada" para adicionar itens ao estoque.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PDV ============ -->
+      <section class="view" data-view="pdv">
+        <div class="page-head">
+          <div class="eyebrow">Operações</div>
+          <h1>PDV — Ponto de venda</h1>
+          <p>Cobrança integrada ao prontuário: cada venda já desconta do estoque e credita fidelidade.</p>
+        </div>
+        <div class="pdv-grid">
+          <div>
+            <div class="toolbar">
+              <div class="search-field" style="max-width:100%;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                <input type="text" id="searchPdv" placeholder="Buscar produto ou serviço">
+              </div>
+              <span class="result-counter" id="counterPdv"></span>
+            </div>
+            <div class="product-grid">
+              <button class="product-card">
+                <div class="p-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s7-6.3 7-11.5A7 7 0 005 9.5C5 14.7 12 21 12 21z"/></svg></div>
+                <div class="p-name">Sérum vitamina C</div>
+                <div class="p-price">R$ 189,00</div>
+              </button>
+              <button class="product-card">
+                <div class="p-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+                <div class="p-name">Sessão de limpeza</div>
+                <div class="p-price">R$ 180,00</div>
+              </button>
+              <button class="product-card">
+                <div class="p-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.5 6.5L21 9l-5 4.5 1.5 7L12 17l-5.5 3.5 1.5-7L3 9l6.5-.5z"/></svg></div>
+                <div class="p-name">Toxina botulínica</div>
+                <div class="p-price">R$ 890,00</div>
+              </button>
+              <button class="product-card">
+                <div class="p-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="3"/></svg></div>
+                <div class="p-name">Protetor solar FPS 60</div>
+                <div class="p-price">R$ 96,00</div>
+              </button>
+              <button class="product-card">
+                <div class="p-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12h16M4 6h16M4 18h16"/></svg></div>
+                <div class="p-name">Pacote drenagem · 8x</div>
+                <div class="p-price">R$ 1.240,00</div>
+              </button>
+              <button class="product-card">
+                <div class="p-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg></div>
+                <div class="p-name">Plano recorrente Premium</div>
+                <div class="p-price">R$ 349,00 /mês</div>
+              </button>
+            </div>
+          </div>
+          <div class="cart-panel">
+            <h2 style="font-family:var(--font-display); font-size:17px; margin-bottom:14px;">Comanda — Juliana Prado</h2>
+            <div class="cart-item"><div><div class="ci-name">Toxina botulínica</div><div class="ci-qty">1 sessão</div></div><div>R$ 890,00</div></div>
+            <div class="cart-item"><div><div class="ci-name">Protetor solar FPS 60</div><div class="ci-qty">1 unidade</div></div><div>R$ 96,00</div></div>
+            <div class="cart-item"><div><div class="ci-name">Desconto fidelidade</div><div class="ci-qty">Nível ouro</div></div><div>− R$ 45,00</div></div>
+            <div class="cart-total-row"><span>Total</span><span class="val">R$ 941,00</span></div>
+            <button class="btn" id="btnFinalizarCobranca" style="width:100%; margin-top:16px;">Finalizar cobrança</button>
+            <button class="btn ghost" id="btnSalvarCarrinho" style="width:100%; margin-top:10px;">Salvar e continuar depois</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ RELATÓRIOS ============ -->
+      <section class="view" data-view="relatorios">
+        <div class="page-head">
+          <div class="eyebrow">Gestão</div>
+          <h1>Relatórios Operacionais</h1>
+          <p>Relatórios de agendamentos, faturamento e estoque com exportação em CSV e PDF.</p>
+        </div>
+        <div class="toolbar">
+          <button class="report-period-btn active">Hoje</button>
+          <button class="report-period-btn">Esta semana</button>
+          <button class="report-period-btn">Este mês</button>
+          <button class="report-period-btn">Personalizar</button>
+          <div class="topbar-spacer"></div>
+          <button class="btn ghost" id="exportCSV">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Exportar CSV
+          </button>
+          <button class="btn ghost" id="exportPDF">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+            Exportar PDF
+          </button>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-label">Agendamentos no período</div>
+            <div class="kpi-value">18</div>
+            <div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>3 encaixes</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Faturamento bruto</div>
+            <div class="kpi-value">R$ 4.280</div>
+            <div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>12% vs. período anterior</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Clientes atendidos</div>
+            <div class="kpi-value">14</div>
+            <div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>2 clientes novos</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Taxa de ocupação</div>
+            <div class="kpi-value">82%</div>
+            <div class="kpi-delta down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>Sala de Laser livre às 15h</div>
+          </div>
+        </div>
+        <div class="panel" style="margin-bottom:18px;">
+          <div class="panel-head">
+            <div>
+              <h2>Relatório de Agendamentos</h2>
+              <div class="sub">Todos os agendamentos do período, ordenados por data e horário</div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Cliente</th><th>Serviço</th><th>Profissional</th><th>Data</th><th>Horário</th><th>Valor</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td class="cell-primary">Marina Costa</td><td>Limpeza de pele profunda</td><td>Fernanda</td><td>30/06</td><td>09:00</td><td>R$ 180,00</td><td><span class="status-chip ok">Concluído</span></td></tr>
+                <tr><td class="cell-primary">Renata Alves</td><td>Peeling de diamante</td><td>Dra. Camila</td><td>30/06</td><td>10:00</td><td>R$ 250,00</td><td><span class="status-chip ok">Concluído</span></td></tr>
+                <tr><td class="cell-primary">Juliana Prado</td><td>Toxina botulínica</td><td>Dra. Camila</td><td>30/06</td><td>11:30</td><td>R$ 890,00</td><td><span class="status-chip warn">Em atendimento</span></td></tr>
+                <tr><td class="cell-primary">Beatriz Lima</td><td>Drenagem linfática</td><td>Fernanda</td><td>30/06</td><td>12:15</td><td>R$ 180,00</td><td><span class="status-chip crit">Atrasado</span></td></tr>
+                <tr><td class="cell-primary">Camila Ferreira</td><td>Microagulhamento</td><td>Dra. Camila</td><td>30/06</td><td>13:00</td><td>R$ 450,00</td><td><span class="status-chip">Aguardando</span></td></tr>
+                <tr><td class="cell-primary">Patrícia Nogueira</td><td>Laser CO2 fracionado</td><td>Dra. Camila</td><td>30/06</td><td>14:30</td><td>R$ 1.200,00</td><td><span class="status-chip">Aguardando</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="report-grid">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Relatório de Faturamento</h2>
+                <div class="sub">Detalhamento de receitas do período</div>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Descrição</th><th>Categoria</th><th>Data</th><th>Valor</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td class="cell-primary">Sessão · Juliana Prado</td><td>Procedimento</td><td>30/06</td><td>R$ 890,00</td><td><span class="status-chip ok">Pago</span></td></tr>
+                  <tr><td class="cell-primary">Sessão · Marina Costa</td><td>Procedimento</td><td>30/06</td><td>R$ 180,00</td><td><span class="status-chip ok">Pago</span></td></tr>
+                  <tr><td class="cell-primary">Sessão · Renata Alves</td><td>Procedimento</td><td>30/06</td><td>R$ 250,00</td><td><span class="status-chip ok">Pago</span></td></tr>
+                  <tr><td class="cell-primary">Sessão · Beatriz Lima</td><td>Procedimento</td><td>30/06</td><td>R$ 180,00</td><td><span class="status-chip warn">Pendente</span></td></tr>
+                  <tr><td class="cell-primary">Venda · Protetor solar FPS 60</td><td>Produto</td><td>30/06</td><td>R$ 96,00</td><td><span class="status-chip ok">Pago</span></td></tr>
+                  <tr><td class="cell-primary">Plano recorrente · Renata Alves</td><td>Assinatura</td><td>27/06</td><td>R$ 349,00</td><td><span class="status-chip ok">Pago</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Relatório de Estoque</h2>
+                <div class="sub">Itens com quantidade atual e mínima</div>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Item</th><th>Categoria</th><th>Quantidade</th><th>Mínimo</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td class="cell-primary">Toxina botulínica 100U</td><td>Injetáveis</td><td>2 un.</td><td>5 un.</td><td><span class="status-chip crit">Crítico</span></td></tr>
+                  <tr><td class="cell-primary">Ácido hialurônico 1ml</td><td>Injetáveis</td><td>3 un.</td><td>8 un.</td><td><span class="status-chip crit">Crítico</span></td></tr>
+                  <tr><td class="cell-primary">Máscara pós-peeling</td><td>Descartáveis</td><td>14 un.</td><td>20 un.</td><td><span class="status-chip warn">Baixo</span></td></tr>
+                  <tr><td class="cell-primary">Sérum vitamina C 30ml</td><td>Cosméticos</td><td>42 un.</td><td>15 un.</td><td><span class="status-chip ok">Normal</span></td></tr>
+                  <tr><td class="cell-primary">Luvas de nitrilo (cx.)</td><td>Descartáveis</td><td>58 cx.</td><td>20 cx.</td><td><span class="status-chip ok">Normal</span></td></tr>
+                  <tr><td class="cell-primary">Ponteira de laser CO2</td><td>Equipamentos</td><td>6 un.</td><td>4 un.</td><td><span class="status-chip ok">Normal</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CONFIGURAÇÕES ============ -->
+      <section class="view" data-view="configuracoes">
+        <div class="page-head">
+          <div class="eyebrow">Gestão</div>
+          <h1>Configurações</h1>
+          <p>Gerencie unidades, equipe, integrações e preferências do sistema.</p>
+        </div>
+        <div class="settings-layout">
+          <div class="settings-tabs" id="settingsTabs">
+            <button class="settings-tab active" data-settings="unidade">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              Unidade
+            </button>
+            <button class="settings-tab" data-settings="equipe">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+              Equipe
+            </button>
+            <button class="settings-tab" data-settings="integracoes">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+              Integrações
+            </button>
+            <button class="settings-tab" data-settings="notificacoes">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+              Notificações
+            </button>
+            <button class="settings-tab" data-settings="aparencia">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+              Aparência
+            </button>
+            <button class="settings-tab" data-settings="multiunidade">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              Multiunidade
+            </button>
+            <button class="settings-tab" data-settings="agendamento-publico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+              Agendamento Público
+            </button>
+          </div>
+
+          <div class="settings-content">
+            <!-- UNIDADE -->
+            <div class="settings-section active" data-settings-panel="unidade">
+              <h3>Dados da Unidade</h3>
+              <div class="sub">Informações cadastrais do Centro Vitta — Unidade Jardins</div>
+              <div class="settings-row">
+                <div class="form-group">
+                  <label>Nome da unidade</label>
+                  <input class="form-input" type="text" value="Centro Vitta — Unidade Jardins">
+                </div>
+                <div class="form-group">
+                  <label>CNPJ</label>
+                  <input class="form-input" type="text" value="12.345.678/0001-90">
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="form-group">
+                  <label>Endereço</label>
+                  <input class="form-input" type="text" value="Av. Paulista, 1.234 — Jardins">
+                </div>
+                <div class="form-group">
+                  <label>Cidade / UF</label>
+                  <input class="form-input" type="text" value="São Paulo — SP">
+                </div>
+              </div>
+              <div class="settings-row three">
+                <div class="form-group">
+                  <label>Telefone</label>
+                  <input class="form-input" type="text" value="(11) 99999-8888">
+                </div>
+                <div class="form-group">
+                  <label>WhatsApp</label>
+                  <input class="form-input" type="text" value="(11) 98888-7777">
+                </div>
+                <div class="form-group">
+                  <label>Email</label>
+                  <input class="form-input" type="text" value="contato@vittajardins.com.br">
+                </div>
+              </div>
+              <div style="margin-top:16px;">
+                <button class="btn" id="btnSalvarConfigUnidade">Salvar alterações</button>
+              </div>
+            </div>
+
+            <!-- EQUIPE -->
+            <div class="settings-section" data-settings-panel="equipe" style="display:none;">
+              <h3>Equipe</h3>
+              <div class="sub">Profissionais e colaboradores cadastrados na unidade</div>
+              <div class="toolbar" style="margin-bottom:16px;">
+                <div class="search-field" style="max-width:240px;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                  <input type="text" id="searchEquipe" placeholder="Buscar membro">
+                </div>
+                <span class="result-counter" id="counterEquipe"></span>
+                <button class="btn" id="btnNovoMembro">+ Novo membro</button>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Nome</th><th>Cargo</th><th>Email</th><th>Telefone</th><th>Status</th></tr></thead>
+                  <tbody>
+                    <tr><td class="cell-primary">Ana Souza</td><td>Recepcionista</td><td>ana@vitta.com</td><td>(11) 97777-1111</td><td><span class="status-chip ok">Ativo</span></td></tr>
+                    <tr><td class="cell-primary">Dra. Camila</td><td>Médica</td><td>camila@vitta.com</td><td>(11) 97777-2222</td><td><span class="status-chip ok">Ativo</span></td></tr>
+                    <tr><td class="cell-primary">Fernanda</td><td>Esteticista</td><td>fernanda@vitta.com</td><td>(11) 97777-3333</td><td><span class="status-chip ok">Ativo</span></td></tr>
+                    <tr><td class="cell-primary">Carlos</td><td>Massoterapeuta</td><td>carlos@vitta.com</td><td>(11) 97777-4444</td><td><span class="status-chip warn">Férias</span></td></tr>
+                    <tr><td class="cell-primary">Julia</td><td>Maquiadora</td><td>julia@vitta.com</td><td>(11) 97777-5555</td><td><span class="status-chip ok">Ativo</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- INTEGRAÇÕES -->
+            <div class="settings-section" data-settings-panel="integracoes" style="display:none;">
+              <h3>Integrações</h3>
+              <div class="sub">Conecte o Fusion a outros serviços e plataformas</div>
+              <div class="int-card">
+                <div class="int-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+                </div>
+                <div class="int-info">
+                  <div class="int-name">WhatsApp</div>
+                  <div class="int-desc">Envio automático de confirmações e lembretes de agendamento</div>
+                </div>
+                <span class="status-chip ok" style="font-size:11px;">Conectado</span>
+              </div>
+              <div class="int-card">
+                <div class="int-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 006 0v-1a10 10 0 10-3.92 7.94"/></svg>
+                </div>
+                <div class="int-info">
+                  <div class="int-name">Email</div>
+                  <div class="int-desc">Notificações por email para clientes e equipe</div>
+                </div>
+                <span class="status-chip ok" style="font-size:11px;">Configurado</span>
+              </div>
+              <div class="int-card">
+                <div class="int-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                </div>
+                <div class="int-info">
+                  <div class="int-name">Supabase</div>
+                  <div class="int-desc">Banco de dados e autenticação em nuvem</div>
+                </div>
+                <button class="btn ghost" style="font-size:11px;padding:5px 10px;">Configurar</button>
+              </div>
+            </div>
+
+            <!-- NOTIFICAÇÕES -->
+            <div class="settings-section" data-settings-panel="notificacoes" style="display:none;">
+              <h3>Notificações</h3>
+              <div class="sub">Configure quais notificações o sistema deve enviar</div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-name">Confirmação de agendamento</div>
+                  <div class="toggle-desc">Enviar WhatsApp automaticamente ao agendar</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-name">Lembrete 24h antes</div>
+                  <div class="toggle-desc">Lembrar cliente do agendamento um dia antes</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-name">Notificação de atraso</div>
+                  <div class="toggle-desc">Avisar recepção quando cliente atrasar 15+ min</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-name">Alerta de estoque crítico</div>
+                  <div class="toggle-desc">Notificar quando item estiver abaixo do mínimo</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-name">Relatório semanal</div>
+                  <div class="toggle-desc">Receber resumo de desempenho toda segunda</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <!-- APARÊNCIA -->
+            <div class="settings-section" data-settings-panel="aparencia" style="display:none;">
+              <h3>Aparência</h3>
+              <div class="sub">Personalize a aparência do sistema</div>
+              <div style="display:flex;gap:16px;margin-bottom:20px;">
+                <button class="btn" id="btnTemaEscuro">Alternar para tema escuro</button>
+                <button class="btn ghost" id="btnTemaClaro">Alternar para tema claro</button>
+              </div>
+              <div style="border-top:1px solid var(--border);padding-top:20px;">
+                <h3 style="margin-bottom:12px;">Auditoria</h3>
+                <div class="sub">Últimas atividades registradas no sistema</div>
+                <div class="audit-item">
+                  <span class="audit-dot login"></span>
+                  <div class="audit-info">
+                    <div class="audit-action">Ana Souza fez login</div>
+                    <div class="audit-detail">Hoje às 08:32 · IP 192.168.1.100</div>
+                  </div>
+                </div>
+                <div class="audit-item">
+                  <span class="audit-dot create"></span>
+                  <div class="audit-info">
+                    <div class="audit-action">Novo agendamento criado</div>
+                    <div class="audit-detail">Marina Costa · Limpeza de pele · Hoje às 08:45</div>
+                  </div>
+                </div>
+                <div class="audit-item">
+                  <span class="audit-dot update"></span>
+                  <div class="audit-info">
+                    <div class="audit-action">Cadastro de cliente atualizado</div>
+                    <div class="audit-detail">Patrícia Nogueira · Telefone alterado · Ontem às 17:20</div>
+                  </div>
+                </div>
+                <div class="audit-item">
+                  <span class="audit-dot delete"></span>
+                  <div class="audit-info">
+                    <div class="audit-action">Agendamento cancelado</div>
+                    <div class="audit-detail">Larissa Teixeira · Botox · Ontem às 15:10</div>
+                  </div>
+                </div>
+                <div class="audit-item">
+                  <span class="audit-dot view"></span>
+                  <div class="audit-info">
+                    <div class="audit-action">Relatório exportado</div>
+                    <div class="audit-detail">Relatório de faturamento · CSV · Ontem às 14:00</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- MULTIUNIDADE -->
+            <div class="settings-section" data-settings-panel="multiunidade" style="display:none;">
+              <h3>Multiunidade</h3>
+              <div class="sub">Gerencie as unidades do Centro Vitta</div>
+              <div class="toolbar" style="margin-bottom:16px;">
+                <button class="btn" id="btnNovaUnidade">+ Nova unidade</button>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Unidade</th><th>Endereço</th><th>Telefone</th><th>Status</th><th>Clientes</th><th></th></tr></thead>
+                  <tbody>
+                    <tr><td class="cell-primary">Centro Vitta — Jardins</td><td>Av. Paulista, 1.234</td><td>(11) 99999-8888</td><td><span class="status-chip ok">Ativa</span></td><td>328</td><td><button class="btn ghost" style="font-size:11px;padding:4px 10px;">Gerenciar</button></td></tr>
+                    <tr><td class="cell-primary">Centro Vitta — Moema</td><td>Av. Ibirapuera, 3.500</td><td>(11) 97777-6666</td><td><span class="status-chip ok">Ativa</span></td><td>187</td><td><button class="btn ghost" style="font-size:11px;padding:4px 10px;">Gerenciar</button></td></tr>
+                    <tr><td class="cell-primary">Centro Vitta — Pinheiros</td><td>Rua dos Pinheiros, 500</td><td>(11) 96666-5555</td><td><span class="status-chip warn">Configurando</span></td><td>0</td><td><button class="btn ghost" style="font-size:11px;padding:4px 10px;">Continuar</button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- AGENDAMENTO PÚBLICO -->
+            <div class="settings-section" data-settings-panel="agendamento-publico" style="display:none;">
+              <h3>Agendamento Público</h3>
+              <div class="sub">Permita que clientes agendem online sem precisar ligar</div>
+              <div class="int-card">
+                <div class="int-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 3v3M16 3v3"/></svg></div>
+                <div class="int-info">
+                  <div class="int-name">Link público de agendamento</div>
+                  <div class="int-desc">Compartilhe este link com suas clientes para agendamento online</div>
+                </div>
+                <button class="btn ghost" id="btnCopiarLink" style="font-size:11px;padding:5px 10px;">Copiar link</button>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-name">Agendamento público ativo</div>
+                  <div class="toggle-desc">Clientes podem agendar sem estar logadas</div>
+                </div>
+                <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-name">Limitar por profissional</div>
+                  <div class="toggle-desc">Clientes escolhem o profissional ao agendar</div>
+                </div>
+                <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-name">Agendamento com depósito</div>
+                  <div class="toggle-desc">Exigir depósito de 50% para confirmar</div>
+                </div>
+                <label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ FILA DE ATENDIMENTO ============ -->
+      <section class="view" data-view="fila-atendimento">
+        <div class="page-head">
+          <div class="eyebrow">Atendimento</div>
+          <h1>Fila de Atendimento</h1>
+          <p>Acompanhamento em tempo real de todos os atendimentos de hoje. Status, sala e profissional atualizados automaticamente.</p>
+        </div>
+        <div class="toolbar">
+          <button class="report-period-btn active">Agora</button>
+          <button class="report-period-btn">Próximas 2h</button>
+          <button class="report-period-btn">Manhã</button>
+          <button class="report-period-btn">Tarde</button>
+          <div class="topbar-spacer"></div>
+          <button class="btn ghost">Ver timeline completa</button>
+        </div>
+        <div class="dash-grid">
+          <div class="panel" style="grid-column:1/-1;">
+            <div class="panel-head">
+              <div><h2>Sessões de hoje</h2><div class="sub">Ordenado por horário — 6 sessões programadas</div></div>
+              <span class="stock-qty ok">3 concluídas · 1 em andamento</span>
+            </div>
+            <div class="panel-body">
+              <div class="timeline" id="filaTimeline">
+                <!-- Renderizado dinamicamente por assets/js/views/fila-atendimento.js -->
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ GESTÃO DE SALAS ============ -->
+      <section class="view" data-view="salas">
+        <div class="page-head">
+          <div class="eyebrow">Operações</div>
+          <h1>Gestão de Salas</h1>
+          <p>Gerencie salas, equipamentos e acompanhe a ocupação em tempo real. 5 salas cadastradas.</p>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-card"><div class="kpi-label">Total de salas</div><div class="kpi-value">5</div><div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>3 em uso agora</div></div>
+          <div class="kpi-card"><div class="kpi-label">Taxa de ocupação</div><div class="kpi-value">82%</div><div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>5% acima da semana passada</div></div>
+          <div class="kpi-card"><div class="kpi-label">Disponível agora</div><div class="kpi-value">2</div><div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>Sala 3 e Sala Laser livres</div></div>
+          <div class="kpi-card"><div class="kpi-label">Manutenção pendente</div><div class="kpi-value">1</div><div class="kpi-delta down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>Equipamento Laser</div></div>
+        </div>
+        <div class="toolbar">
+          <div class="search-field" style="max-width:240px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="searchSalas" placeholder="Buscar sala"></div>
+          <button class="btn ghost" id="btnFiltrarSalas">Filtrar</button>
+          <span class="result-counter" id="counterSalas"></span>
+          <button class="btn" id="btnNovaSala">Nova sala</button>
+        </div>
+        <div class="report-grid" id="roomsGrid">
+          <!-- Renderizado dinamicamente por assets/js/views/salas.js -->
+        </div>
+        </div>
+      </section>
+
+      <!-- ============ PACOTES DE SESSÕES ============ -->
+      <section class="view" data-view="pacotes">
+        <div class="page-head">
+          <div class="eyebrow">Operações</div>
+          <h1>Pacotes de Sessões</h1>
+          <p>Crie e gerencie pacotes de sessões. Pacotes ativos aparecem automaticamente no prontuário da cliente.</p>
+        </div>
+        <div class="toolbar">
+          <button class="report-period-btn active">Ativos</button>
+          <button class="report-period-btn">Expirados</button>
+          <button class="report-period-btn">Promoções</button>
+          <div class="topbar-spacer"></div>
+          <button class="btn" id="btnNovoPacote">+ Novo pacote</button>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-card"><div class="kpi-label">Pacotes ativos</div><div class="kpi-value">42</div><div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>4 novos este mês</div></div>
+          <div class="kpi-card"><div class="kpi-label">Sessões disponíveis</div><div class="kpi-value">187</div><div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>23 a expirar em 30 dias</div></div>
+          <div class="kpi-card"><div class="kpi-label">Receita em pacotes</div><div class="kpi-value">R$ 34.280</div><div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>18% do faturamento</div></div>
+          <div class="kpi-card"><div class="kpi-label">Ticket médio pacote</div><div class="kpi-value">R$ 816</div><div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>7% acima da meta</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Pacotes cadastrados</h2><div class="sub">Gerencie serviços, sessões, validade e preço</div></div></div>
+          <div class="table-wrap">
+            <table><thead><tr><th>Pacote</th><th>Serviço</th><th>Sessões</th><th>Valor</th><th>Validade</th><th>Ativos</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td class="cell-primary">Limpeza facial</td><td>Limpeza de pele</td><td>10</td><td>R$ 1.600,00</td><td>12 meses</td><td>12</td><td><span class="status-chip ok">Ativo</span></td></tr>
+                <tr><td class="cell-primary">Peeling de diamante</td><td>Peeling de diamante</td><td>6</td><td>R$ 1.350,00</td><td>12 meses</td><td>8</td><td><span class="status-chip ok">Ativo</span></td></tr>
+                <tr><td class="cell-primary">Drenagem linfática</td><td>Drenagem linfática</td><td>8</td><td>R$ 1.280,00</td><td>12 meses</td><td>6</td><td><span class="status-chip ok">Ativo</span></td></tr>
+                <tr><td class="cell-primary">Laser CO2</td><td>Laser CO2 fracionado</td><td>5</td><td>R$ 5.400,00</td><td>18 meses</td><td>4</td><td><span class="status-chip ok">Ativo</span></td></tr>
+                <tr><td class="cell-primary">Microagulhamento</td><td>Microagulhamento</td><td>4</td><td>R$ 1.600,00</td><td>12 meses</td><td>2</td><td><span class="status-chip ok">Ativo</span></td></tr>
+                <tr><td class="cell-primary">Promoção Verão</td><td>Limpeza + Peeling</td><td>3</td><td>R$ 540,00</td><td>6 meses</td><td>10</td><td><span class="status-chip warn">Promoção</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ FIDELIDADE ============ -->
+      <section class="view" data-view="fidelidade">
+        <div class="page-head">
+          <div class="eyebrow">Relacionamento</div>
+          <h1>Programa de Fidelidade</h1>
+          <p>Recompense clientes frequentes. A cada R$ 1 gasto, a cliente acumula 1 ponto e sobe de nível.</p>
+        </div>
+        <div class="toolbar">
+          <div class="search-field" style="max-width:240px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input type="text" id="searchFidelidade" placeholder="Buscar cliente…">
+          </div>
+          <button class="btn ghost" id="btnFiltrarFidelidade">Filtrar nível</button>
+          <span class="result-counter" id="counterFidelidade"></span>
+          <button class="btn" id="btnAddPontos">+ Adicionar pontos</button>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-card"><div class="kpi-label">Total de pontos ativos</div><div class="kpi-value">18.420</div><div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>Média: 78 pts/cliente</div></div>
+          <div class="kpi-card"><div class="kpi-label">Clientes no programa</div><div class="kpi-value">236</div><div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>72% das clientes ativas</div></div>
+          <div class="kpi-card"><div class="kpi-label">Resgate este mês</div><div class="kpi-value">3.240</div><div class="kpi-delta down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>12 resgates realizados</div></div>
+          <div class="kpi-card"><div class="kpi-label">Ticket fidelidade</div><div class="kpi-value">R$ 312</div><div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>31% > ticket médio</div></div>
+        </div>
+        <div class="report-grid">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Níveis de Fidelidade</h2><div class="sub">Distribuição das clientes por nível</div></div></div>
+            <div class="panel-body">
+              <div class="report-hbar">
+                <div class="hb-row"><span class="hb-label">Bronze (0-99 pts)</span><div class="hb-bar-wrap"><div class="hb-bar" style="width:100%;background:var(--gold-soft);"></div></div><span class="hb-value">82</span></div>
+                <div class="hb-row"><span class="hb-label">Prata (100-299 pts)</span><div class="hb-bar-wrap"><div class="hb-bar" style="width:65%;background:var(--gold-soft);"></div></div><span class="hb-value">68</span></div>
+                <div class="hb-row"><span class="hb-label">Ouro (300-599 pts)</span><div class="hb-bar-wrap"><div class="hb-bar" style="width:40%;background:var(--gold);"></div></div><span class="hb-value">52</span></div>
+                <div class="hb-row"><span class="hb-label">Platina (600-999 pts)</span><div class="hb-bar-wrap"><div class="hb-bar" style="width:22%;background:var(--gold);"></div></div><span class="hb-value">28</span></div>
+                <div class="hb-row"><span class="hb-label">Diamante (1000+ pts)</span><div class="hb-bar-wrap"><div class="hb-bar" style="width:8%;background:var(--brand);"></div></div><span class="hb-value">6</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h2>Top Clientes</h2><div class="sub">Maiores pontuações do mês</div></div></div>
+            <div class="table-wrap">
+              <table><thead><tr><th>Cliente</th><th>Nível</th><th>Pontos</th><th>Última visita</th></tr></thead>
+                <tbody>
+                  <tr><td class="cell-primary">Patrícia Nogueira</td><td><span class="status-chip ok">Diamante</span></td><td>1.050</td><td>Hoje, 14:30</td></tr>
+                  <tr><td class="cell-primary">Beatriz Lima</td><td><span class="status-chip ok">Platina</span></td><td>620</td><td>Hoje, 12:15</td></tr>
+                  <tr><td class="cell-primary">Juliana Prado</td><td><span class="status-chip ok">Ouro</span></td><td>350</td><td>Hoje, 11:30</td></tr>
+                  <tr><td class="cell-primary">Marina Costa</td><td><span class="status-chip ok">Ouro</span></td><td>320</td><td>Hoje, 09:00</td></tr>
+                  <tr><td class="cell-primary">Renata Alves</td><td><span class="status-chip warn">Prata</span></td><td>180</td><td>Hoje, 10:00</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PLANOS RECORRENTES ============ -->
+      <section class="view" data-view="planos-recorrentes">
+        <div class="page-head">
+          <div class="eyebrow">Relacionamento</div>
+          <h1>Planos Recorrentes</h1>
+          <p>Assinaturas mensais com benefícios exclusivos. Receita previsível todo mês.</p>
+        </div>
+        <div class="toolbar">
+          <button class="report-period-btn active">Ativos</button>
+          <button class="report-period-btn">Cancelados</button>
+          <div class="topbar-spacer"></div>
+          <button class="btn" id="btnNovoPlano">+ Novo plano</button>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-card"><div class="kpi-label">Assinantes ativos</div><div class="kpi-value">38</div><div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>+3 este mês</div></div>
+          <div class="kpi-card"><div class="kpi-label">Receita recorrente (MRR)</div><div class="kpi-value">R$ 9.862</div><div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>11% do faturamento</div></div>
+          <div class="kpi-card"><div class="kpi-label">Taxa de retenção</div><div class="kpi-value">94%</div><div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>Acima da média do setor</div></div>
+          <div class="kpi-card"><div class="kpi-label">Cancelamentos</div><div class="kpi-value">2</div><div class="kpi-delta down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>5% churn rate</div></div>
+        </div>
+        <div class="product-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:18px;">
+          <div class="product-card" style="border-color:var(--gold);">
+            <span class="status-chip ok" style="margin-bottom:10px;">Mais popular</span>
+            <div class="p-name" style="font-size:17px;margin-bottom:4px;">Plano Premium</div>
+            <div class="p-price" style="font-size:22px;font-weight:700;color:var(--ink);">R$ 349<small style="font-size:13px;font-weight:400;color:var(--ink-faint);">/mês</small></div>
+            <div style="margin-top:12px;font-size:13px;color:var(--ink-soft);">1 sessão de limpeza de pele · 20% off em procedimentos · 2x pontos fidelidade · Prioridade na agenda</div>
+            <div style="margin-top:12px;font-size:12px;color:var(--ink-faint);">22 assinantes ativos</div>
+          </div>
+          <div class="product-card">
+            <div class="p-name" style="font-size:17px;margin-bottom:4px;">Plano Essencial</div>
+            <div class="p-price" style="font-size:22px;font-weight:700;color:var(--ink);">R$ 149<small style="font-size:13px;font-weight:400;color:var(--ink-faint);">/mês</small></div>
+            <div style="margin-top:12px;font-size:13px;color:var(--ink-soft);">1 sessão de massagem · 10% off em produtos · 1.5x pontos fidelidade</div>
+            <div style="margin-top:12px;font-size:12px;color:var(--ink-faint);">12 assinantes ativos</div>
+          </div>
+          <div class="product-card">
+            <div class="p-name" style="font-size:17px;margin-bottom:4px;">Plano VIP</div>
+            <div class="p-price" style="font-size:22px;font-weight:700;color:var(--ink);">R$ 599<small style="font-size:13px;font-weight:400;color:var(--ink-faint);">/mês</small></div>
+            <div style="margin-top:12px;font-size:13px;color:var(--ink-soft);">2 sessões mensais · 30% off em procedimentos · 3x pontos · Agendamento prioritário · Brinde mensal</div>
+            <div style="margin-top:12px;font-size:12px;color:var(--ink-faint);">4 assinantes ativos</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ LISTA DE ESPERA ============ -->
+      <section class="view" data-view="lista-espera">
+        <div class="page-head">
+          <div class="eyebrow">Relacionamento</div>
+          <h1>Lista de Espera</h1>
+          <p>Clientes aguardando encaixe. O sistema sugere automaticamente a melhor vaga disponível.</p>
+        </div>
+        <div class="toolbar">
+          <div class="search-field" style="max-width:240px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="searchListaEspera" placeholder="Buscar na lista"></div>
+          <span class="result-counter" id="counterListaEspera"></span>
+          <button class="report-period-btn active">Todos</button>
+          <button class="report-period-btn">Manhã</button>
+          <button class="report-period-btn">Tarde</button>
+          <div class="topbar-spacer"></div>
+          <button class="btn" id="btnAdicionarLista">Adicionar à lista</button>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><h2>Esperando encaixe</h2><div class="sub">8 clientes na fila de espera</div></div><span class="stock-qty" style="color:var(--sage);">Tempo médio: 1,5 dias</span></div>
+          <div class="table-wrap">
+            <table><thead><tr><th>Cliente</th><th>Serviço desejado</th><th>Preferência</th><th>Na lista desde</th><th>Tempo</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><div class="cell-primary">Larissa Teixeira</div><div class="cell-sub">LT · (11) 96652-3398</div></td><td>Toxina botulínica</td><td>Manhã</td><td>28/06</td><td><span class="status-chip crit">3 dias</span></td><td><button class="pill-btn encaixar-btn">Encaixar</button></td></tr>
+                <tr><td><div class="cell-primary">Rafael Gomes</div><div class="cell-sub">RG · (11) 95551-2222</div></td><td>Limpeza de pele</td><td>Qualquer horário</td><td>29/06</td><td><span class="status-chip warn">2 dias</span></td><td><button class="pill-btn encaixar-btn">Encaixar</button></td></tr>
+                <tr><td><div class="cell-primary">Sofia Ribeiro</div><div class="cell-sub">SR · (11) 94443-3333</div></td><td>Massagem relaxante</td><td>Tarde</td><td>29/06</td><td><span class="status-chip warn">2 dias</span></td><td><button class="pill-btn encaixar-btn">Encaixar</button></td></tr>
+                <tr><td><div class="cell-primary">Tais Ferreira</div><div class="cell-sub">TF · (11) 93332-4444</div></td><td>Peeling de diamante</td><td>Manhã</td><td>30/06</td><td><span class="status-chip ok">1 dia</span></td><td><button class="pill-btn encaixar-btn">Encaixar</button></td></tr>
+                <tr><td><div class="cell-primary">Bianca Oliveira</div><div class="cell-sub">BO · (11) 92221-5555</div></td><td>Drenagem linfática</td><td>Qualquer</td><td>Hoje</td><td><span class="status-chip ok">Hoje</span></td><td><button class="pill-btn encaixar-btn">Encaixar</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ BI (BUSINESS INTELLIGENCE) ============ -->
+      <section class="view" data-view="bi">
+        <div class="page-head">
+          <div class="eyebrow">Inteligência</div>
+          <h1>Business Intelligence</h1>
+          <p>Indicadores estratégicos, tendências e análises avançadas para tomada de decisão.</p>
+        </div>
+        <div class="toolbar">
+          <button class="report-period-btn active">Este mês</button>
+          <button class="report-period-btn">Trimestre</button>
+          <button class="report-period-btn">Ano</button>
+          <button class="report-period-btn">Comparar</button>
+          <div class="topbar-spacer"></div>
+          <button class="btn ghost" id="biExportCSV">Exportar dados</button>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-card"><div class="kpi-label">Receita total</div><div class="kpi-value">R$ 86.420</div><div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>+12,5% vs mês anterior</div></div>
+          <div class="kpi-card"><div class="kpi-label">Ticket médio</div><div class="kpi-value">R$ 238</div><div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>+8,3%</div></div>
+          <div class="kpi-card"><div class="kpi-label">Clientes ativas</div><div class="kpi-value">328</div><div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>+12 este mês</div></div>
+          <div class="kpi-card"><div class="kpi-label">Sessões realizadas</div><div class="kpi-value">362</div><div class="kpi-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 15l6-6 6 6"/></svg>+8% vs mês anterior</div></div>
+        </div>
+        <div class="report-grid">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Receita vs Meta</h2><div class="sub">Comparativo mensal de faturamento</div></div></div>
+            <div class="panel-body">
+              <div class="report-chart">
+                <div class="rc-bar-wrap"><span class="rc-val">28,5k</span><div class="rc-bar" style="height:69%;"></div><span class="rc-label">Jan</span></div>
+                <div class="rc-bar-wrap"><span class="rc-val">32k</span><div class="rc-bar" style="height:78%;"></div><span class="rc-label">Fev</span></div>
+                <div class="rc-bar-wrap"><span class="rc-val">29,8k</span><div class="rc-bar" style="height:72%;"></div><span class="rc-label">Mar</span></div>
+                <div class="rc-bar-wrap"><span class="rc-val">35,6k</span><div class="rc-bar" style="height:86%;"></div><span class="rc-label">Abr</span></div>
+                <div class="rc-bar-wrap"><span class="rc-val">41,2k</span><div class="rc-bar" style="height:90%;"></div><span class="rc-label">Mai</span></div>
+                <div class="rc-bar-wrap"><span class="rc-val">38,9k</span><div class="rc-bar" style="height:85%;"></div><span class="rc-label">Jun</span></div>
+                <div class="rc-bar-wrap"><span class="rc-val">86,4k</span><div class="rc-bar today" style="height:100%;"></div><span class="rc-label">Jul *</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h2>Serviços mais vendidos</h2><div class="sub">Distribuição por tipo de serviço</div></div></div>
+            <div class="panel-body">
+              <div class="report-hbar">
+                <div class="hb-row"><span class="hb-label">Limpeza de pele</span><div class="hb-bar-wrap"><div class="hb-bar" style="width:100%;background:var(--brand);"></div></div><span class="hb-value">25%</span></div>
+                <div class="hb-row"><span class="hb-label">Massagem</span><div class="hb-bar-wrap"><div class="hb-bar" style="width:80%;background:var(--brand);"></div></div><span class="hb-value">20%</span></div>
+                <div class="hb-row"><span class="hb-label">Botox</span><div class="hb-bar-wrap"><div class="hb-bar" style="width:72%;background:var(--gold);"></div></div><span class="hb-value">18%</span></div>
+                <div class="hb-row"><span class="hb-label">Laser</span><div class="hb-bar-wrap"><div class="hb-bar" style="width:60%;background:var(--gold);"></div></div><span class="hb-value">15%</span></div>
+                <div class="hb-row"><span class="hb-label">Drenagem</span><div class="hb-bar-wrap"><div class="hb-bar" style="width:48%;background:var(--gold);"></div></div><span class="hb-value">12%</span></div>
+                <div class="hb-row"><span class="hb-label">Outros</span><div class="hb-bar-wrap"><div class="hb-bar" style="width:40%;background:var(--sage-soft);"></div></div><span class="hb-value">10%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ MODAL REGISTRAR ENTRADA (ESTOQUE) ============ -->
+<div class="modal-overlay" id="modalEntradaEstoque">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Registrar entrada</h2>
+      <button class="modal-close" id="closeModalEstoque" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="formEntradaEstoque" autocomplete="off">
+        <div class="modal-form-grid">
+          <div class="form-group full-width"><label>Item <span class="required">*</span></label>
+            <select class="form-select" id="entradaItem" required>
+              <option value="">Selecione o item…</option>
+              <option value="Toxina botulínica 100U">Toxina botulínica 100U</option>
+              <option value="Ácido hialurônico 1ml">Ácido hialurônico 1ml</option>
+              <option value="Máscara pós-peeling">Máscara pós-peeling</option>
+              <option value="Sérum vitamina C 30ml">Sérum vitamina C 30ml</option>
+              <option value="Luvas de nitrilo (cx.)">Luvas de nitrilo (cx.)</option>
+              <option value="Ponteira de laser CO2">Ponteira de laser CO2</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Quantidade <span class="required">*</span></label><input type="number" class="form-input" id="entradaQtd" min="1" value="1" required></div>
+          <div class="form-group"><label>Valor unit. (R$) <span class="required">*</span></label><input type="number" class="form-input" id="entradaValor" step="0.01" min="0" placeholder="0,00" required></div>
+          <div class="form-group"><label>Fornecedor</label><input type="text" class="form-input" id="entradaFornecedor" placeholder="Distribuidora"></div>
+          <div class="form-group"><label>Data da entrada</label><input type="date" class="form-input" id="entradaData"></div>
+          <div class="form-group"><label>Nota fiscal</label><input type="text" class="form-input" id="entradaNF" placeholder="Número da NF (opcional)"></div>
+          <div class="form-group full-width"><label>Observações</label><textarea id="entradaObs" placeholder="Lote, localização, vencimento…"></textarea></div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn ghost" id="cancelModalEstoque">Cancelar</button>
+      <button class="btn" id="saveModalEstoque">Registrar entrada</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL NOVA TRANSAÇÃO (FINANCEIRO) ============ -->
+<div class="modal-overlay" id="modalTransacao">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Nova transação</h2>
+      <button class="modal-close" id="closeModalTransacao" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="formTransacao" autocomplete="off">
+        <div class="modal-form-grid">
+          <div class="form-group"><label>Tipo <span class="required">*</span></label>
+            <select class="form-select" id="transTipo" required>
+              <option value="">Selecione…</option>
+              <option value="receita">Receita</option>
+              <option value="despesa">Despesa</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Valor (R$) <span class="required">*</span></label><input type="number" class="form-input" id="transValor" step="0.01" min="0" placeholder="0,00" required></div>
+          <div class="form-group full-width"><label>Descrição <span class="required">*</span></label><input type="text" class="form-input" id="transDesc" placeholder="Ex: Sessão de limpeza de pele" required></div>
+          <div class="form-group"><label>Categoria <span class="required">*</span></label>
+            <select class="form-select" id="transCategoria" required>
+              <option value="">Selecione…</option>
+              <option value="Procedimento">Procedimento</option>
+              <option value="Produto">Produto</option>
+              <option value="Assinatura">Assinatura / Plano</option>
+              <option value="Comissão">Comissão</option>
+              <option value="Estoque">Estoque / Insumos</option>
+              <option value="Salário">Salário</option>
+              <option value="Taxa">Taxa / Tarifa</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Forma de pagamento</label>
+            <select class="form-select" id="transPagamento">
+              <option value="">Selecione…</option>
+              <option value="Pix">Pix</option>
+              <option value="Cartão de crédito">Cartão de crédito</option>
+              <option value="Cartão de débito">Cartão de débito</option>
+              <option value="Dinheiro">Dinheiro</option>
+              <option value="Boleto">Boleto</option>
+              <option value="Transferência">Transferência</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Data</label><input type="date" class="form-input" id="transData"></div>
+          <div class="form-group"><label>Status</label>
+            <select class="form-select" id="transStatus">
+              <option value="Pago">Pago</option>
+              <option value="Pendente">Pendente</option>
+              <option value="Atrasado">Atrasado</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+          <div class="form-group full-width"><label>Observações</label><textarea id="transObs" placeholder="Informações adicionais…"></textarea></div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn ghost" id="cancelModalTransacao">Cancelar</button>
+      <button class="btn" id="saveModalTransacao">Salvar transação</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL NOVA CLIENTE ============ -->
+<div class="modal-overlay" id="modalCliente">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Nova cliente</h2>
+      <button class="modal-close" id="closeModalCliente" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="formCliente" autocomplete="off">
+        <div class="modal-form-grid">
+          <div class="form-group"><label>Nome <span class="required">*</span></label><input type="text" class="form-input" id="inputNome" placeholder="Nome completo" required></div>
+          <div class="form-group"><label>Telefone <span class="required">*</span></label><input type="text" class="form-input" id="inputTel" placeholder="(11) 99999-9999" required></div>
+          <div class="form-group"><label>Email</label><input type="email" class="form-input" id="inputEmail" placeholder="cliente@email.com"></div>
+          <div class="form-group"><label>CPF</label><input type="text" class="form-input" id="inputCpf" placeholder="000.000.000-00"></div>
+          <div class="form-group"><label>Data de nascimento</label><input type="date" class="form-input" id="inputNasc"></div>
+          <div class="form-group"><label>Indicado por</label><input type="text" class="form-input" id="inputIndicado" placeholder="Nome da cliente que indicou"></div>
+          <div class="form-group full-width"><label>Observações</label><textarea id="inputObs" placeholder="Alergias, preferências de horário, restrições…"></textarea></div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn ghost" id="cancelModalCliente">Cancelar</button>
+      <button class="btn" id="saveModalCliente">Salvar cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL NOVO AGENDAMENTO ============ -->
+<div class="modal-overlay" id="modalAgendamento">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Novo agendamento</h2>
+      <button class="modal-close" id="closeModalAgenda" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="formAgenda" autocomplete="off">
+        <div class="modal-form-grid">
+          <div class="form-group"><label>Cliente <span class="required">*</span></label>
+            <select class="form-select" id="agendaCliente" required>
+              <option value="">Selecione…</option>
+              <option value="Marina Costa">Marina Costa</option>
+              <option value="Renata Alves">Renata Alves</option>
+              <option value="Juliana Prado">Juliana Prado</option>
+              <option value="Beatriz Lima">Beatriz Lima</option>
+              <option value="Larissa Teixeira">Larissa Teixeira</option>
+              <option value="Patrícia Nogueira">Patrícia Nogueira</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Profissional <span class="required">*</span></label>
+            <select class="form-select" id="agendaProf" required>
+              <option value="">Selecione…</option>
+              <option value="Dra. Camila">Dra. Camila</option>
+              <option value="Fernanda">Fernanda (esteticista)</option>
+              <option value="Carlos">Carlos (massoterapeuta)</option>
+              <option value="Julia">Julia (maquiadora)</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Serviço <span class="required">*</span></label>
+            <select class="form-select" id="agendaServico" required>
+              <option value="">Selecione…</option>
+              <option value="Limpeza de pele">Limpeza de pele</option>
+              <option value="Peeling de diamante">Peeling de diamante</option>
+              <option value="Toxina botulínica">Toxina botulínica</option>
+              <option value="Drenagem linfática">Drenagem linfática</option>
+              <option value="Microagulhamento">Microagulhamento</option>
+              <option value="Laser CO2 fracionado">Laser CO2 fracionado</option>
+              <option value="Massagem relaxante">Massagem relaxante</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Duração</label>
+            <select class="form-select" id="agendaDuracao">
+              <option value="30">30 min</option>
+              <option value="45">45 min</option>
+              <option value="60" selected>1 hora</option>
+              <option value="90">1h30</option>
+              <option value="120">2 horas</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Data <span class="required">*</span></label><input type="date" class="form-input" id="agendaData" required></div>
+          <div class="form-group"><label>Horário <span class="required">*</span></label><input type="time" class="form-input" id="agendaHora" value="09:00" required></div>
+          <div class="form-group full-width"><label>Observações</label><textarea id="agendaObs" placeholder="Preferências, alertas…"></textarea></div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn ghost" id="cancelModalAgenda">Cancelar</button>
+      <button class="btn" id="saveModalAgenda">Salvar agendamento</button>
+    </div>
+  </div>
+
+<!-- ============ MODAL NOVA SALA ============ -->
+<div class="modal-overlay" id="modalNovaSala">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Nova sala</h2>
+      <button class="modal-close" id="closeModalSala" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="formSala" autocomplete="off">
+        <div class="modal-form-grid">
+          <div class="form-group"><label>Nome da sala <span class="required">*</span></label>
+            <input class="form-input" type="text" id="salaNome" placeholder="Ex: Sala 4 — Estética Corporal" required>
+          </div>
+          <div class="form-group"><label>Capacidade <span class="required">*</span></label>
+            <input class="form-input" type="number" id="salaCapacidade" value="1" min="1" required>
+          </div>
+          <div class="form-group"><label>Equipamentos</label>
+            <input class="form-input" type="text" id="salaEquipamentos" placeholder="Laser, Microdermo, Cama hidráulica…">
+          </div>
+          <div class="form-group"><label>Localização</label>
+            <input class="form-input" type="text" id="salaLocalizacao" placeholder="Ex: 2º andar, sala 4">
+          </div>
+          <div class="form-group" style="grid-column:1/-1;"><label>Observações</label>
+            <textarea class="form-input" id="salaObs" rows="2" placeholder="Informações adicionais sobre a sala…"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn ghost modal-close-btn">Cancelar</button>
+          <button type="submit" class="btn" id="saveModalSala">Salvar sala</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL NOVO PACOTE ============ -->
+<div class="modal-overlay" id="modalNovoPacote">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Novo pacote de sessões</h2>
+      <button class="modal-close" id="closeModalPacote" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="formPacote" autocomplete="off">
+        <div class="modal-form-grid">
+          <div class="form-group"><label>Nome do pacote <span class="required">*</span></label>
+            <input class="form-input" type="text" id="pacoteNome" placeholder="Ex: Limpeza facial" required>
+          </div>
+          <div class="form-group"><label>Serviço</label>
+            <select class="form-select" id="pacoteServico">
+              <option value="">Selecione…</option>
+              <option value="Limpeza de pele">Limpeza de pele</option>
+              <option value="Peeling de diamante">Peeling de diamante</option>
+              <option value="Drenagem linfática">Drenagem linfática</option>
+              <option value="Toxina botulínica">Toxina botulínica</option>
+              <option value="Microagulhamento">Microagulhamento</option>
+              <option value="Laser CO2">Laser CO2</option>
+              <option value="Massagem relaxante">Massagem relaxante</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Nº de sessões <span class="required">*</span></label>
+            <input class="form-input" type="number" id="pacoteSessoes" value="6" min="1" max="50" required>
+          </div>
+          <div class="form-group"><label>Valor total (R$) <span class="required">*</span></label>
+            <input class="form-input" type="text" id="pacoteValor" placeholder="1.600,00" required>
+          </div>
+          <div class="form-group"><label>Validade</label>
+            <select class="form-select" id="pacoteValidade">
+              <option value="6">6 meses</option>
+              <option value="12" selected>12 meses</option>
+              <option value="18">18 meses</option>
+              <option value="24">24 meses</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Tipo</label>
+            <select class="form-select" id="pacoteTipo">
+              <option value="normal">Normal</option>
+              <option value="promocao">Promoção</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn ghost modal-close-btn">Cancelar</button>
+          <button type="submit" class="btn" id="saveModalPacote">Criar pacote</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL ADICIONAR À LISTA DE ESPERA ============ -->
+<div class="modal-overlay" id="modalListaEspera">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Adicionar à lista de espera</h2>
+      <button class="modal-close" id="closeModalListaEspera" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="formListaEspera" autocomplete="off">
+        <div class="modal-form-grid">
+          <div class="form-group"><label>Cliente <span class="required">*</span></label>
+            <select class="form-select" id="esperaCliente" required>
+              <option value="">Selecione…</option>
+              <option value="Marina Costa">Marina Costa</option>
+              <option value="Renata Alves">Renata Alves</option>
+              <option value="Juliana Prado">Juliana Prado</option>
+              <option value="Beatriz Lima">Beatriz Lima</option>
+              <option value="Larissa Teixeira">Larissa Teixeira</option>
+              <option value="Patrícia Nogueira">Patrícia Nogueira</option>
+              <option value="Camila Ferreira">Camila Ferreira</option>
+              <option value="Rafael Gomes">Rafael Gomes</option>
+              <option value="Sofia Ribeiro">Sofia Ribeiro</option>
+              <option value="Tais Ferreira">Tais Ferreira</option>
+              <option value="Bianca Oliveira">Bianca Oliveira</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Serviço desejado <span class="required">*</span></label>
+            <select class="form-select" id="esperaServico" required>
+              <option value="">Selecione…</option>
+              <option value="Limpeza de pele">Limpeza de pele</option>
+              <option value="Peeling de diamante">Peeling de diamante</option>
+              <option value="Toxina botulínica">Toxina botulínica</option>
+              <option value="Drenagem linfática">Drenagem linfática</option>
+              <option value="Microagulhamento">Microagulhamento</option>
+              <option value="Laser CO2 fracionado">Laser CO2 fracionado</option>
+              <option value="Massagem relaxante">Massagem relaxante</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Preferência de horário</label>
+            <select class="form-select" id="esperaPref">
+              <option value="Qualquer horário">Qualquer horário</option>
+              <option value="Manhã">Manhã</option>
+              <option value="Tarde">Tarde</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Profissional preferido</label>
+            <select class="form-select" id="esperaProf">
+              <option value="">Qualquer</option>
+              <option value="Dra. Camila">Dra. Camila</option>
+              <option value="Fernanda">Fernanda (esteticista)</option>
+              <option value="Carlos">Carlos (massoterapeuta)</option>
+              <option value="Julia">Julia (maquiadora)</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:1/-1;"><label>Observações</label>
+            <textarea class="form-input" id="esperaObs" rows="2" placeholder="Ex: Prefere contato por WhatsApp"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn ghost modal-close-btn">Cancelar</button>
+          <button type="submit" class="btn" id="saveModalListaEspera">Adicionar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<!-- ============ MODAL NOVA SALA ============ -->
+<div class="modal-overlay" id="modalNovaSala">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Nova sala</h2>
+      <button class="modal-close" id="closeModalSala" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="formSala" autocomplete="off">
+        <div class="modal-form-grid">
+          <div class="form-group"><label>Nome da sala <span class="required">*</span></label>
+            <input class="form-input" type="text" id="salaNome" placeholder="Ex: Sala 4 — Estética Corporal" required>
+          </div>
+          <div class="form-group"><label>Capacidade <span class="required">*</span></label>
+            <input class="form-input" type="number" id="salaCapacidade" value="1" min="1" required>
+          </div>
+          <div class="form-group"><label>Equipamentos</label>
+            <input class="form-input" type="text" id="salaEquipamentos" placeholder="Laser, Microdermo, Cama hidráulica…">
+          </div>
+          <div class="form-group"><label>Localização</label>
+            <input class="form-input" type="text" id="salaLocalizacao" placeholder="Ex: 2º andar, sala 4">
+          </div>
+          <div class="form-group" style="grid-column:1/-1;"><label>Observações</label>
+            <textarea class="form-input" id="salaObs" rows="2" placeholder="Informações adicionais sobre a sala…"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn ghost modal-close-btn">Cancelar</button>
+          <button type="submit" class="btn" id="saveModalSala">Salvar sala</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL NOVO PACOTE ============ -->
+<div class="modal-overlay" id="modalNovoPacote">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Novo pacote de sessões</h2>
+      <button class="modal-close" id="closeModalPacote" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="formPacote" autocomplete="off">
+        <div class="modal-form-grid">
+          <div class="form-group"><label>Nome do pacote <span class="required">*</span></label>
+            <input class="form-input" type="text" id="pacoteNome" placeholder="Ex: Limpeza facial" required>
+          </div>
+          <div class="form-group"><label>Serviço</label>
+            <select class="form-select" id="pacoteServico">
+              <option value="">Selecione…</option>
+              <option value="Limpeza de pele">Limpeza de pele</option>
+              <option value="Peeling de diamante">Peeling de diamante</option>
+              <option value="Drenagem linfática">Drenagem linfática</option>
+              <option value="Toxina botulínica">Toxina botulínica</option>
+              <option value="Microagulhamento">Microagulhamento</option>
+              <option value="Laser CO2">Laser CO2</option>
+              <option value="Massagem relaxante">Massagem relaxante</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Nº de sessões <span class="required">*</span></label>
+            <input class="form-input" type="number" id="pacoteSessoes" value="6" min="1" max="50" required>
+          </div>
+          <div class="form-group"><label>Valor total (R$) <span class="required">*</span></label>
+            <input class="form-input" type="text" id="pacoteValor" placeholder="1.600,00" required>
+          </div>
+          <div class="form-group"><label>Validade</label>
+            <select class="form-select" id="pacoteValidade">
+              <option value="6">6 meses</option>
+              <option value="12" selected>12 meses</option>
+              <option value="18">18 meses</option>
+              <option value="24">24 meses</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Tipo</label>
+            <select class="form-select" id="pacoteTipo">
+              <option value="normal">Normal</option>
+              <option value="promocao">Promoção</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn ghost modal-close-btn">Cancelar</button>
+          <button type="submit" class="btn" id="saveModalPacote">Criar pacote</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL ADICIONAR À LISTA DE ESPERA ============ -->
+<div class="modal-overlay" id="modalListaEspera">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Adicionar à lista de espera</h2>
+      <button class="modal-close" id="closeModalListaEspera" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="formListaEspera" autocomplete="off">
+        <div class="modal-form-grid">
+          <div class="form-group"><label>Cliente <span class="required">*</span></label>
+            <select class="form-select" id="esperaCliente" required>
+              <option value="">Selecione…</option>
+              <option value="Marina Costa">Marina Costa</option>
+              <option value="Renata Alves">Renata Alves</option>
+              <option value="Juliana Prado">Juliana Prado</option>
+              <option value="Beatriz Lima">Beatriz Lima</option>
+              <option value="Larissa Teixeira">Larissa Teixeira</option>
+              <option value="Patrícia Nogueira">Patrícia Nogueira</option>
+              <option value="Camila Ferreira">Camila Ferreira</option>
+              <option value="Rafael Gomes">Rafael Gomes</option>
+              <option value="Sofia Ribeiro">Sofia Ribeiro</option>
+              <option value="Tais Ferreira">Tais Ferreira</option>
+              <option value="Bianca Oliveira">Bianca Oliveira</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Serviço desejado <span class="required">*</span></label>
+            <select class="form-select" id="esperaServico" required>
+              <option value="">Selecione…</option>
+              <option value="Limpeza de pele">Limpeza de pele</option>
+              <option value="Peeling de diamante">Peeling de diamante</option>
+              <option value="Toxina botulínica">Toxina botulínica</option>
+              <option value="Drenagem linfática">Drenagem linfática</option>
+              <option value="Microagulhamento">Microagulhamento</option>
+              <option value="Laser CO2 fracionado">Laser CO2 fracionado</option>
+              <option value="Massagem relaxante">Massagem relaxante</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Preferência de horário</label>
+            <select class="form-select" id="esperaPref">
+              <option value="Qualquer horário">Qualquer horário</option>
+              <option value="Manhã">Manhã</option>
+              <option value="Tarde">Tarde</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Profissional preferido</label>
+            <select class="form-select" id="esperaProf">
+              <option value="">Qualquer</option>
+              <option value="Dra. Camila">Dra. Camila</option>
+              <option value="Fernanda">Fernanda (esteticista)</option>
+              <option value="Carlos">Carlos (massoterapeuta)</option>
+              <option value="Julia">Julia (maquiadora)</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:1/-1;"><label>Observações</label>
+            <textarea class="form-input" id="esperaObs" rows="2" placeholder="Ex: Prefere contato por WhatsApp"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn ghost modal-close-btn">Cancelar</button>
+          <button type="submit" class="btn" id="saveModalListaEspera">Adicionar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<!-- ============ MODAL ADICIONAR PONTOS (FIDELIDADE) ============ -->
+<div class="modal-overlay" id="modalAddPontos">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Adicionar pontos de fidelidade</h2>
+      <button class="modal-close" id="closeModalPontos" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="formPontos" autocomplete="off">
+        <div class="modal-form-grid">
+          <div class="form-group"><label>Cliente <span class="required">*</span></label>
+            <select class="form-select" id="pontosCliente" required>
+              <option value="">Selecione...</option>
+              <option value="Marina Costa">Marina Costa</option>
+              <option value="Renata Alves">Renata Alves</option>
+              <option value="Juliana Prado">Juliana Prado</option>
+              <option value="Beatriz Lima">Beatriz Lima</option>
+              <option value="Larissa Teixeira">Larissa Teixeira</option>
+              <option value="Patrícia Nogueira">Patrícia Nogueira</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Pontos <span class="required">*</span></label>
+            <input class="form-input" type="number" id="pontosQtd" value="100" min="1" required>
+          </div>
+          <div class="form-group"><label>Motivo</label>
+            <select class="form-select" id="pontosMotivo">
+              <option value="Procedimento realizado">Procedimento realizado</option>
+              <option value="Compra de produto">Compra de produto</option>
+              <option value="Indicação de cliente">Indicação de cliente</option>
+              <option value="Aniversário">Aniversário</option>
+              <option value="Bônus promocional">Bônus promocional</option>
+              <option value="Ajuste manual">Ajuste manual</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:1/-1;"><label>Observações</label>
+            <textarea class="form-input" id="pontosObs" rows="2" placeholder="Observações sobre a pontuação..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn ghost modal-close-btn">Cancelar</button>
+          <button type="submit" class="btn" id="saveModalPontos">Adicionar pontos</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL NOVO PLANO RECORRENTE ============ -->
+<div class="modal-overlay" id="modalNovoPlano">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Novo plano recorrente</h2>
+      <button class="modal-close" id="closeModalNovoPlano" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="formNovoPlano" autocomplete="off">
+        <div class="modal-form-grid">
+          <div class="form-group"><label>Nome do plano <span class="required">*</span></label>
+            <input class="form-input" type="text" id="planoNome" placeholder="Ex: Plano Bronze" required>
+          </div>
+          <div class="form-group"><label>Valor mensal (R$) <span class="required">*</span></label>
+            <input class="form-input" type="text" id="planoValor" placeholder="199,00" required>
+          </div>
+          <div class="form-group"><label>Sessões inclusas</label>
+            <input class="form-input" type="number" id="planoSessoes" value="1" min="0" max="20">
+          </div>
+          <div class="form-group"><label>Desconto em procedimentos</label>
+            <select class="form-select" id="planoDesconto">
+              <option value="0">Sem desconto</option>
+              <option value="10">10%</option>
+              <option value="15">15%</option>
+              <option value="20" selected>20%</option>
+              <option value="30">30%</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Multiplicador de pontos</label>
+            <select class="form-select" id="planoMultiplicador">
+              <option value="1">1x pontos</option>
+              <option value="1.5">1.5x pontos</option>
+              <option value="2" selected>2x pontos</option>
+              <option value="3">3x pontos</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:1/-1;"><label>Descrição dos benefícios</label>
+            <textarea class="form-input" id="planoDesc" rows="2" placeholder="Descreva os benefícios do plano..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn ghost modal-close-btn">Cancelar</button>
+          <button type="submit" class="btn" id="saveModalPlano">Criar plano</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL NOVA UNIDADE (MULTIUNIDADE) ============ -->
+<div class="modal-overlay" id="modalNovaUnidade">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Nova unidade</h2>
+      <button class="modal-close" id="closeModalUnidade" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="formUnidade" autocomplete="off">
+        <div class="modal-form-grid">
+          <div class="form-group"><label>Nome da unidade <span class="required">*</span></label>
+            <input class="form-input" type="text" id="unidadeNome" placeholder="Ex: Centro Vitta — Vila Olímpia" required>
+          </div>
+          <div class="form-group"><label>CNPJ <span class="required">*</span></label>
+            <input class="form-input" type="text" id="unidadeCnpj" placeholder="00.000.000/0001-00" required>
+          </div>
+          <div class="form-group"><label>Endereço</label>
+            <input class="form-input" type="text" id="unidadeEnd" placeholder="Av. Principal, 500">
+          </div>
+          <div class="form-group"><label>Telefone</label>
+            <input class="form-input" type="tel" id="unidadeTel" placeholder="(11) 99999-0000">
+          </div>
+          <div class="form-group" style="grid-column:1/-1;"><label>Observações</label>
+            <textarea class="form-input" id="unidadeObs" rows="2" placeholder="Informações adicionais..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn ghost modal-close-btn">Cancelar</button>
+          <button type="submit" class="btn" id="saveModalUnidade">Criar unidade</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL NOVO MEMBRO (EQUIPE) ============ -->
+<div class="modal-overlay" id="modalNovoMembro">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Novo membro da equipe</h2>
+      <button class="modal-close" id="closeModalMembro" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="formMembro" autocomplete="off">
+        <div class="modal-form-grid">
+          <div class="form-group"><label>Nome completo <span class="required">*</span></label>
+            <input class="form-input" type="text" id="membroNome" placeholder="Nome do colaborador" required>
+          </div>
+          <div class="form-group"><label>Cargo <span class="required">*</span></label>
+            <select class="form-select" id="membroCargo" required>
+              <option value="">Selecione...</option>
+              <option value="Médica(o)">Médica(o)</option>
+              <option value="Esteticista">Esteticista</option>
+              <option value="Massoterapeuta">Massoterapeuta</option>
+              <option value="Maquiadora">Maquiadora</option>
+              <option value="Recepcionista">Recepcionista</option>
+              <option value="Auxiliar administrativo">Auxiliar administrativo</option>
+              <option value="Gerente">Gerente</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Email</label>
+            <input class="form-input" type="email" id="membroEmail" placeholder="colaborador@vitta.com">
+          </div>
+          <div class="form-group"><label>Telefone</label>
+            <input class="form-input" type="tel" id="membroTel" placeholder="(11) 99999-0000">
+          </div>
+          <div class="form-group"><label>Unidade</label>
+            <select class="form-select" id="membroUnidade">
+              <option value="Jardins">Centro Vitta — Jardins</option>
+              <option value="Moema">Centro Vitta — Moema</option>
+              <option value="Pinheiros">Centro Vitta — Pinheiros</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn ghost modal-close-btn">Cancelar</button>
+          <button type="submit" class="btn" id="saveModalMembro">Adicionar membro</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="assets/utils/constants.js"></script>
+<script src="assets/utils/helpers.js"></script>
+<script src="assets/utils/validators.js"></script>
+<script src="config/env.generated.js"></script>
+<script src="config/app-config.js"></script>
+<script src="assets/services/storage.js"></script>
+<script src="assets/services/supabase.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/app.js"></script>
+          <script src="assets/js/modules/store-init.js"></script>
+          <script src="assets/js/views/clientes.js"></script>
+          <script src="assets/js/views/prontuario.js"></script>
+          <script src="assets/js/views/agenda.js"></script>
+          <script src="assets/js/views/financeiro.js"></script>
+          <script src="assets/js/views/estoque.js"></script>
+          <script src="assets/js/views/salas.js"></script>
+          <script src="assets/js/views/pacotes.js"></script>
+          <script src="assets/js/views/lista-espera.js"></script>
+          <script src="assets/js/views/fidelidade.js"></script>
+          <script src="assets/js/views/planos.js"></script>
+          <script src="assets/js/views/configuracoes.js"></script>
+          <script src="assets/js/views/pdv.js"></script>
+        <script src="assets/js/views/fila-atendimento.js"></script>
+        <script src="assets/services/offline.js"></script>
+</body>
+</html>

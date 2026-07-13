@@ -1,0 +1,33 @@
+{
+  "name": "fusion-erp",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Fusion ERP - Sistema Premium para Centros de Estética Avançada",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src --ext .js,.jsx"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.0",
+    "zustand": "^4.5.4",
+    "clsx": "^2.1.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "happy-dom": "^15.0.0",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^3.4.7",
+    "vite": "^5.4.0",
+    "vitest": "^3.0.0"
+  }
+}

@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply box-border m-0 p-0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-body bg-bg dark:bg-bg-dark text-ink dark:text-ink-dark antialiased min-h-screen;
+    -webkit-tap-highlight-color: transparent;
+    tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 rounded-sm;
+    outline-color: #9C7A3E;
+  }
+
+  .dark :focus-visible {
+    outline-color: #D8B677;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-sm font-semibold text-sm
+           bg-brand dark:bg-brand-dark text-brand-ink dark:text-brand-dark-ink
+           hover:bg-brand-strong dark:hover:bg-brand-dark-strong
+           transition-colors duration-150 ease-in-out
+           disabled:opacity-50 disabled:cursor-not-allowed
+           select-none;
+  }
+
+  .btn-ghost {
+    @apply bg-surface dark:bg-surface-dark border border-border dark:border-border-dark text-ink dark:text-ink-dark
+           hover:bg-surface-2 dark:hover:bg-surface-dark-2;
+  }
+
+  .btn-sm {
+    @apply px-3 py-2 text-xs;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-base;
+  }
+
+  .card {
+    @apply bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-lg shadow-soft dark:shadow-dark-soft;
+  }
+
+  .input {
+    @apply w-full px-4 py-3 bg-surface dark:bg-surface-dark
+           border border-border dark:border-border-dark rounded-sm
+           text-ink dark:text-ink-dark text-sm font-body
+           placeholder:text-ink-faint dark:placeholder:text-ink-dark-faint
+           transition-all duration-200 ease-in-out
+           focus:border-brand dark:focus:border-brand-dark
+           focus:ring-2 focus:ring-brand-soft dark:focus:ring-brand-dark-soft
+           focus:outline-none;
+  }
+
+  .status-chip {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold;
+  }
+
+  .status-chip::before {
+    content: '';
+    @apply w-1.5 h-1.5 rounded-full flex-shrink-0;
+  }
+
+  .status-chip-success {
+    @apply bg-sage-soft dark:bg-sage-dark-soft text-sage dark:text-sage-dark;
+  }
+  .status-chip-success::before {
+    @apply bg-sage dark:bg-sage-dark;
+  }
+
+  .status-chip-warning {
+    @apply bg-gold-soft dark:bg-gold-dark-soft text-gold dark:text-gold-dark;
+  }
+  .status-chip-warning::before {
+    @apply bg-gold dark:bg-gold-dark;
+  }
+
+  .status-chip-danger {
+    @apply bg-rose-soft dark:bg-rose-dark-soft text-rose dark:text-rose-dark;
+  }
+  .status-chip-danger::before {
+    @apply bg-rose dark:bg-rose-dark;
+  }
+
+  .tag {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold;
+  }
+
+  .tag-room {
+    @apply bg-surface-2 dark:bg-surface-dark-2 text-ink-soft dark:text-ink-dark-soft;
+  }
+
+  .table-wrap {
+    @apply overflow-x-auto;
+  }
+
+  .table-wrap table {
+    @apply w-full border-collapse;
+  }
+
+  .table-wrap thead th {
+    @apply text-left text-xs uppercase tracking-wider text-ink-faint dark:text-ink-dark-faint font-semibold
+           px-3 pb-3 border-b border-border dark:border-border-dark;
+  }
+
+  .table-wrap tbody td {
+    @apply px-3 py-3.5 text-sm border-b border-border dark:border-border-dark;
+  }
+
+  .table-wrap tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .table-wrap tbody tr {
+    @apply transition-colors duration-150;
+  }
+
+  .table-wrap tbody tr:hover {
+    @apply bg-surface-2 dark:bg-surface-dark-2;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-ink-faint/20 dark:bg-ink-dark-faint/20 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-ink-faint/40 dark:bg-ink-dark-faint/40;
+}
