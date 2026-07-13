@@ -55,26 +55,34 @@ export const SupabaseService = {
   },
 
   async signIn(email, password) {
-    if (!this.isReady()) return this._fallbackSignIn(email, password);
-    try {
-      const result = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (result.error) return { success: false, error: result.error.message };
-      const user = result.data.user;
-      return {
-        success: true,
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.user_metadata?.name || user.email?.split('@')[0] || 'Usuário',
-          role: user.user_metadata?.role || 'recepcionista',
-          avatar: user.user_metadata?.avatar_url || null,
-          company: user.user_metadata?.company || 'Fusion Estética',
-          companyId: user.user_metadata?.company_id || '1',
-        },
-      };
-    } catch (e) {
-      return { success: false, error: e.message || 'Erro de conexão.' };
+    // Tenta Supabase primeiro se o cliente estiver pronto
+    if (this.isReady()) {
+      try {
+        const result = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (!result.error) {
+          const user = result.data.user;
+          return {
+            success: true,
+            user: {
+              id: user.id,
+              email: user.email,
+              name: user.user_metadata?.name || user.email?.split('@')[0] || 'Usuário',
+              role: user.user_metadata?.role || 'recepcionista',
+              avatar: user.user_metadata?.avatar_url || null,
+              company: user.user_metadata?.company || 'Fusion Estética',
+              companyId: user.user_metadata?.company_id || '1',
+            },
+          };
+        }
+        // Se Supabase retornou erro (ex.: credenciais inválidas), tenta fallback local
+        console.warn('[Supabase] SignIn falhou, tentando fallback local:', result.error.message);
+      } catch (e) {
+        console.warn('[Supabase] SignIn com erro de rede, tentando fallback local:', e.message);
+      }
     }
+
+    // Fallback local (modo demonstrativo)
+    return this._fallbackSignIn(email, password);
   },
 
   _fallbackSignIn(email, password) {

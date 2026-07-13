@@ -367,15 +367,29 @@ describe('SupabaseService — Modo Conectado (SDK mockado)', () => {
       expect(result.session.access_token).toBe('token123');
     });
 
-    it('deve retornar erro quando credenciais são inválidas', async () => {
+    it('deve cair no fallback local quando credenciais Supabase são inválidas', async () => {
       mockAuth.signInWithPassword.mockResolvedValue({
         data: { session: null, user: null },
         error: { message: 'Invalid login credentials' }
       });
 
+      // Credenciais que também não existem no fallback local
       const result = await SupabaseService.signIn('wrong@test.com', 'wrong');
       expect(result.success).toBe(false);
-      expect(result.error).toContain('Invalid login credentials');
+      expect(result.error).toContain('inválidos');
+    });
+
+    it('deve usar fallback local quando credenciais Supabase são inválidas mas existem no demo', async () => {
+      mockAuth.signInWithPassword.mockResolvedValue({
+        data: { session: null, user: null },
+        error: { message: 'Invalid login credentials' }
+      });
+
+      // Credenciais que existem no fallback local
+      const result = await SupabaseService.signIn('admin@fusion.com', 'admin123');
+      expect(result.success).toBe(true);
+      expect(result.user.name).toBe('Cristian Marques');
+      expect(result.user.role).toBe('admin');
     });
 
     it('deve extrair nome do email quando user_metadata.name está ausente', async () => {
@@ -395,12 +409,12 @@ describe('SupabaseService — Modo Conectado (SDK mockado)', () => {
       expect(result.user.name).toBe('maria');
     });
 
-    it('deve tratar erro de rede', async () => {
+    it('deve tratar erro de rede caindo no fallback local', async () => {
       mockAuth.signInWithPassword.mockRejectedValue(new Error('Network error'));
 
       const result = await SupabaseService.signIn('test@test.com', '123');
       expect(result.success).toBe(false);
-      expect(result.error).toContain('Network error');
+      expect(result.error).toContain('inválidos');
     });
 
     it('deve usar fallback quando cliente não está pronto', async () => {

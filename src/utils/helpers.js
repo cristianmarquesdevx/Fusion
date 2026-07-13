@@ -116,6 +116,15 @@ export const Helpers = {
     return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
   },
 
+  formatCompactCurrency(value) {
+    if (value === null || value === undefined || isNaN(value)) return 'R$ 0';
+    if (value >= 1000) {
+      const formatted = value / 1000;
+      return `R$ ${formatted >= 100 ? formatted.toFixed(0) : formatted.toFixed(1)}k`;
+    }
+    return `R$ ${Math.round(value)}`;
+  },
+
   getGreeting() {
     const hour = new Date().getHours();
     if (hour < 12) return 'Bom dia';

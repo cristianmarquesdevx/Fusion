@@ -128,8 +128,12 @@ export default function Sidebar() {
 
   const currentView = location.pathname.replace('/', '') || 'dashboard';
 
-  const handleNavigate = (moduloId) => {
-    navigate(`/${moduloId}`);
+  const handleNavigate = (mod) => {
+    if (mod.externo) {
+      window.open(mod.externo, '_blank');
+      return;
+    }
+    navigate(`/${mod.id}`);
     if (isMobile) {
       toggleSidebar();
     }
@@ -151,21 +155,22 @@ export default function Sidebar() {
         className={`
           fixed md:sticky top-0 left-0 h-screen z-20 flex flex-col
           bg-brand dark:bg-brand text-brand-ink dark:text-brand-dark-ink
-          transition-transform duration-250 ease-in-out
-          ${isVisible ? 'translate-x-0' : '-translate-x-full'}
+          transition-all duration-300 ease-in-out
+          ${isVisible ? 'translate-x-0 shadow-[4px_0_24px_rgba(0,0,0,0.15)]' : '-translate-x-full shadow-none'}
         `}
         style={{ width: '248px' }}
+        aria-label="Navegação principal"
       >
-        {/* Brand */}
-        <div className="flex items-center gap-2 px-4 pt-5 pb-6">
-          <div className="w-7 h-7 rounded-lg bg-gold flex items-center justify-center font-display font-semibold text-sm text-brand-strong flex-shrink-0">
-            F
-          </div>
+        {/* Brand — logo ENORME em destaque */}
+        <div className="flex items-center gap-3 px-4 pt-5 pb-6">
+          <img
+            src="/LOGO.png"
+            alt="Fusion ERP"
+            className="w-20 object-contain rounded-xl ring-1 ring-white/15 shadow-sm shrink-0"
+          />
           <div>
-            <span className="font-display text-xl font-semibold">Fusion</span>
-            <span className="text-[10px] text-white/55 uppercase tracking-[1.2px] block">
-              ERP Estética
-            </span>
+            <div className="font-display text-xl font-semibold text-white/90 tracking-[0.2px]">Fusion</div>
+            <div className="text-[10px] text-white/55 uppercase tracking-[1.2px]">ERP Estética</div>
           </div>
         </div>
 
@@ -182,7 +187,7 @@ export default function Sidebar() {
                   return (
                     <button
                       key={mod.id}
-                      onClick={() => handleNavigate(mod.id)}
+                      onClick={() => handleNavigate(mod)}
                       className={`
                         flex items-center gap-2.5 w-full px-3 py-2 rounded-sm text-sm text-left
                         transition-colors duration-150

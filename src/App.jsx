@@ -9,6 +9,18 @@ import Dashboard from './pages/Dashboard';
 import Clientes from './pages/Clientes';
 import Agenda from './pages/Agenda';
 import FilaAtendimento from './pages/FilaAtendimento';
+import Financeiro from './pages/Financeiro';
+import Estoque from './pages/Estoque';
+import Fidelidade from './pages/Fidelidade';
+import Pacotes from './pages/Pacotes';
+import PDV from './pages/PDV';
+import BI from './pages/BI';
+import PlanosRecorrentes from './pages/PlanosRecorrentes';
+import ListaEspera from './pages/ListaEspera';
+import Salas from './pages/Salas';
+import Configuracoes from './pages/Configuracoes';
+import Relatorios from './pages/Relatorios';
+import Prontuario from './pages/Prontuario';
 import Shell from './components/layout/Shell';
 
 function ProtectedRoute({ children }) {
@@ -123,6 +135,138 @@ export default function App() {
           <ProtectedRoute>
             <Shell>
               <FilaAtendimento />
+            </Shell>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Financeiro */}
+      <Route
+        path="/financeiro"
+        element={
+          <ProtectedRoute>
+            <Shell>
+              <Financeiro />
+            </Shell>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Estoque */}
+      <Route
+        path="/estoque"
+        element={
+          <ProtectedRoute>
+            <Shell>
+              <Estoque />
+            </Shell>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Fidelidade */}
+      <Route
+        path="/fidelidade"
+        element={
+          <ProtectedRoute>
+            <Shell>
+              <Fidelidade />
+            </Shell>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Pacotes */}
+      <Route
+        path="/pacotes"
+        element={
+          <ProtectedRoute>
+            <Shell>
+              <Pacotes />
+            </Shell>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* PDV */}
+      <Route
+        path="/pdv"
+        element={
+          <ProtectedRoute>
+            <Shell>
+              <PDV />
+            </Shell>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Planos Recorrentes */}
+      <Route
+        path="/planos-recorrentes"
+        element={
+          <ProtectedRoute>
+            <Shell>
+              <PlanosRecorrentes />
+            </Shell>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Lista de Espera */}
+      <Route
+        path="/lista-espera"
+        element={
+          <ProtectedRoute>
+            <Shell>
+              <ListaEspera />
+            </Shell>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Salas */}
+      <Route
+        path="/salas"
+        element={
+          <ProtectedRoute>
+            <Shell>
+              <Salas />
+            </Shell>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Prontuario */}
+      <Route
+        path="/prontuario"
+        element={
+          <ProtectedRoute>
+            <Shell>
+              <Prontuario />
+            </Shell>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Configuracoes */}
+      <Route
+        path="/configuracoes"
+        element={
+          <ProtectedRoute>
+            <Shell>
+              <Configuracoes />
+            </Shell>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Relatorios */}
+      <Route
+        path="/relatorios"
+        element={
+          <ProtectedRoute>
+            <Shell>
+              <Relatorios />
             </Shell>
           </ProtectedRoute>
         }

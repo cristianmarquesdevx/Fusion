@@ -1,7 +1,10 @@
 /**
- * Fusion ERP SaaS - Configuração Global do Aplicativo
+ * Fusion ERP SaaS - Configuração Global do Aplicativo (LEGADO)
  * @author Cristian Marques
  * @version 1.0.0
+ *
+ * ⚠️ DEPRECIADO — Mantido apenas para compatibilidade com assets/js/.
+ * Para novas implementações, importe de `src/utils/constants.js`.
  *
  * As credenciais do Supabase podem vir de:
  * 1. Variáveis de ambiente injetadas via config/env.generated.js (produção no Vercel)

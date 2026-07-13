@@ -265,6 +265,10 @@ describe('Views', () => {
 
   describe('Fila de Atendimento', () => {
     it('renderiza timeline no DOM', () => {
+      // Força filtro 'all' porque 'agora' pode retornar vazio dependendo do horário do teste
+      Fusion.commit('filaAtendimento/setFilter', 'all');
+      const view = window.FusionViews && window.FusionViews.filaAtendimento;
+      if (view) view();
       expect(document.querySelectorAll('#filaTimeline .tl-row').length).toBeGreaterThan(0);
     });
     it('primeira cliente é Marina Costa (todas visíveis)', () => {

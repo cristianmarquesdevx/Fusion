@@ -40,14 +40,23 @@
     @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-sm font-semibold text-sm
            bg-brand dark:bg-brand-dark text-brand-ink dark:text-brand-dark-ink
            hover:bg-brand-strong dark:hover:bg-brand-dark-strong
-           transition-colors duration-150 ease-in-out
+           transition-all duration-150 ease-in-out
            disabled:opacity-50 disabled:cursor-not-allowed
-           select-none;
+           select-none ripple-btn;
+    transform: translateZ(0);
+  }
+
+  .btn:active:not(:disabled) {
+    @apply scale-[0.97];
   }
 
   .btn-ghost {
     @apply bg-surface dark:bg-surface-dark border border-border dark:border-border-dark text-ink dark:text-ink-dark
-           hover:bg-surface-2 dark:hover:bg-surface-dark-2;
+           hover:bg-surface-2 dark:hover:bg-surface-dark-2 ripple-btn;
+  }
+
+  .btn-ghost:active:not(:disabled) {
+    @apply scale-[0.97];
   }
 
   .btn-sm {
@@ -139,6 +148,162 @@
   .table-wrap tbody tr:hover {
     @apply bg-surface-2 dark:bg-surface-dark-2;
   }
+}
+
+/* ============================================================
+   RIPPLE EFFECT para botões
+   ============================================================ */
+.ripple-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.25) 0%, transparent 60%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.ripple-btn:active::after {
+  opacity: 1;
+  transition: opacity 0s;
+}
+
+/* ============================================================
+   STAGGER ANIMATION — linhas de tabela aparecem em sequência
+   ============================================================ */
+.stagger-enter > * {
+  opacity: 0;
+  animation: staggerFade 0.35s ease forwards;
+}
+
+.stagger-enter > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-enter > *:nth-child(2) { animation-delay: 30ms; }
+.stagger-enter > *:nth-child(3) { animation-delay: 60ms; }
+.stagger-enter > *:nth-child(4) { animation-delay: 90ms; }
+.stagger-enter > *:nth-child(5) { animation-delay: 120ms; }
+.stagger-enter > *:nth-child(6) { animation-delay: 150ms; }
+.stagger-enter > *:nth-child(7) { animation-delay: 180ms; }
+.stagger-enter > *:nth-child(8) { animation-delay: 210ms; }
+.stagger-enter > *:nth-child(9) { animation-delay: 240ms; }
+.stagger-enter > *:nth-child(10) { animation-delay: 270ms; }
+
+/* ============================================================
+   GLASSMORPHISM — cartões com efeito vidro
+   ============================================================ */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .glass {
+  background: rgba(22, 28, 21, 0.7);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.dark .glass-strong {
+  background: rgba(22, 28, 21, 0.85);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================================
+   TOOLTIP personalizado
+   ============================================================ */
+.tooltip-trigger {
+  position: relative;
+}
+
+.tooltip-trigger .tooltip-content {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+  background: #1C2620;
+  color: #fff;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.18s ease;
+  z-index: 100;
+}
+
+.dark .tooltip-trigger .tooltip-content {
+  background: #ECEAE0;
+  color: #0E1710;
+}
+
+.tooltip-trigger:hover .tooltip-content {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ============================================================
+   SKELETON LOADING refinado
+   ============================================================ */
+.skeleton-pulse {
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base, #f1f0ea) 25%,
+    var(--skeleton-shine, rgba(255,255,255,0.5)) 50%,
+    var(--skeleton-base, #f1f0ea) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+.dark .skeleton-pulse {
+  --skeleton-base: #1b221a;
+  --skeleton-shine: rgba(255,255,255,0.06);
+}
+
+/* ============================================================
+   ANIMAÇÃO DE GRADIENTE (Login background)
+   ============================================================ */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradientShift 8s ease infinite;
+}
+
+/* ============================================================
+   BARRA DE PROGRESSO ANIMADA (StockBar)
+   ============================================================ */
+.progress-bar-fill {
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ============================================================
+   REDUZIR ANIMAÇÃO PARA ACESSIBILIDADE
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .stagger-enter > * {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+  .ripple-btn::after { display: none !important; }
+  .progress-bar-fill { transition: none !important; }
 }
 
 /* Custom scrollbar */

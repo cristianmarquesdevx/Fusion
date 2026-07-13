@@ -165,7 +165,7 @@ export default function Clientes() {
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="stagger-enter">
               {filteredClients.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-12 text-center text-sm text-ink-faint dark:text-ink-dark-faint">

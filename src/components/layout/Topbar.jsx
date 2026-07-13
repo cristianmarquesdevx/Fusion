@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useUIStore } from '../../store/useUIStore';
 import { useTheme } from '../../hooks/useTheme';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { Helpers } from '../../utils/helpers';
 
 export default function Topbar() {
@@ -13,6 +14,8 @@ export default function Topbar() {
   const logout = useAuthStore((s) => s.logout);
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const { isDark, toggleTheme } = useTheme();
+
+  const { isOnline, isOffline, queueSize, updateAvailable, checking, dismissUpdate, checkNow } = useOnlineStatus();
 
   return (
     <header className="sticky top-0 z-10 flex items-center gap-4 px-4 sm:px-8 py-4 border-b border-border dark:border-border-dark bg-bg dark:bg-bg-dark">
@@ -50,11 +53,54 @@ export default function Topbar() {
 
       <div className="flex-1" />
 
-      {/* DB Status */}
+      {/* Connectivity indicator */}
       <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11.5px] font-medium bg-surface dark:bg-surface-dark-2 border border-border dark:border-border-dark">
-        <span className="w-2 h-2 rounded-full bg-sage dark:bg-sage-dark shadow-[0_0_0_0_rgba(59,184,110,0.5)]" />
-        <span className="text-ink-soft dark:text-ink-dark-soft">Banco conectado</span>
+        {isOnline ? (
+          <>
+            <span className="relative flex w-2 h-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sage dark:bg-sage-dark opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-sage dark:bg-sage-dark" />
+            </span>
+            <span className="text-ink-soft dark:text-ink-dark-soft">
+              {checking ? 'Sincronizando…' : 'Online'}
+              {queueSize > 0 && (
+                <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-gold dark:bg-gold-dark text-[10px] font-bold text-white">
+                  {queueSize}
+                </span>
+              )}
+            </span>
+          </>
+        ) : (
+          <>
+            <span className="w-2 h-2 rounded-full bg-rose dark:bg-rose-dark animate-pulse" />
+            <span className="text-rose dark:text-rose-dark">
+              Offline{queueSize > 0 ? ` · ${queueSize} pendente(s)` : ''}
+            </span>
+          </>
+        )}
       </div>
+
+      {/* Update available banner */}
+      {updateAvailable && (
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-medium bg-gold-soft dark:bg-gold-dark-soft text-gold dark:text-gold-dark border border-gold/30 dark:border-gold-dark/30 animate-fade-in">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3">
+            <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path d="M12 8v4M12 16h.01" />
+          </svg>
+          <span>Nova versão disponível</span>
+          <button
+            onClick={() => { window.location.reload(); dismissUpdate(); }}
+            className="ml-1 font-bold underline underline-offset-2 hover:no-underline"
+          >
+            Atualizar
+          </button>
+          <button onClick={dismissUpdate} className="p-0.5 hover:bg-gold/10 dark:hover:bg-gold-dark/10 rounded-sm" aria-label="Descartar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {/* Theme toggle */}
       <button

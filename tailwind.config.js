@@ -74,16 +74,29 @@ export default {
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease',
+        'fade-in-up': 'fadeInUp 0.4s ease',
         'slide-up': 'slideUp 0.25s ease',
         'slide-down': 'slideDown 0.2s ease',
         'scale-in': 'scaleIn 0.2s ease',
         'pulse-dot': 'pulse 1.8s ease-out infinite',
         'shimmer': 'shimmer 1.8s ease-in-out infinite',
         'counter-flash': 'counterUpdate 0.25s ease',
+        'spin-slow': 'spin 3s linear infinite',
+        'bounce-subtle': 'bounceSubtle 2s ease-in-out infinite',
+        'ripple': 'ripple 0.6s ease-out',
+        'glow': 'glow 3s ease-in-out infinite alternate',
+        'float': 'float 6s ease-in-out infinite',
+        'stagger-fade': 'staggerFade 0.4s ease forwards',
+        'slide-in-right': 'slideInRight 0.3s ease',
+        'glass-shine': 'glassShine 4s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0', transform: 'translateY(4px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        fadeInUp: {
+          '0%': { opacity: '0', transform: 'translateY(12px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         slideUp: {
@@ -110,6 +123,35 @@ export default {
           '0%': { opacity: '0.5', transform: 'translateY(2px)' },
           '50%': { opacity: '1', transform: 'translateY(0)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        bounceSubtle: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-3px)' },
+        },
+        ripple: {
+          '0%': { transform: 'scale(0)', opacity: '0.6' },
+          '100%': { transform: 'scale(4)', opacity: '0' },
+        },
+        glow: {
+          '0%': { boxShadow: '0 0 20px rgba(156,122,62,0.1), 0 0 40px rgba(156,122,62,0.05)' },
+          '100%': { boxShadow: '0 0 30px rgba(156,122,62,0.2), 0 0 60px rgba(156,122,62,0.1)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '33%': { transform: 'translateY(-10px)' },
+          '66%': { transform: 'translateY(5px)' },
+        },
+        staggerFade: {
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideInRight: {
+          '0%': { opacity: '0', transform: 'translateX(20px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        glassShine: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
         },
       },
     },

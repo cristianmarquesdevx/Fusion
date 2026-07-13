@@ -52,19 +52,13 @@ export default function Login() {
         />
 
         <div className="w-full max-w-md relative z-10">
-          {/* Logo */}
-          <div className="flex items-center gap-3 mb-12">
-            <div className="w-12 h-12 rounded-xl bg-gold dark:bg-gold-dark flex items-center justify-center text-brand-strong dark:text-brand-dark-ink font-display font-bold text-2xl">
-              F
-            </div>
-            <div>
-              <div className="font-display text-2xl font-bold text-ink dark:text-ink-dark">
-                Fusion
-              </div>
-              <div className="text-[11px] tracking-[1.2px] uppercase text-ink-faint dark:text-ink-dark-faint">
-                ERP Estética
-              </div>
-            </div>
+          {/* Logo — ENORME, só a logo, sem texto */}
+          <div className="flex justify-center mb-16">
+            <img
+              src="/LOGO.png"
+              alt="Fusion ERP"
+              className="w-44 h-44 sm:w-52 sm:h-52 object-contain rounded-[32px] shadow-2xl ring-1 ring-black/5"
+            />
           </div>
 
           {/* Welcome */}
