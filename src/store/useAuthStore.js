@@ -75,11 +75,15 @@ export const useAuthStore = create((set, get) => ({
   },
 
   // Logout action
-  logout: async () => {
+  logout: async (navigate) => {
     await SupabaseService.signOut();
     StorageService.remove(SESSION_KEY);
     set({ ...initialState });
-    window.location.href = '/login';
+    if (navigate) {
+      navigate('/login', { replace: true });
+    } else {
+      window.location.href = '/login';
+    }
   },
 
   // Clear error

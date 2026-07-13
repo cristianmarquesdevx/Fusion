@@ -6,6 +6,9 @@ import { useAuthStore } from './store/useAuthStore';
 import { useUIStore } from './store/useUIStore';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Clientes from './pages/Clientes';
+import Agenda from './pages/Agenda';
+import FilaAtendimento from './pages/FilaAtendimento';
 import Shell from './components/layout/Shell';
 
 function ProtectedRoute({ children }) {
@@ -84,6 +87,42 @@ export default function App() {
           <ProtectedRoute>
             <Shell>
               <Dashboard />
+            </Shell>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Clientes */}
+      <Route
+        path="/clientes"
+        element={
+          <ProtectedRoute>
+            <Shell>
+              <Clientes />
+            </Shell>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Agenda */}
+      <Route
+        path="/agenda"
+        element={
+          <ProtectedRoute>
+            <Shell>
+              <Agenda />
+            </Shell>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Fila de Atendimento */}
+      <Route
+        path="/fila-atendimento"
+        element={
+          <ProtectedRoute>
+            <Shell>
+              <FilaAtendimento />
             </Shell>
           </ProtectedRoute>
         }

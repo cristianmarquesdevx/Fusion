@@ -5,6 +5,18 @@ import { useDashboardStore } from '../store/useDashboardStore';
 import { Helpers } from '../utils/helpers';
 import KPICard from '../components/dashboard/KPICard';
 import TimelineItem from '../components/dashboard/TimelineItem';
+import DashboardSkeleton from '../components/dashboard/Skeleton';
+
+const stockItems = [
+  { name: 'Toxina botulínica 100U', min: 5, qty: 2, critical: true },
+  { name: 'Ácido hialurônico 1ml', min: 8, qty: 3, critical: true },
+  { name: 'Máscara pós-peeling', min: 20, qty: 14, critical: false },
+];
+
+const waitlistItems = [
+  { initials: 'LT', name: 'Larissa Teixeira', detail: 'Botox · prefere manhã' },
+  { initials: 'RG', name: 'Rafael Gomes', detail: 'Limpeza de pele · qualquer horário' },
+];
 
 export default function Dashboard() {
   const metrics = useDashboardStore((s) => s.metrics);
@@ -14,13 +26,19 @@ export default function Dashboard() {
   const loading = useDashboardStore((s) => s.loading);
 
   useEffect(() => {
-    if (!appointmentsToday.length) {
+    if (!appointmentsToday.length && !loading) {
       loadDashboard();
     }
   }, []);
 
+  if (loading && !appointmentsToday.length) {
+    return <DashboardSkeleton />;
+  }
+
   const now = new Date();
-  const dayName = Helpers.getGreeting();
+  const dayName = Helpers.getDayName(now);
+  const monthName = Helpers.getMonthName(now);
+  const greeting = Helpers.getGreeting();
 
   const maxRevenue = Math.max(...revenueChart.map((d) => d.revenue), 1);
 
@@ -28,15 +46,17 @@ export default function Dashboard() {
     <div className="animate-fade-in">
       {/* Page header */}
       <div className="mb-7">
-        <div className="text-[11.5px] tracking-[1px] uppercase text-gold dark:text-gold-dark font-semibold mb-1.5">
-          {new Date().toLocaleDateString('pt-BR', { weekday: 'long' })},{' '}
-          {new Date().toLocaleDateString('pt-BR', {
-            day: 'numeric',
-            month: 'long',
-          })}
+        <div className="flex items-center gap-3 mb-1.5">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-gold-soft/20 dark:bg-gold-dark-soft/20 text-gold dark:text-gold-dark">
+            {dayName}, {now.getDate()} de {monthName.toLowerCase()}
+          </span>
+          <span className="w-1 h-1 rounded-full bg-border dark:bg-border-dark" />
+          <span className="text-[11.5px] text-ink-faint dark:text-ink-dark-faint font-medium">
+            {String(now.getHours()).padStart(2, '0')}:{String(now.getMinutes()).padStart(2, '0')}
+          </span>
         </div>
         <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-ink dark:text-ink-dark">
-          {dayName}, Ana. O Vitta Jardins está a 82% da agenda hoje.
+          {greeting}, Ana. O Vitta Jardins está a 82% da agenda hoje.
         </h1>
         <p className="text-sm sm:text-[14.5px] text-ink-soft dark:text-ink-dark-soft mt-1.5 max-w-[560px]">
           12 clientes já passaram pela recepção, 6 estão a caminho e 2 aguardam
@@ -89,8 +109,8 @@ export default function Dashboard() {
                 Ordem cronológica das sessões de hoje, por sala e profissional
               </div>
             </div>
-            <button className="text-xs font-semibold text-brand dark:text-brand-dark whitespace-nowrap hover:underline">
-              Ver agenda completa
+            <button className="text-xs font-semibold text-brand dark:text-brand-dark whitespace-nowrap hover:underline underline-offset-2 transition-all">
+              Ver agenda completa &rarr;
             </button>
           </div>
           <div className="px-5 pb-5">
@@ -101,7 +121,7 @@ export default function Dashboard() {
                   className="absolute left-[44px] top-[6px] bottom-[6px] w-px bg-border dark:bg-border-dark"
                   style={{ pointerEvents: 'none' }}
                 />
-                {appointmentsToday.map((appt) => (
+                {appointmentsToday.map((appt, index) => (
                   <TimelineItem
                     key={appt.id}
                     time={appt.time}
@@ -110,12 +130,14 @@ export default function Dashboard() {
                     professional={appt.professional}
                     status={appt.status}
                     room={appt.room}
+                    delay={12}
+                    index={index}
                   />
                 ))}
               </div>
             ) : (
               <div className="py-12 text-center text-ink-faint dark:text-ink-dark-faint text-sm">
-                {loading ? 'Carregando...' : 'Nenhum agendamento para hoje.'}
+                Nenhum agendamento para hoje.
               </div>
             )}
           </div>
@@ -131,21 +153,21 @@ export default function Dashboard() {
             <div className="flex items-end gap-2 h-[120px] pt-2">
               {revenueChart.map((d, i) => {
                 const height = Math.max((d.revenue / maxRevenue) * 100, 4);
-                const isToday = i === revenueChart.slice(-7).length - 1;
+                const isLatest = i === revenueChart.length - 1;
                 return (
                   <div
                     key={i}
-                    className="flex-1 flex flex-col items-center gap-2 h-full justify-end relative"
+                    className="flex-1 flex flex-col items-center gap-2 h-full justify-end relative group/chart"
                   >
-                    <span className="text-[10px] font-mono text-ink-faint dark:text-ink-dark-faint absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                    <span className="text-[10px] font-mono text-ink-faint dark:text-ink-dark-faint absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-0 group-hover/chart:opacity-100 transition-opacity">
                       {Helpers.formatCurrency(d.revenue).replace('R$ ', '')}
                     </span>
                     <div
-                      className={`w-full max-w-[30px] rounded-[6px_6px_3px_3px] transition-all duration-500 ${
-                        isToday
+                      className={`w-full max-w-[30px] rounded-[6px_6px_3px_3px] transition-all duration-500 ease-out cursor-pointer
+                        ${isLatest
                           ? 'bg-gold dark:bg-gold-dark'
-                          : 'bg-brand-soft dark:bg-brand-dark-soft'
-                      }`}
+                          : 'bg-brand-soft dark:bg-brand-dark-soft hover:bg-brand dark:hover:bg-brand-dark'
+                        }`}
                       style={{ height: `${height}%` }}
                     />
                     <span className="text-[11px] text-ink-soft dark:text-ink-dark-soft">
@@ -164,23 +186,19 @@ export default function Dashboard() {
                 <h2 className="font-display text-lg font-semibold text-ink dark:text-ink-dark">
                   Estoque crítico
                 </h2>
-              <div className="text-xs text-ink-faint dark:text-ink-dark-faint mt-0.5">
-                  3 itens abaixo do mínimo
+                <div className="text-xs text-ink-faint dark:text-ink-dark-faint mt-0.5">
+                  {stockItems.filter((i) => i.critical).length} itens abaixo do mínimo
                 </div>
               </div>
-              <button className="text-xs font-semibold text-brand dark:text-brand-dark whitespace-nowrap hover:underline">
+              <button className="text-xs font-semibold text-brand dark:text-brand-dark whitespace-nowrap hover:underline underline-offset-2 transition-all">
                 Repor tudo
               </button>
             </div>
             <div className="px-5 pb-5">
-              {[
-                { name: 'Toxina botulínica 100U', min: 5, qty: 2, critical: true },
-                { name: 'Ácido hialurônico 1ml', min: 8, qty: 3, critical: true },
-                { name: 'Máscara pós-peeling', min: 20, qty: 14, critical: false },
-              ].map((item, i) => (
+              {stockItems.map((item, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between gap-2.5 py-2.5 border-b border-border dark:border-border-dark last:border-b-0"
+                  className="flex items-center justify-between gap-2.5 py-2.5 border-b border-border dark:border-border-dark last:border-b-0 group/item hover:bg-surface-2 dark:hover:bg-surface-dark-2 -mx-5 px-5 transition-colors rounded-sm"
                 >
                   <div className="min-w-0">
                     <div className="text-sm font-semibold text-ink dark:text-ink-dark truncate">
@@ -190,15 +208,25 @@ export default function Dashboard() {
                       Mínimo: {item.min} unidades
                     </div>
                   </div>
-                  <span
-                    className={`font-mono text-sm font-semibold flex-shrink-0 ${
-                      item.critical
-                        ? 'text-rose dark:text-rose-dark'
-                        : 'text-gold dark:text-gold-dark'
-                    }`}
-                  >
-                    {item.qty} un.
-                  </span>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="w-16 h-1.5 rounded-full bg-surface-2 dark:bg-surface-dark-2 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          item.critical ? 'bg-rose dark:bg-rose-dark' : 'bg-gold dark:bg-gold-dark'
+                        }`}
+                        style={{ width: `${Math.min((item.qty / item.min) * 100, 100)}%` }}
+                      />
+                    </div>
+                    <span
+                      className={`font-mono text-sm font-semibold ${
+                        item.critical
+                          ? 'text-rose dark:text-rose-dark'
+                          : 'text-gold dark:text-gold-dark'
+                      }`}
+                    >
+                      {item.qty} un.
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -215,17 +243,14 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="px-5 pb-5">
-              {[
-                { initials: 'LT', name: 'Larissa Teixeira', detail: 'Botox · prefere manhã' },
-                { initials: 'RG', name: 'Rafael Gomes', detail: 'Limpeza de pele · qualquer horário' },
-              ].map((item, i) => (
+              {waitlistItems.map((item, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between gap-2.5 py-2.5 border-b border-border dark:border-border-dark last:border-b-0"
+                  className="flex items-center justify-between gap-2.5 py-2.5 border-b border-border dark:border-border-dark last:border-b-0 group/wait hover:bg-surface-2 dark:hover:bg-surface-dark-2 -mx-5 px-5 transition-colors rounded-sm"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span
-                      className="w-7 h-7 rounded-full flex items-center justify-center font-mono text-[11px] font-bold flex-shrink-0"
+                      className="w-7 h-7 rounded-full flex items-center justify-center font-mono text-[11px] font-bold flex-shrink-0 transition-transform group-hover/wait:scale-105"
                       style={{
                         backgroundColor: '#E7EDE6',
                         color: '#2F4A3E',
@@ -242,7 +267,7 @@ export default function Dashboard() {
                       </div>
                     </div>
                   </div>
-                  <button className="text-[11.5px] font-semibold py-1.5 px-2.5 rounded-full border border-border dark:border-border-dark text-ink-soft dark:text-ink-dark-soft hover:border-brand dark:hover:border-brand-dark hover:text-brand dark:hover:text-brand-dark transition-colors flex-shrink-0">
+                  <button className="text-[11.5px] font-semibold py-1.5 px-2.5 rounded-full border border-border dark:border-border-dark text-ink-soft dark:text-ink-dark-soft hover:border-brand dark:hover:border-brand-dark hover:text-brand dark:hover:text-brand-dark hover:bg-brand-soft/10 dark:hover:bg-brand-dark-soft/10 transition-all flex-shrink-0 active:scale-95">
                     Encaixar
                   </button>
                 </div>

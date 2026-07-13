@@ -2,6 +2,8 @@
 
 /**
  * Fusion ERP v2 — Funções Utilitárias
+ *
+ * Migrado por Cristian Marques
  */
 
 export const Helpers = {
@@ -44,6 +46,55 @@ export const Helpers = {
       .replace('YYYY', year)
       .replace('HH', hours)
       .replace('mm', minutes);
+  },
+
+  getMonthName(indexOrDate) {
+    const meses = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+    ];
+    if (indexOrDate instanceof Date) {
+      return meses[indexOrDate.getMonth()];
+    }
+    if (typeof indexOrDate === 'number' && indexOrDate >= 0 && indexOrDate < 12) {
+      return meses[indexOrDate];
+    }
+    if (typeof indexOrDate === 'string') {
+      const date = new Date(indexOrDate);
+      if (!isNaN(date.getTime())) return meses[date.getMonth()];
+    }
+    return '';
+  },
+
+  getDayName(indexOrDate) {
+    const dias = [
+      'Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira',
+      'Quinta-feira', 'Sexta-feira', 'Sábado',
+    ];
+    if (indexOrDate instanceof Date) {
+      return dias[indexOrDate.getDay()];
+    }
+    if (typeof indexOrDate === 'number' && indexOrDate >= 0 && indexOrDate < 7) {
+      return dias[indexOrDate];
+    }
+    if (typeof indexOrDate === 'string') {
+      const date = new Date(indexOrDate);
+      if (!isNaN(date.getTime())) return dias[date.getDay()];
+    }
+    return '';
+  },
+
+  getShortDayName(indexOrDate) {
+    const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    if (indexOrDate instanceof Date) return dias[indexOrDate.getDay()];
+    if (typeof indexOrDate === 'number' && indexOrDate >= 0 && indexOrDate < 7) {
+      return dias[indexOrDate];
+    }
+    if (typeof indexOrDate === 'string') {
+      const date = new Date(indexOrDate);
+      if (!isNaN(date.getTime())) return dias[date.getDay()];
+    }
+    return '';
   },
 
   formatPhone(phone) {

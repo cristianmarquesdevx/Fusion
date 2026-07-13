@@ -1,12 +1,14 @@
 /** @format */
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useUIStore } from '../../store/useUIStore';
 import { useTheme } from '../../hooks/useTheme';
 import { Helpers } from '../../utils/helpers';
 
 export default function Topbar() {
+  const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
@@ -101,7 +103,7 @@ export default function Topbar() {
 
       {/* Logout */}
       <button
-        onClick={logout}
+        onClick={() => logout(navigate)}
         className="hidden sm:flex w-9 h-9 items-center justify-center rounded-sm border border-border dark:border-border-dark bg-surface dark:bg-surface-dark text-ink-soft dark:text-ink-dark-soft hover:text-rose dark:hover:text-rose-dark transition-colors"
         aria-label="Sair"
         title="Sair"
