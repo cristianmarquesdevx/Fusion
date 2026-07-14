@@ -40,7 +40,7 @@ if ('serviceWorker' in navigator) {
 
     // Init push notification service after SW is ready
     reg.ready.then(() => {
-      import('./services/push-notifications').then(({ initPushService }) => {
+      import('./services/push-notifications.js').then(({ initPushService }) => {
         initPushService();
       }).catch(() => {
         // Push service not critical — silently ignore
