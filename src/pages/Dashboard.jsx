@@ -33,6 +33,7 @@ export default function Dashboard() {
 
   const [loaded, setLoaded] = useState(false);
   const [selectedKPI, setSelectedKPI] = useState(null); // KPI key when modal is open
+  const user = useAuthStore((s) => s.user);
 
   useEffect(() => {
     if (!loaded && !loading) {
@@ -43,8 +44,6 @@ export default function Dashboard() {
   if (loading && !loaded) {
     return <DashboardSkeleton />;
   }
-
-  const user = useAuthStore((s) => s.user);
   const now = new Date();
   const dayName = Helpers.getDayName(now);
   const monthName = Helpers.getMonthName(now);

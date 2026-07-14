@@ -127,7 +127,7 @@ export const supabaseData = {
 
   /** Dashboard: carrega dados consolidados */
   async loadDashboard(unidadeId) {
-    if (!this.isReady) return null;
+    if (!this.isReady || !unidadeId) return null;
     try {
       const { data, error } = await SupabaseService.getDashboardData(unidadeId);
       if (error) throw error;
