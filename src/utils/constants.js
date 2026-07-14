@@ -53,7 +53,7 @@ export const APP_CONFIG = {
   },
 
   theme: {
-    default: 'dark',
+    default: 'light',
     storageKey: 'fusion_theme',
     available: ['light', 'dark', 'system'],
   },
