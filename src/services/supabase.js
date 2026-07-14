@@ -9,13 +9,13 @@
 import { APP_CONFIG } from '../utils';
 import { StorageService } from './storage';
 
+import { createClient } from '@supabase/supabase-js';
+
 let supabaseClient = null;
 let clientReady = false;
 
-async function getClient() {
-  if (supabaseClient) return supabaseClient;
+function initClient() {
   try {
-    const { createClient } = await import('@supabase/supabase-js');
     supabaseClient = createClient(
       APP_CONFIG.supabase.url,
       APP_CONFIG.supabase.anonKey,
@@ -34,7 +34,7 @@ async function getClient() {
   }
 }
 
-const initPromise = getClient();
+initClient();
 
 /**
  * Wrapper para queries Supabase com fallback silencioso
@@ -151,7 +151,7 @@ export const SupabaseService = {
   _status: 'offline',
 
   async init() {
-    await initPromise;
+    // Cliente já foi inicializado no load do módulo (import estatico)
     this._ready = clientReady;
     return this._ready;
   },
