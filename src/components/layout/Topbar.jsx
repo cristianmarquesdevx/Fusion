@@ -6,6 +6,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useUIStore } from '../../store/useUIStore';
 import { useTheme } from '../../hooks/useTheme';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
+import { useAuthListener } from '../../hooks/useAuthListener';
 import { Helpers } from '../../utils/helpers';
 
 export default function Topbar() {
@@ -17,7 +18,10 @@ export default function Topbar() {
 
   const { isOnline, isOffline, queueSize, updateAvailable, checking, dismissUpdate, checkNow } = useOnlineStatus();
 
+  const { authToast, dismissAuthToast } = useAuthListener();
+
   return (
+    <>
     <header className="sticky top-0 z-10 flex items-center gap-4 px-4 sm:px-8 py-4 border-b border-border dark:border-border-dark bg-bg dark:bg-bg-dark">
       {/* Menu toggle (mobile) */}
       <button
@@ -186,5 +190,62 @@ export default function Topbar() {
         </div>
       </div>
     </header>
+
+      {/* Global Auth Toast — sessão encerrada / expirada */}
+      {authToast && (
+        <div
+          className="fixed top-4 right-4 z-[9999] max-w-sm animate-fade-in"
+        >
+          <div
+            className={`rounded-xl px-5 py-4 shadow-xl border ${
+              authToast.type === 'warning'
+                ? 'bg-gold-soft dark:bg-gold-dark/20 border-gold/30 dark:border-gold-dark/30 text-gold dark:text-gold-dark'
+                : authToast.type === 'error'
+                ? 'bg-rose/10 dark:bg-rose-dark/10 border-rose/30 dark:border-rose-dark/30 text-rose dark:text-rose-dark'
+                : 'bg-surface dark:bg-surface-dark border-border dark:border-border-dark text-ink dark:text-ink-dark'
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              {/* Ícone */}
+              <div className="flex-shrink-0 mt-0.5">
+                {authToast.type === 'warning' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 8v4M12 16h.01" />
+                  </svg>
+                )}
+                {authToast.type === 'error' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M15 9l-6 6M9 9l6 6" />
+                  </svg>
+                )}
+                {authToast.type === 'info' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 16v-4M12 8h.01" />
+                  </svg>
+                )}
+              </div>
+              {/* Conteúdo */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold">{authToast.title}</p>
+                <p className="text-xs mt-0.5 opacity-80">{authToast.message}</p>
+              </div>
+              {/* Fechar */}
+              <button
+                onClick={dismissAuthToast}
+                className="flex-shrink-0 p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+                aria-label="Fechar"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

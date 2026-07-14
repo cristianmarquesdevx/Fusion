@@ -171,6 +171,9 @@ export const SupabaseService = {
      AUTH
      ═══════════════════════════════════════════════════════ */
 
+  /**
+   * Login com email e senha (Supabase auth, com fallback local)
+   */
   async signIn(email, password) {
     if (this.isReady()) {
       try {
@@ -179,15 +182,8 @@ export const SupabaseService = {
           const user = result.data.user;
           return {
             success: true,
-            user: {
-              id: user.id,
-              email: user.email,
-              name: user.user_metadata?.name || user.email?.split('@')[0] || 'Usuário',
-              role: user.user_metadata?.role || 'recepcionista',
-              avatar: user.user_metadata?.avatar_url || null,
-              company: user.user_metadata?.company || 'Fusion Estética',
-              companyId: user.user_metadata?.company_id || APP_CONFIG.supabase.demoUnidadeId,
-            },
+            user: this.formatUser(user),
+            session: result.data.session,
           };
         }
         console.warn('[Supabase] SignIn falhou, tentando fallback local:', result.error.message);
@@ -196,6 +192,113 @@ export const SupabaseService = {
       }
     }
     return this._fallbackSignIn(email, password);
+  },
+
+  /**
+   * Login com GitHub OAuth — redireciona para página de autorização do GitHub
+   */
+  async signInWithGithub() {
+    return this._signInWithOAuth('github', 'read:user user:email');
+  },
+
+  /**
+   * Login com Google OAuth — redireciona para página de autorização do Google
+   */
+  async signInWithGoogle() {
+    return this._signInWithOAuth('google', 'email profile');
+  },
+
+  /**
+   * Helper genérico para login OAuth com qualquer provedor do Supabase
+   */
+  async _signInWithOAuth(provider, scopes = '') {
+    if (!this.isReady()) {
+      return { success: false, error: 'Supabase não está disponível.' };
+    }
+    try {
+      const redirectTo = `${window.location.origin}/auth/callback`;
+      const { data, error } = await supabaseClient.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo,
+          scopes,
+        },
+      });
+      if (error) {
+        console.error(`[Supabase] ${provider} OAuth error:`, error.message);
+        return { success: false, error: error.message };
+      }
+      return { success: true, url: data.url };
+    } catch (e) {
+      console.error(`[Supabase] ${provider} OAuth exception:`, e.message);
+      return { success: false, error: e.message };
+    }
+  },
+
+  /**
+   * Processa a callback OAuth — extrai a sessão dos parâmetros da URL
+   */
+  async handleAuthCallback() {
+    if (!this.isReady()) {
+      return { success: false, error: 'Supabase não está disponível.' };
+    }
+    try {
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) throw error;
+      if (data?.session) {
+        return {
+          success: true,
+          user: this.formatUser(data.session.user),
+          session: data.session,
+        };
+      }
+      return { success: false, error: 'Nenhuma sessão encontrada.' };
+    } catch (e) {
+      console.error('[Supabase] Auth callback error:', e.message);
+      return { success: false, error: e.message };
+    }
+  },
+
+  /**
+   * Obtém a sessão atual do Supabase (útil para verificar se já está logado)
+   */
+  async getSession() {
+    if (!this.isReady()) return { data: { session: null }, error: null };
+    try {
+      const result = await supabaseClient.auth.getSession();
+      return result;
+    } catch (e) {
+      return { data: { session: null }, error: e };
+    }
+  },
+
+  /**
+   * Escuta mudanças no estado de autenticação (login, logout, token refresh)
+   * Retorna uma função unsubscribe para limpar o listener.
+   */
+  onAuthStateChange(callback) {
+    if (!this.isReady()) {
+      console.warn('[Supabase] onAuthStateChange: client not ready');
+      return () => {};
+    }
+    const { data } = supabaseClient.auth.onAuthStateChange((event, session) => {
+      callback(event, session);
+    });
+    return data?.subscription?.unsubscribe || (() => {});
+  },
+
+  /** Formata o usuário do Supabase para o formato padrão do Fusion ERP */
+  formatUser(user) {
+    if (!user) return null;
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.user_metadata?.name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuário',
+      avatar: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
+      role: user.user_metadata?.role || 'admin',
+      company: user.user_metadata?.company || 'Fusion Estética',
+      companyId: user.user_metadata?.company_id || APP_CONFIG.supabase.demoUnidadeId,
+    };
   },
 
   _fallbackSignIn(email, password) {

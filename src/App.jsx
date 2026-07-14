@@ -5,6 +5,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/useAuthStore';
 import { useUIStore } from './store/useUIStore';
 import Login from './pages/Login';
+import AuthCallback from './pages/AuthCallback';
 import Dashboard from './pages/Dashboard';
 import Clientes from './pages/Clientes';
 import Agenda from './pages/Agenda';
@@ -66,8 +67,69 @@ function PlaceholderView() {
   );
 }
 
+function SplashScreen() {
+  return (
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-bg dark:bg-bg-dark">
+      {/* Background glow */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(circle at 50% 40%, rgba(47,74,62,0.08) 0%, transparent 50%)',
+        }}
+      />
+
+      <div className="relative z-10 flex flex-col items-center">
+        {/* Logo */}
+        <div className="mb-12">
+          <img
+            src="/LOGO.png"
+            alt="Fusion ERP"
+            className="w-28 h-28 sm:w-32 sm:h-32 object-contain rounded-[28px] shadow-2xl ring-1 ring-black/5 dark:ring-white/10"
+          />
+        </div>
+
+        {/* Spinner */}
+        <div className="relative mb-6">
+          <svg
+            className="animate-spin h-8 w-8 text-gold dark:text-gold-dark"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="3"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            />
+          </svg>
+        </div>
+
+        {/* Text */}
+        <p className="text-sm text-ink-soft dark:text-ink-dark-soft animate-pulse">
+          Restaurando sessão…
+        </p>
+
+        {/* Version */}
+        <p className="absolute bottom-8 text-[11px] text-ink-faint dark:text-ink-dark-faint">
+          Fusion ERP v2.0.0
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const init = useAuthStore((s) => s.init);
+  const loading = useAuthStore((s) => s.loading);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const theme = useUIStore((s) => s.theme);
 
   useEffect(() => {
@@ -80,9 +142,21 @@ export default function App() {
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 
+  // Enquanto o init() está rodando, mostra a Splash Screen
+  // Isso evita o flash da tela de login antes de restaurar a sessão
+  // Exclui /auth/callback que tem seu próprio gerenciamento de loading
+  if (loading && !isAuthenticated && window.location.pathname !== '/auth/callback') {
+    return <SplashScreen />;
+  }
+
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+      <Route
+        path="/auth/callback"
+        element={<AuthCallback />}
+      />
 
       <Route
         path="/login"
