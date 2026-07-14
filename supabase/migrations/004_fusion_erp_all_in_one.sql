@@ -1699,13 +1699,13 @@ on conflict (id) do nothing;
 
 -- 14.7. Planos
 insert into planos (id, unidade_id, nome, descricao, valor, beneficios, cor_tag) values
-  ('g0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'Plano Premium',
+  ('70000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'Plano Premium',
     '1 sessão de limpeza de pele · 20% off em procedimentos · 2x pontos fidelidade · Prioridade na agenda',
     349.00, '["1 sessão de limpeza de pele por mês", "20% off em procedimentos", "2x pontos fidelidade", "Prioridade na agenda"]'::jsonb, '#9C7A3E'),
-  ('g0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'Plano Essencial',
+  ('70000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'Plano Essencial',
     '1 sessão de massagem · 10% off em produtos · 1.5x pontos fidelidade',
     149.00, '["1 sessão de massagem por mês", "10% off em produtos", "1.5x pontos fidelidade"]'::jsonb, '#4C7A5E'),
-  ('g0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 'Plano VIP',
+  ('70000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 'Plano VIP',
     '2 sessões mensais · 30% off · 3x pontos · Agendamento prioritário · Brinde mensal',
     599.00, '["2 sessões mensais", "30% off em procedimentos", "3x pontos fidelidade", "Agendamento prioritário", "Brinde mensal"]'::jsonb, '#6C5CE7')
 on conflict (id) do nothing;
@@ -1724,11 +1724,11 @@ on conflict (id) do nothing;
 
 -- 14.9. Fidelidade — Níveis
 insert into fidelidade_niveis (id, nome, pontos_min, cor, beneficios) values
-  ('h0000000-0000-0000-0000-000000000001', 'Bronze', 0, '#CD7F32', '["Acúmulo de pontos"]'::jsonb),
-  ('h0000000-0000-0000-0000-000000000002', 'Prata', 100, '#C0C0C0', '["Acúmulo de pontos", "Desconto progressivo"]'::jsonb),
-  ('h0000000-0000-0000-0000-000000000003', 'Ouro', 300, '#FFD700', '["Acúmulo de pontos", "Desconto progressivo", "Prioridade de agendamento"]'::jsonb),
-  ('h0000000-0000-0000-0000-000000000004', 'Platina', 600, '#E5E4E2', '["Acúmulo de pontos", "Desconto progressivo", "Prioridade de agendamento", "Acesso a eventos exclusivos"]'::jsonb),
-  ('h0000000-0000-0000-0000-000000000005', 'Diamante', 1000, '#B9F2FF', '["Acúmulo de pontos", "Desconto progressivo", "Prioridade de agendamento", "Acesso a eventos exclusivos", "Brinde de aniversário"]'::jsonb)
+  ('80000000-0000-0000-0000-000000000001', 'Bronze', 0, '#CD7F32', '["Acúmulo de pontos"]'::jsonb),
+  ('80000000-0000-0000-0000-000000000002', 'Prata', 100, '#C0C0C0', '["Acúmulo de pontos", "Desconto progressivo"]'::jsonb),
+  ('80000000-0000-0000-0000-000000000003', 'Ouro', 300, '#FFD700', '["Acúmulo de pontos", "Desconto progressivo", "Prioridade de agendamento"]'::jsonb),
+  ('80000000-0000-0000-0000-000000000004', 'Platina', 600, '#E5E4E2', '["Acúmulo de pontos", "Desconto progressivo", "Prioridade de agendamento", "Acesso a eventos exclusivos"]'::jsonb),
+  ('80000000-0000-0000-0000-000000000005', 'Diamante', 1000, '#B9F2FF', '["Acúmulo de pontos", "Desconto progressivo", "Prioridade de agendamento", "Acesso a eventos exclusivos", "Brinde de aniversário"]'::jsonb)
 on conflict (id) do nothing;
 
 -- 14.10. Fidelidade — Pontos dos clientes
@@ -1743,12 +1743,12 @@ select c.id, c.unidade_id,
     else 0
   end,
   case c.id
-    when '10000000-0000-0000-0000-000000000006' then 'h0000000-0000-0000-0000-000000000005'
-    when '10000000-0000-0000-0000-000000000004' then 'h0000000-0000-0000-0000-000000000004'
-    when '10000000-0000-0000-0000-000000000003' then 'h0000000-0000-0000-0000-000000000003'
-    when '10000000-0000-0000-0000-000000000001' then 'h0000000-0000-0000-0000-000000000003'
-    when '10000000-0000-0000-0000-000000000002' then 'h0000000-0000-0000-0000-000000000002'
-    else 'h0000000-0000-0000-0000-000000000001'
+    when '10000000-0000-0000-0000-000000000006' then '80000000-0000-0000-0000-000000000005'
+    when '10000000-0000-0000-0000-000000000004' then '80000000-0000-0000-0000-000000000004'
+    when '10000000-0000-0000-0000-000000000003' then '80000000-0000-0000-0000-000000000003'
+    when '10000000-0000-0000-0000-000000000001' then '80000000-0000-0000-0000-000000000003'
+    when '10000000-0000-0000-0000-000000000002' then '80000000-0000-0000-0000-000000000002'
+    else '80000000-0000-0000-0000-000000000001'
   end, 0
 from clientes c
 where c.unidade_id = 'a0000000-0000-0000-0000-000000000001'
@@ -1756,12 +1756,12 @@ on conflict (cliente_id, unidade_id) do nothing;
 
 -- 14.11. Estoque — Itens
 insert into estoque_items (id, unidade_id, nome, categoria, quantidade, quantidade_min, unidade_medida, valor_unitario) values
-  ('i0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'Toxina botulínica 100U', 'Injetáveis', 2, 5, 'un', 320.00),
-  ('i0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'Ácido hialurônico 1ml', 'Injetáveis', 3, 8, 'un', 180.00),
-  ('i0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 'Máscara pós-peeling', 'Descartáveis', 14, 20, 'un', 12.50),
-  ('i0000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 'Sérum vitamina C 30ml', 'Cosméticos', 42, 15, 'un', 89.00),
-  ('i0000000-0000-0000-0000-000000000005', 'a0000000-0000-0000-0000-000000000001', 'Luvas de nitrilo (cx.)', 'Descartáveis', 58, 20, 'cx', 24.00),
-  ('i0000000-0000-0000-0000-000000000006', 'a0000000-0000-0000-0000-000000000001', 'Ponteira de laser CO2', 'Equipamentos', 6, 4, 'un', 350.00)
+  ('90000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001', 'Toxina botulínica 100U', 'Injetáveis', 2, 5, 'un', 320.00),
+  ('90000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000001', 'Ácido hialurônico 1ml', 'Injetáveis', 3, 8, 'un', 180.00),
+  ('90000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000001', 'Máscara pós-peeling', 'Descartáveis', 14, 20, 'un', 12.50),
+  ('90000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 'Sérum vitamina C 30ml', 'Cosméticos', 42, 15, 'un', 89.00),
+  ('90000000-0000-0000-0000-000000000005', 'a0000000-0000-0000-0000-000000000001', 'Luvas de nitrilo (cx.)', 'Descartáveis', 58, 20, 'cx', 24.00),
+  ('90000000-0000-0000-0000-000000000006', 'a0000000-0000-0000-0000-000000000001', 'Ponteira de laser CO2', 'Equipamentos', 6, 4, 'un', 350.00)
 on conflict (id) do nothing;
 
 -- 14.12. Agendamentos de exemplo (para hoje)
