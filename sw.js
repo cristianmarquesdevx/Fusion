@@ -6,8 +6,8 @@
 
 'use strict';
 
-var CACHE_STATIC = 'fusion-static-v1';
-var CACHE_DYNAMIC = 'fusion-dynamic-v1';
+var CACHE_STATIC = 'fusion-static-v2';
+var CACHE_DYNAMIC = 'fusion-dynamic-v2';
 
 var API_DOMAINS = ['supabase.com','supabase.co','njbkbhqioieqfzfaczqs.supabase.com'];
 
