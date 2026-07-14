@@ -2,6 +2,8 @@
 
 /**
  * Fusion ERP v2 — Supabase Client Service
+ * Serviço central de banco de dados com suporte a todos os módulos.
+ * Inclui fallback para localStorage quando Supabase não está disponível.
  */
 
 import { APP_CONFIG } from '../utils/constants';
@@ -33,8 +35,119 @@ async function getClient() {
   }
 }
 
-// Initialize immediately
 const initPromise = getClient();
+
+/**
+ * Wrapper para queries Supabase com fallback silencioso
+ */
+/** Aplica filtros encadeados a uma query Supabase */
+function applyFilters(q, params) {
+  if (params.columns) q = q.select(params.columns);
+  // Suporta array ou objeto único para eq
+  if (params.eq) {
+    const conditions = Array.isArray(params.eq) ? params.eq : [params.eq];
+    conditions.forEach((c) => { q = q.eq(c.field, c.value); });
+  }
+  if (params.neq) q = q.neq(params.neq.field, params.neq.value);
+  if (params.gte) q = q.gte(params.gte.field, params.gte.value);
+  if (params.lte) q = q.lte(params.lte.field, params.lte.value);
+  if (params.in) q = q.in(params.in.field, params.in.values);
+  if (params.order) q = q.order(params.order.field, { ascending: params.order.ascending !== false });
+  if (params.limit) q = q.limit(params.limit);
+  if (params.range) q = q.range(params.range.from, params.range.to);
+  if (params.single) q = q.single();
+  return q;
+}
+
+async function query(table, method = 'select', params = {}) {
+  if (!clientReady || !supabaseClient) {
+    console.warn(`[Supabase] Offline — ${method} em "${table}" ignorado`);
+    return { data: null, error: new Error('Supabase offline'), offline: true };
+  }
+  try {
+    let q = supabaseClient.from(table);
+    let result;
+
+    switch (method) {
+      case 'select':
+        q = applyFilters(q.select(params.columns || '*'), params);
+        result = await q;
+        break;
+
+      case 'insert':
+        result = await supabaseClient.from(table).insert(params.data).select();
+        break;
+
+      case 'upsert':
+        result = await supabaseClient.from(table).upsert(params.data, { onConflict: params.onConflict }).select();
+        break;
+
+      case 'update':
+        q = supabaseClient.from(table).update(params.data);
+        if (params.eq) q = q.eq(params.eq.field, params.eq.value);
+        if (params.in) q = q.in(params.in.field, params.in.values);
+        result = await q.select();
+        break;
+
+      case 'delete':
+        q = supabaseClient.from(table).delete();
+        if (params.eq) q = q.eq(params.eq.field, params.eq.value);
+        if (params.in) q = q.in(params.in.field, params.in.values);
+        result = await q;
+        break;
+
+      case 'rpc':
+        result = await supabaseClient.rpc(params.func, params.args);
+        break;
+
+      default:
+        throw new Error(`Método desconhecido: ${method}`);
+    }
+
+    return result;
+  } catch (e) {
+    console.error(`[Supabase] Erro em ${method} "${table}":`, e);
+    return { data: null, error: e };
+  }
+}
+
+/**
+ * Helper: filtro contextual com unidade_id
+ */
+function withUnit(table, unidadeId) {
+  return {
+    table,
+    unidadeId,
+    async select(params = {}) {
+      // Sempre inclui o filtro de unidade_id quando disponível
+      const filters = { ...params };
+      if (unidadeId) {
+        const unitFilter = { field: 'unidade_id', value: unidadeId };
+        if (filters.eq) {
+          filters.eq = Array.isArray(filters.eq)
+            ? [...filters.eq, unitFilter]
+            : [filters.eq, unitFilter];
+        } else {
+          filters.eq = unitFilter;
+        }
+      }
+      return query(table, 'select', filters);
+    },
+    async insert(data) {
+      const payload = unidadeId ? { ...data, unidade_id: unidadeId } : data;
+      return query(table, 'insert', { data: payload });
+    },
+    async update(id, data) {
+      return query(table, 'update', { data, eq: { field: 'id', value: id } });
+    },
+    async delete(id) {
+      return query(table, 'delete', { eq: { field: 'id', value: id } });
+    },
+    async getById(id) {
+      return query(table, 'select', { eq: { field: 'id', value: id }, single: true });
+    },
+  };
+}
 
 export const SupabaseService = {
   _ready: false,
@@ -54,8 +167,11 @@ export const SupabaseService = {
     return this._status;
   },
 
+  /* ═══════════════════════════════════════════════════════
+     AUTH
+     ═══════════════════════════════════════════════════════ */
+
   async signIn(email, password) {
-    // Tenta Supabase primeiro se o cliente estiver pronto
     if (this.isReady()) {
       try {
         const result = await supabaseClient.auth.signInWithPassword({ email, password });
@@ -70,25 +186,20 @@ export const SupabaseService = {
               role: user.user_metadata?.role || 'recepcionista',
               avatar: user.user_metadata?.avatar_url || null,
               company: user.user_metadata?.company || 'Fusion Estética',
-              companyId: user.user_metadata?.company_id || '1',
+              companyId: user.user_metadata?.company_id || APP_CONFIG.supabase.demoUnidadeId,
             },
           };
         }
-        // Se Supabase retornou erro (ex.: credenciais inválidas), tenta fallback local
         console.warn('[Supabase] SignIn falhou, tentando fallback local:', result.error.message);
       } catch (e) {
         console.warn('[Supabase] SignIn com erro de rede, tentando fallback local:', e.message);
       }
     }
-
-    // Fallback local (modo demonstrativo)
     return this._fallbackSignIn(email, password);
   },
 
   _fallbackSignIn(email, password) {
-    const found = APP_CONFIG.demoUsers.find(
-      (u) => u.email === email && u.password === password
-    );
+    const found = APP_CONFIG.demoUsers.find((u) => u.email === email && u.password === password);
     if (found) {
       return {
         success: true,
@@ -99,7 +210,7 @@ export const SupabaseService = {
           role: found.role,
           avatar: null,
           company: 'Fusion Estética',
-          companyId: '1',
+          companyId: APP_CONFIG.supabase.demoUnidadeId,
         },
       };
     }
@@ -118,28 +229,265 @@ export const SupabaseService = {
     return true;
   },
 
-  async select(table, columns = '*', options = {}) {
-    if (!this.isReady()) return { data: null, error: new Error('Supabase não conectado') };
-    try {
-      let query = supabaseClient.from(table).select(columns);
-      if (options.eq) query = query.eq(options.eq.field, options.eq.value);
-      if (options.order) query = query.order(options.order.field, { ascending: options.order.ascending !== false });
-      if (options.limit) query = query.limit(options.limit);
-      return await query;
-    } catch (e) {
-      return { data: null, error: e };
-    }
+  /* ═══════════════════════════════════════════════════════
+     QUERY GENÉRICA
+     ═══════════════════════════════════════════════════════ */
+
+  query,
+  withUnit,
+
+  /* ═══════════════════════════════════════════════════════
+     CLIENTES
+     ═══════════════════════════════════════════════════════ */
+
+  clientes(unidadeId) { return withUnit('clientes', unidadeId); },
+
+  async buscarClientes(termo, unidadeId, limite = 20) {
+    return query('buscar_clientes', 'rpc', {
+      func: 'buscar_clientes',
+      args: { p_termo: termo, p_unidade_id: unidadeId, p_limite: limite },
+    });
   },
 
-  async insert(table, data) {
-    if (!this.isReady()) return { data: null, error: new Error('Supabase não conectado') };
-    try {
-      return await supabaseClient.from(table).insert(data).select();
-    } catch (e) {
-      return { data: null, error: e };
-    }
+  /* ═══════════════════════════════════════════════════════
+     PRONTUÁRIOS
+     ═══════════════════════════════════════════════════════ */
+
+  prontuarios(unidadeId) { return withUnit('prontuarios', unidadeId); },
+
+  async listarProntuarios(clienteId) {
+    return query('prontuarios', 'select', {
+      eq: { field: 'cliente_id', value: clienteId },
+      order: { field: 'data', ascending: false },
+    });
+  },
+
+  /* ═══════════════════════════════════════════════════════
+     PROFISSIONAIS
+     ═══════════════════════════════════════════════════════ */
+
+  profissionais(unidadeId) { return withUnit('profissionais', unidadeId); },
+
+  /* ═══════════════════════════════════════════════════════
+     SERVIÇOS
+     ═══════════════════════════════════════════════════════ */
+
+  servicos(unidadeId) { return withUnit('servicos', unidadeId); },
+
+  /* ═══════════════════════════════════════════════════════
+     AGENDAMENTOS
+     ═══════════════════════════════════════════════════════ */
+
+  agendamentos(unidadeId) { return withUnit('agendamentos', unidadeId); },
+
+  async listarAgendamentos(unidadeId, data) {
+    return query('agendamentos', 'select', {
+      eq: [
+        { field: 'unidade_id', value: unidadeId },
+        { field: 'data', value: data },
+      ],
+      order: { field: 'hora', ascending: true },
+    });
+  },
+
+  async criarAgendamento(dados) {
+    return query('criar_agendamento', 'rpc', {
+      func: 'criar_agendamento',
+      args: dados,
+    });
+  },
+
+  /* ═══════════════════════════════════════════════════════
+     FILA DE ATENDIMENTO
+     ═══════════════════════════════════════════════════════ */
+
+  fila(unidadeId) { return withUnit('sessoes_fila', unidadeId); },
+
+  async listarFila(unidadeId, status) {
+    const params = {
+      eq: { field: 'unidade_id', value: unidadeId },
+      order: { field: 'hora_programada', ascending: true },
+    };
+    if (status) params.neq = { field: 'status', value: 'concluido' };
+    return query('sessoes_fila', 'select', params);
+  },
+
+  async finalizarSessao(sessaoId, valorReal) {
+    return query('finalizar_sessao', 'rpc', {
+      func: 'finalizar_sessao',
+      args: { p_sessao_id: sessaoId, p_valor_real: valorReal },
+    });
+  },
+
+  /* ═══════════════════════════════════════════════════════
+     SALAS
+     ═══════════════════════════════════════════════════════ */
+
+  salas(unidadeId) { return withUnit('salas', unidadeId); },
+
+  /* ═══════════════════════════════════════════════════════
+     EQUIPAMENTOS
+     ═══════════════════════════════════════════════════════ */
+
+  equipamentos(unidadeId) { return withUnit('equipamentos', unidadeId); },
+
+  async listarEquipamentos(salaId) {
+    return query('equipamentos', 'select', { eq: { field: 'sala_id', value: salaId } });
+  },
+
+  /* ═══════════════════════════════════════════════════════
+     FINANCEIRO
+     ═══════════════════════════════════════════════════════ */
+
+  transacoes(unidadeId) { return withUnit('transacoes', unidadeId); },
+
+  async listarTransacoes(unidadeId, periodo) {
+    const params = {
+      eq: { field: 'unidade_id', value: unidadeId },
+      order: { field: 'data', ascending: false },
+    };
+    if (periodo?.inicio) params.gte = { field: 'data', value: periodo.inicio };
+    if (periodo?.fim) params.lte = { field: 'data', value: periodo.fim };
+    return query('transacoes', 'select', params);
+  },
+
+  /* ═══════════════════════════════════════════════════════
+     PDV
+     ═══════════════════════════════════════════════════════ */
+
+  pdv(unidadeId) { return withUnit('pdv_vendas', unidadeId); },
+
+  async finalizarVenda(dados) {
+    return query('finalizar_venda_pdv', 'rpc', {
+      func: 'finalizar_venda_pdv',
+      args: dados,
+    });
+  },
+
+  /* ═══════════════════════════════════════════════════════
+     ESTOQUE
+     ═══════════════════════════════════════════════════════ */
+
+  estoque(unidadeId) { return withUnit('estoque_items', unidadeId); },
+
+  async listarEstoqueCritico(unidadeId) {
+    return query('vw_estoque_critico', 'select', { eq: { field: 'unidade_id', value: unidadeId } });
+  },
+
+  entradaEstoque(unidadeId) { return withUnit('estoque_entradas', unidadeId); },
+
+  async registrarEntrada(unidadeId, itemId, quantidade, valorUnitario, fornecedor) {
+    return query('registrar_entrada_estoque', 'rpc', {
+      func: 'registrar_entrada_estoque',
+      args: {
+        p_unidade_id: unidadeId,
+        p_item_id: itemId,
+        p_quantidade: quantidade,
+        p_valor_unitario: valorUnitario,
+        p_fornecedor: fornecedor,
+        p_created_by: null,
+      },
+    });
+  },
+
+  async registrarSaida(unidadeId, itemId, quantidade, motivo) {
+    return query('registrar_saida_estoque', 'rpc', {
+      func: 'registrar_saida_estoque',
+      args: {
+        p_unidade_id: unidadeId,
+        p_item_id: itemId,
+        p_quantidade: quantidade,
+        p_motivo: motivo,
+        p_created_by: null,
+      },
+    });
+  },
+
+  /* ═══════════════════════════════════════════════════════
+     PACOTES E PLANOS
+     ═══════════════════════════════════════════════════════ */
+
+  pacotes(unidadeId) { return withUnit('pacotes', unidadeId); },
+  planos(unidadeId) { return withUnit('planos', unidadeId); },
+  assinaturas() { return withUnit('assinaturas', null); },
+  clientePacotes() { return withUnit('cliente_pacotes', null); },
+
+  /* ═══════════════════════════════════════════════════════
+     FIDELIDADE
+     ═══════════════════════════════════════════════════════ */
+
+  fidelidadeClientes() { return withUnit('fidelidade_clientes', null); },
+  fidelidadeHistorico() { return withUnit('fidelidade_historico', null); },
+
+  async listarFidelidadeNiveis() {
+    return query('fidelidade_niveis', 'select', { order: { field: 'pontos_min', ascending: true } });
+  },
+
+  async listarFidelidadeCompleta(unidadeId) {
+    return query('vw_fidelidade_completa', 'select', { eq: { field: 'unidade_id', value: unidadeId } });
+  },
+
+  /* ═══════════════════════════════════════════════════════
+     LISTA DE ESPERA
+     ═══════════════════════════════════════════════════════ */
+
+  listaEspera(unidadeId) { return withUnit('lista_espera', unidadeId); },
+
+  /* ═══════════════════════════════════════════════════════
+     DASHBOARD / BI
+     ═══════════════════════════════════════════════════════ */
+
+  async getDashboardData(unidadeId) {
+    return query('get_dashboard_data', 'rpc', {
+      func: 'get_dashboard_data',
+      args: { p_unidade_id: unidadeId },
+    });
+  },
+
+  async getFinanceiroMensal(unidadeId) {
+    return query('vw_financeiro_mensal', 'select', { eq: { field: 'unidade_id', value: unidadeId } });
+  },
+
+  async getTopClientes(unidadeId) {
+    return query('vw_top_clientes', 'select', { eq: { field: 'unidade_id', value: unidadeId } });
+  },
+
+  async getBIIndicadores(unidadeId) {
+    return query('vw_bi_indicadores', 'select', { eq: { field: 'unidade_id', value: unidadeId } });
+  },
+
+  /* ═══════════════════════════════════════════════════════
+     CONFIGURAÇÕES
+     ═══════════════════════════════════════════════════════ */
+
+  unidades() { return withUnit('unidades', null); },
+
+  async listarUnidades() {
+    return query('unidades', 'select', { order: { field: 'nome', ascending: true } });
+  },
+
+  usuarios() { return withUnit('usuarios', null); },
+
+  /* ═══════════════════════════════════════════════════════
+     AUDITORIA
+     ═══════════════════════════════════════════════════════ */
+
+  async registrarAuditoria(unidadeId, acao, entidade, entidadeId, detalhes) {
+    return query('auditoria', 'insert', {
+      data: { unidade_id: unidadeId, acao, entidade, entidade_id: entidadeId, detalhes },
+    });
+  },
+
+  async listarAuditoria(unidadeId, limite = 20) {
+    return query('auditoria', 'select', {
+      eq: { field: 'unidade_id', value: unidadeId },
+      order: { field: 'created_at', ascending: false },
+      limit: limite,
+    });
   },
 };
 
 // Auto-init
 SupabaseService.init();
+
+export default SupabaseService;
