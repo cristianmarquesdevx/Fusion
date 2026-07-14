@@ -5,7 +5,7 @@ import React from 'react';
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, retries: 0 };
   }
 
   static getDerivedStateFromError(error) {
@@ -13,8 +13,7 @@ export default class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('[ErrorBoundary]', error, errorInfo);
-    // Tenta enviar para um serviço de log se disponível
+    console.error('[ErrorBoundary]', error?.message, error?.stack);
     try {
       if (typeof window !== 'undefined') {
         window.dispatchEvent(
@@ -29,7 +28,12 @@ export default class ErrorBoundary extends React.Component {
   }
 
   handleReset = () => {
-    this.setState({ hasError: false, error: null });
+    const max = this.props.maxRetries ?? 3;
+    if (this.state.retries >= max) {
+      window.location.reload();
+      return;
+    }
+    this.setState((prev) => ({ hasError: false, error: null, retries: prev.retries + 1 }));
   };
 
   handleReload = () => {
@@ -39,6 +43,7 @@ export default class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       const isCritical = this.props.fallback === 'critical';
+      const errorMsg = this.state.error?.message || this.state.error?.toString() || 'Erro desconhecido';
 
       if (isCritical) {
         return (
@@ -55,18 +60,29 @@ export default class ErrorBoundary extends React.Component {
               </h2>
               <p className="text-sm text-ink-soft dark:text-ink-dark-soft mb-6 leading-relaxed">
                 Ocorreu um erro inesperado ao carregar esta página.
-                {this.state.error?.message && (
-                  <span className="block mt-2 font-mono text-[11px] text-ink-faint dark:text-ink-dark-faint break-all bg-surface-2 dark:bg-surface-dark-2 p-3 rounded-lg">
-                    {this.state.error.message}
-                  </span>
-                )}
               </p>
+              {/* Mensagem de erro para debug */}
+              <div className="mb-6 p-4 rounded-lg bg-surface-2 dark:bg-surface-dark-2 border border-border dark:border-border-dark text-left">
+                <p className="text-[11px] font-mono text-ink-faint dark:text-ink-dark-faint break-all leading-relaxed select-all">
+                  {errorMsg}
+                </p>
+                {this.state.error?.stack && (
+                  <details className="mt-2">
+                    <summary className="text-[10px] text-ink-faint/60 dark:text-ink-dark-faint/60 cursor-pointer hover:text-ink-soft dark:hover:text-ink-dark-soft">
+                      Stack trace
+                    </summary>
+                    <pre className="mt-2 text-[10px] font-mono text-ink-faint/50 dark:text-ink-dark-faint/50 break-all whitespace-pre-wrap max-h-32 overflow-y-auto">
+                      {this.state.error.stack}
+                    </pre>
+                  </details>
+                )}
+              </div>
               <div className="flex items-center justify-center gap-3">
                 <button
                   onClick={this.handleReset}
                   className="px-5 py-2.5 rounded-lg bg-surface-2 dark:bg-surface-dark-2 text-ink dark:text-ink-dark text-sm font-semibold hover:bg-surface-3 dark:hover:bg-surface-dark-3 transition-colors"
                 >
-                  Tentar novamente
+                  Tentar novamente ({3 - this.state.retries})
                 </button>
                 <button
                   onClick={this.handleReload}
@@ -99,7 +115,7 @@ export default class ErrorBoundary extends React.Component {
             onClick={this.handleReset}
             className="mt-4 text-xs font-semibold text-brand dark:text-brand-dark hover:underline underline-offset-2"
           >
-            Tentar novamente
+            Tentar novamente ({3 - this.state.retries})
           </button>
         </div>
       );
