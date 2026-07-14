@@ -9,25 +9,23 @@ import ErrorBoundary from './components/ui/ErrorBoundary';
 
 // Import direto do Dashboard para diagnóstico do erro #300
 import Dashboard from './pages/Dashboard';
-
-// Lazy-loaded pages for code splitting
-const Login = lazy(() => import('./pages/Login'));
-const AuthCallback = lazy(() => import('./pages/AuthCallback'));
-const Clientes = lazy(() => import('./pages/Clientes'));
-const Agenda = lazy(() => import('./pages/Agenda'));
-const FilaAtendimento = lazy(() => import('./pages/FilaAtendimento'));
-const Financeiro = lazy(() => import('./pages/Financeiro'));
-const Estoque = lazy(() => import('./pages/Estoque'));
-const Fidelidade = lazy(() => import('./pages/Fidelidade'));
-const Pacotes = lazy(() => import('./pages/Pacotes'));
-const PDV = lazy(() => import('./pages/PDV'));
-const BI = lazy(() => import('./pages/BI'));
-const PlanosRecorrentes = lazy(() => import('./pages/PlanosRecorrentes'));
-const ListaEspera = lazy(() => import('./pages/ListaEspera'));
-const Salas = lazy(() => import('./pages/Salas'));
-const Configuracoes = lazy(() => import('./pages/Configuracoes'));
-const Relatorios = lazy(() => import('./pages/Relatorios'));
-const Prontuario = lazy(() => import('./pages/Prontuario'));
+import Login from './pages/Login';
+import AuthCallback from './pages/AuthCallback';
+import Clientes from './pages/Clientes';
+import Agenda from './pages/Agenda';
+import FilaAtendimento from './pages/FilaAtendimento';
+import Financeiro from './pages/Financeiro';
+import Estoque from './pages/Estoque';
+import Fidelidade from './pages/Fidelidade';
+import Pacotes from './pages/Pacotes';
+import PDV from './pages/PDV';
+import BI from './pages/BI';
+import PlanosRecorrentes from './pages/PlanosRecorrentes';
+import ListaEspera from './pages/ListaEspera';
+import Salas from './pages/Salas';
+import Configuracoes from './pages/Configuracoes';
+import Relatorios from './pages/Relatorios';
+import Prontuario from './pages/Prontuario';
 
 function ProtectedRoute({ children }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
