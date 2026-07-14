@@ -58,8 +58,9 @@ async function setupAuthListener() {
           } catch { /* ignora erro de storage */ }
         }
 
-        // Redirecionar para o login (a não ser que já estejamos lá)
-        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+        // Redirecionar para o login apenas se NÃO foi logout intencional
+        // (logout intencional já navega via React Router no método logout())
+        if (typeof window !== 'undefined' && !isIntentionalLogout && !window.location.pathname.includes('/login')) {
           window.location.href = '/login';
         }
       }
