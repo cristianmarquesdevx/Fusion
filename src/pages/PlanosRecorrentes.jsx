@@ -1,9 +1,9 @@
 /** @format */
 
 import React, { useState } from 'react';
-import { usePlanosStore } from '../store/usePlanosStore';
-import { Helpers } from '../utils/helpers';
-import Modal from '../components/ui/Modal';
+import { usePlanosStore } from '../store';
+import { Helpers } from '../utils';
+import { Modal } from '../components/ui';
 
 /* ─── Card de plano ─── */
 function PlanoCard({ plano, idx, isPopular }) {
@@ -135,8 +135,7 @@ export default function PlanosRecorrentes() {
       </div>
 
       {/* Modal Novo Plano */}
-      {modalOpen && (
-        <Modal onClose={() => setModalOpen(false)} title="Novo Plano Recorrente" maxWidth="max-w-sm">
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Novo Plano Recorrente" maxWidth="max-w-sm">
           <div className="p-5 space-y-4">
             <div>
               <label className="text-xs font-semibold text-ink-soft dark:text-ink-dark-soft mb-1.5 block">Nome do plano</label>
@@ -175,7 +174,6 @@ export default function PlanosRecorrentes() {
             </div>
           </div>
         </Modal>
-      )}
     </div>
   );
 }

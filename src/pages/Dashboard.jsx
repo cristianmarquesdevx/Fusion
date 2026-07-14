@@ -1,15 +1,9 @@
 /** @format */
 
 import React, { useEffect, useState } from 'react';
-import { useDashboardStore } from '../store/useDashboardStore';
-import { Helpers } from '../utils/helpers';
-import KPICard from '../components/dashboard/KPICard';
-import TimelineItem from '../components/dashboard/TimelineItem';
-import RevenueAreaChart from '../components/dashboard/RevenueAreaChart';
-import ServicesChart from '../components/dashboard/ServicesChart';
-import ProfessionalsBarChart from '../components/dashboard/ProfessionalsBarChart';
-import KPIExpandedModal from '../components/dashboard/KPIExpandedModal';
-import DashboardSkeleton from '../components/dashboard/Skeleton';
+import { useDashboardStore, useAuthStore } from '../store';
+import { Helpers } from '../utils';
+import { KPICard, TimelineItem, RevenueAreaChart, ServicesChart, ProfessionalsBarChart, KPIExpandedModal, DashboardSkeleton } from '../components/dashboard';
 
 const stockItems = [
   { name: 'Toxina botulínica 100U', min: 5, qty: 2, critical: true, category: 'Injetáveis' },
@@ -50,10 +44,14 @@ export default function Dashboard() {
     return <DashboardSkeleton />;
   }
 
+  const user = useAuthStore((s) => s.user);
   const now = new Date();
   const dayName = Helpers.getDayName(now);
   const monthName = Helpers.getMonthName(now);
   const greeting = Helpers.getGreeting();
+
+  // Pega apenas o primeiro nome do usuário logado
+  const firstName = user?.name?.split(' ')[0] || 'Usuário';
 
   return (
     <div className="animate-fade-in pb-6">
@@ -74,7 +72,7 @@ export default function Dashboard() {
           </span>
         </div>
         <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-ink dark:text-ink-dark leading-tight">
-          {greeting}, Ana. <span className="text-gold dark:text-gold-dark">Vitta Jardins</span> está pulsando.
+          {greeting}, {firstName}. <span className="text-gold dark:text-gold-dark">{user?.company || 'Vitta Jardins'}</span> está pulsando.
         </h1>
         <p className="text-sm sm:text-[15px] text-ink-soft dark:text-ink-dark-soft mt-2 max-w-[600px] leading-relaxed">
           <span className="font-semibold text-ink dark:text-ink-dark">{appointmentsToday.filter(a => a.status === 'concluido').length} clientes</span> já passaram pela recepção hoje ·{' '}

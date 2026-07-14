@@ -21,7 +21,6 @@ export const StorageService = {
       this._cache.set(fullKey, value);
       return true;
     } catch (e) {
-      console.error('[Storage] Erro ao salvar:', e);
       return false;
     }
   },

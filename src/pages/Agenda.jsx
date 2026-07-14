@@ -1,15 +1,21 @@
 /** @format */
 
-import React, { useState } from 'react';
-import { useAgendaStore } from '../store/useAgendaStore';
-import { Helpers } from '../utils/helpers';
-import WeekGrid from '../components/agenda/WeekGrid';
-import AgendamentoModal from '../components/agenda/AgendamentoModal';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useAgendaStore, useClientStore } from '../store';
+import { Helpers } from '../utils';
+import { WeekGrid, AgendamentoModal, SessaoDetailModal } from '../components/agenda';
 
 export default function Agenda() {
   const { timeSlots, weekDays, weekGrid, professionals, viewMode, setViewMode, moveAppointment } = useAgendaStore();
+  const loadFromSupabase = useAgendaStore((s) => s.loadFromSupabase);
+  const clients = useClientStore((s) => s.clients);
+
   const [modalOpen, setModalOpen] = useState(false);
   const [modalKey, setModalKey] = useState(0);
+  const [sessionModalOpen, setSessionModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+
+  useEffect(() => { loadFromSupabase(); }, [loadFromSupabase]);
 
   const metrics = {
     total: () => weekGrid.flat().filter(Boolean).length,
@@ -28,12 +34,22 @@ export default function Agenda() {
 
   const t = metrics.today();
 
-  const handleCellClick = (time, dayIdx) => {
+  const handleCellClick = useCallback((time, dayIdx) => {
     setModalKey((k) => k + 1);
     setModalOpen(true);
-  };
+  }, []);
 
+  /** Ao clicar em um agendamento existente, abre SessaoDetailModal com dados completos */
+  const handleAppointmentClick = useCallback((appt) => {
+    // SessaoDetailModal busca dados do cliente, fidelidade e prontuario internamente
+    setSelectedAppointment(appt);
+    setSessionModalOpen(true);
+  }, []);
 
+  const handleSessionModalClose = useCallback(() => {
+    setSessionModalOpen(false);
+    setSelectedAppointment(null);
+  }, []);
 
   return (
     <div className="animate-fade-in">
@@ -133,6 +149,16 @@ export default function Agenda() {
           </button>
         </div>
 
+        {/* Vinculo rápido com cliente — mostra contagem conectada */}
+        <div className="flex items-center gap-2 text-[11px] text-ink-faint dark:text-ink-dark-faint px-2">
+          <div className="flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-sage dark:bg-sage-dark" />
+            <span>{weekGrid.flat().filter(Boolean).length} agendamentos</span>
+          </div>
+          <span className="text-ink-faint/40">|</span>
+          <span>{clients.length} clientes ativos</span>
+        </div>
+
         {/* Novo agendamento button */}
         <button onClick={() => setModalOpen(true)} className="btn whitespace-nowrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
@@ -149,6 +175,7 @@ export default function Agenda() {
         weekGrid={weekGrid}
         onCellClick={handleCellClick}
         onMoveAppointment={moveAppointment}
+        onAppointmentClick={handleAppointmentClick}
       />
 
       {/* Legend */}
@@ -167,8 +194,15 @@ export default function Agenda() {
         </span>
       </div>
 
-      {/* Modal */}
+      {/* Modal — Novo Agendamento */}
       <AgendamentoModal key={modalKey} open={modalOpen} onClose={() => setModalOpen(false)} />
+
+      {/* Modal — Detalhes da Sessão (clicar em agendamento existente) */}
+      <SessaoDetailModal
+        open={sessionModalOpen}
+        onClose={handleSessionModalClose}
+        appointment={selectedAppointment}
+      />
     </div>
   );
 }

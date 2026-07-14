@@ -1,9 +1,31 @@
 /** @format */
 
+/**
+ * Fusion ERP v2 — Configurações
+ *
+ * Refatorado para usar 100% Tailwind CSS.
+ * Nenhuma dependência do assets/css/main.css legado.
+ */
+
 import React, { useState } from 'react';
-import { useConfigStore } from '../store/useConfigStore';
-import { useUIStore } from '../store/useUIStore';
-import Modal from '../components/ui/Modal';
+import { useConfigStore, useUIStore } from '../store';
+import { Modal } from '../components/ui';
+
+/* ─── Toggle Switch reutilizável (Tailwind puro) ─── */
+function ToggleSwitch({ checked, onChange, id }) {
+  return (
+    <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+      <input
+        type="checkbox"
+        id={id}
+        checked={checked}
+        onChange={onChange}
+        className="sr-only peer"
+      />
+      <div className="w-11 h-6 rounded-full bg-border dark:bg-border-dark peer-checked:bg-brand dark:peer-checked:bg-brand-dark after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-soft dark:peer-focus:ring-brand-dark-soft" />
+    </label>
+  );
+}
 
 /* ─── SVG icons inline ─── */
 const icons = {
@@ -22,46 +44,50 @@ const icons = {
 /* ════════════════════════════════════ */
 function TabUnidade() {
   return (
-    <div className="settings-section active" data-settings-panel="unidade">
-      <h3>Dados da Unidade</h3>
-      <div className="sub">Informações cadastrais do Centro Vitta — Unidade Jardins</div>
-      <div className="settings-row">
-        <div className="form-group">
-          <label>Nome da unidade</label>
-          <input className="form-input" type="text" defaultValue="Centro Vitta — Unidade Jardins" />
+    <div>
+      <h3 className="font-display text-lg font-semibold text-ink dark:text-ink-dark mb-1">Dados da Unidade</h3>
+      <p className="text-sm text-ink-faint dark:text-ink-dark-faint mb-5">
+        Informações cadastrais do Centro Vitta — Unidade Jardins
+      </p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-ink dark:text-ink-dark block">Nome da unidade</label>
+          <input className="input" type="text" defaultValue="Centro Vitta — Unidade Jardins" />
         </div>
-        <div className="form-group">
-          <label>CNPJ</label>
-          <input className="form-input" type="text" defaultValue="12.345.678/0001-90" />
-        </div>
-      </div>
-      <div className="settings-row">
-        <div className="form-group">
-          <label>Endereço</label>
-          <input className="form-input" type="text" defaultValue="Av. Paulista, 1.234 — Jardins" />
-        </div>
-        <div className="form-group">
-          <label>Cidade / UF</label>
-          <input className="form-input" type="text" defaultValue="São Paulo — SP" />
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-ink dark:text-ink-dark block">CNPJ</label>
+          <input className="input" type="text" defaultValue="12.345.678/0001-90" />
         </div>
       </div>
-      <div className="settings-row three">
-        <div className="form-group">
-          <label>Telefone</label>
-          <input className="form-input" type="text" defaultValue="(11) 99999-8888" />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-ink dark:text-ink-dark block">Endereço</label>
+          <input className="input" type="text" defaultValue="Av. Paulista, 1.234 — Jardins" />
         </div>
-        <div className="form-group">
-          <label>WhatsApp</label>
-          <input className="form-input" type="text" defaultValue="(11) 98888-7777" />
-        </div>
-        <div className="form-group">
-          <label>Email</label>
-          <input className="form-input" type="text" defaultValue="contato@vittajardins.com.br" />
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-ink dark:text-ink-dark block">Cidade / UF</label>
+          <input className="input" type="text" defaultValue="São Paulo — SP" />
         </div>
       </div>
-      <div style={{ marginTop: 16 }}>
-        <button className="btn" id="btnSalvarConfigUnidade">Salvar alterações</button>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-ink dark:text-ink-dark block">Telefone</label>
+          <input className="input" type="text" defaultValue="(11) 99999-8888" />
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-ink dark:text-ink-dark block">WhatsApp</label>
+          <input className="input" type="text" defaultValue="(11) 98888-7777" />
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-ink dark:text-ink-dark block">Email</label>
+          <input className="input" type="text" defaultValue="contato@vittajardins.com.br" />
+        </div>
       </div>
+
+      <button className="btn mt-4">Salvar alterações</button>
     </div>
   );
 }
@@ -96,26 +122,33 @@ function TabEquipe() {
   };
 
   return (
-    <div className="settings-section active" data-settings-panel="equipe">
-      <h3>Equipe</h3>
-      <div className="sub">Profissionais e colaboradores cadastrados na unidade</div>
-      <div className="toolbar" style={{ marginBottom: 16 }}>
-        <div className="search-field" style={{ maxWidth: 240 }}>
-          {icons.search}
+    <div>
+      <h3 className="font-display text-lg font-semibold text-ink dark:text-ink-dark mb-1">Equipe</h3>
+      <p className="text-sm text-ink-faint dark:text-ink-dark-faint mb-5">
+        Profissionais e colaboradores cadastrados na unidade
+      </p>
+
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-sm border border-border dark:border-border-dark bg-surface dark:bg-surface-dark flex-1 max-w-[240px]">
+          <span className="w-4 h-4 text-ink-faint dark:text-ink-dark-faint flex-shrink-0">{icons.search}</span>
           <input
             type="text"
             placeholder="Buscar membro"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            className="bg-transparent border-none outline-none text-sm text-ink dark:text-ink-dark w-full font-body placeholder:text-ink-faint dark:placeholder:text-ink-dark-faint"
           />
         </div>
-        <span className="result-counter" id="counterEquipe">
-          <b>{filtered.length}</b> de {team.length}
+        <span className="text-xs text-ink-faint dark:text-ink-dark-faint font-mono whitespace-nowrap">
+          <b className="text-ink-soft dark:text-ink-dark-soft font-semibold">{filtered.length}</b> de {team.length}
         </span>
-        <button className="btn" onClick={() => setModalOpen(true)} style={{ marginLeft: 'auto' }}>
+        <button className="btn ml-auto" onClick={() => setModalOpen(true)}>
           + Novo membro
         </button>
       </div>
+
+      {/* Table */}
       <div className="table-wrap">
         <table>
           <thead>
@@ -131,16 +164,20 @@ function TabEquipe() {
             {filtered.length > 0 ? (
               filtered.map((m) => (
                 <tr key={m.id}>
-                  <td className="cell-primary">{m.nome}</td>
+                  <td className="font-semibold">{m.nome}</td>
                   <td>{m.cargo}</td>
                   <td>{m.email}</td>
                   <td>{m.telefone}</td>
                   <td>
                     <button
                       onClick={() => toggleMemberStatus(m.id)}
-                      className={`status-chip ${m.ativo ? 'ok' : 'crit'}`}
-                      style={{ cursor: 'pointer', border: 'none', fontFamily: 'inherit' }}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold cursor-pointer font-inherit border-none ${
+                        m.ativo
+                          ? 'bg-sage-soft dark:bg-sage-dark-soft text-sage dark:text-sage-dark'
+                          : 'bg-rose-soft dark:bg-rose-dark-soft text-rose dark:text-rose-dark'
+                      }`}
                     >
+                      <span className={`w-1.5 h-1.5 rounded-full ${m.ativo ? 'bg-sage dark:bg-sage-dark' : 'bg-rose dark:bg-rose-dark'}`} />
                       {m.ativo ? 'Ativo' : 'Inativo'}
                     </button>
                   </td>
@@ -148,7 +185,7 @@ function TabEquipe() {
               ))
             ) : (
               <tr>
-                <td colSpan={5} style={{ padding: '32px 10px', textAlign: 'center', color: 'var(--ink-faint)' }}>
+                <td colSpan={5} className="px-4 py-12 text-center text-sm text-ink-faint dark:text-ink-dark-faint">
                   Nenhum membro encontrado.
                 </td>
               </tr>
@@ -161,20 +198,20 @@ function TabEquipe() {
       {modalOpen && (
         <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Novo Membro da Equipe" maxWidth="max-w-sm">
           <div className="p-5 space-y-4">
-            <div className="form-group">
-              <label>Nome completo</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-ink dark:text-ink-dark block">Nome completo</label>
               <input
-                className="form-input"
+                className="input"
                 type="text"
                 value={form.nome}
                 onChange={(e) => setForm({ ...form, nome: e.target.value })}
                 placeholder="Ex: Marina Costa"
               />
             </div>
-            <div className="form-group">
-              <label>Cargo</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-ink dark:text-ink-dark block">Cargo</label>
               <select
-                className="form-input"
+                className="input"
                 value={form.cargo}
                 onChange={(e) => setForm({ ...form, cargo: e.target.value })}
               >
@@ -184,20 +221,20 @@ function TabEquipe() {
                 ))}
               </select>
             </div>
-            <div className="form-group">
-              <label>E-mail</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-ink dark:text-ink-dark block">E-mail</label>
               <input
-                className="form-input"
+                className="input"
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 placeholder="Ex: marina@vittajardins.com.br"
               />
             </div>
-            <div className="form-group">
-              <label>Telefone</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-ink dark:text-ink-dark block">Telefone</label>
               <input
-                className="form-input"
+                className="input"
                 type="text"
                 value={form.telefone}
                 onChange={(e) => setForm({ ...form, telefone: e.target.value })}
@@ -205,8 +242,8 @@ function TabEquipe() {
               />
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <button onClick={() => setModalOpen(false)} className="btn ghost">Cancelar</button>
-              <button onClick={handleCreate} disabled={!form.nome || !form.cargo} className="btn" style={{ padding: '8px 14px', fontSize: '12.5px' }}>
+              <button onClick={() => setModalOpen(false)} className="btn-ghost btn-sm">Cancelar</button>
+              <button onClick={handleCreate} disabled={!form.nome || !form.cargo} className="btn btn-sm">
                 Adicionar membro
               </button>
             </div>
@@ -222,38 +259,51 @@ function TabEquipe() {
 /* ════════════════════════════════════ */
 function TabIntegracoes() {
   return (
-    <div className="settings-section active" data-settings-panel="integracoes">
-      <h3>Integrações</h3>
-      <div className="sub">Conecte o Fusion a outros serviços e plataformas</div>
-      <div className="int-card">
-        <div className="int-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path d="M9 9l6 6M15 9l-6 6" /></svg>
+    <div>
+      <h3 className="font-display text-lg font-semibold text-ink dark:text-ink-dark mb-1">Integrações</h3>
+      <p className="text-sm text-ink-faint dark:text-ink-dark-faint mb-5">
+        Conecte o Fusion a outros serviços e plataformas
+      </p>
+
+      <div className="space-y-3">
+        <div className="flex items-center gap-3.5 p-4 card">
+          <div className="w-9 h-9 rounded-lg bg-surface-2 dark:bg-surface-dark-2 flex items-center justify-center flex-shrink-0 text-ink-faint dark:text-ink-dark-faint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-[18px] h-[18px]"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path d="M9 9l6 6M15 9l-6 6" /></svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-ink dark:text-ink-dark">WhatsApp</div>
+            <div className="text-xs text-ink-faint dark:text-ink-dark-faint mt-0.5">Envio automático de confirmações e lembretes de agendamento</div>
+          </div>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-sage-soft dark:bg-sage-dark-soft text-sage dark:text-sage-dark">
+            <span className="w-1.5 h-1.5 rounded-full bg-sage dark:bg-sage-dark" />
+            Conectado
+          </span>
         </div>
-        <div className="int-info">
-          <div className="int-name">WhatsApp</div>
-          <div className="int-desc">Envio automático de confirmações e lembretes de agendamento</div>
+
+        <div className="flex items-center gap-3.5 p-4 card">
+          <div className="w-9 h-9 rounded-lg bg-surface-2 dark:bg-surface-dark-2 flex items-center justify-center flex-shrink-0 text-ink-faint dark:text-ink-dark-faint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-[18px] h-[18px]"><circle cx="12" cy="12" r="4" /><path d="M16 8v5a3 3 0 006 0v-1a10 10 0 10-3.92 7.94" /></svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-ink dark:text-ink-dark">Email</div>
+            <div className="text-xs text-ink-faint dark:text-ink-dark-faint mt-0.5">Notificações por email para clientes e equipe</div>
+          </div>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-sage-soft dark:bg-sage-dark-soft text-sage dark:text-sage-dark">
+            <span className="w-1.5 h-1.5 rounded-full bg-sage dark:bg-sage-dark" />
+            Configurado
+          </span>
         </div>
-        <span className="status-chip ok" style={{ fontSize: 11 }}>Conectado</span>
-      </div>
-      <div className="int-card">
-        <div className="int-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="4" /><path d="M16 8v5a3 3 0 006 0v-1a10 10 0 10-3.92 7.94" /></svg>
+
+        <div className="flex items-center gap-3.5 p-4 card">
+          <div className="w-9 h-9 rounded-lg bg-surface-2 dark:bg-surface-dark-2 flex items-center justify-center flex-shrink-0 text-ink-faint dark:text-ink-dark-faint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-[18px] h-[18px]"><path d="M4 7V4h16v3" /><path d="M9 20h6" /><path d="M12 4v16" /></svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-ink dark:text-ink-dark">Supabase</div>
+            <div className="text-xs text-ink-faint dark:text-ink-dark-faint mt-0.5">Banco de dados e autenticação em nuvem</div>
+          </div>
+          <button className="btn-ghost btn-sm">Configurar</button>
         </div>
-        <div className="int-info">
-          <div className="int-name">Email</div>
-          <div className="int-desc">Notificações por email para clientes e equipe</div>
-        </div>
-        <span className="status-chip ok" style={{ fontSize: 11 }}>Configurado</span>
-      </div>
-      <div className="int-card">
-        <div className="int-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 7V4h16v3" /><path d="M9 20h6" /><path d="M12 4v16" /></svg>
-        </div>
-        <div className="int-info">
-          <div className="int-name">Supabase</div>
-          <div className="int-desc">Banco de dados e autenticação em nuvem</div>
-        </div>
-        <button className="btn ghost" style={{ fontSize: 11, padding: '5px 10px' }}>Configurar</button>
       </div>
     </div>
   );
@@ -282,23 +332,23 @@ function TabNotificacoes() {
   ];
 
   return (
-    <div className="settings-section active" data-settings-panel="notificacoes">
-      <h3>Notificações</h3>
-      <div className="sub">Configure quais notificações o sistema deve enviar</div>
+    <div>
+      <h3 className="font-display text-lg font-semibold text-ink dark:text-ink-dark mb-1">Notificações</h3>
+      <p className="text-sm text-ink-faint dark:text-ink-dark-faint mb-5">
+        Configure quais notificações o sistema deve enviar
+      </p>
+
       {items.map((item) => (
-        <div className="toggle-row" key={item.key}>
-          <div className="toggle-info">
-            <div className="toggle-name">{item.name}</div>
-            <div className="toggle-desc">{item.desc}</div>
+        <div key={item.key} className="flex items-center justify-between py-3 border-b border-border dark:border-border-dark last:border-b-0">
+          <div className="flex-1 min-w-0 pr-4">
+            <div className="text-sm font-semibold text-ink dark:text-ink-dark">{item.name}</div>
+            <div className="text-xs text-ink-faint dark:text-ink-dark-faint mt-0.5">{item.desc}</div>
           </div>
-          <label className="toggle-switch">
-            <input
-              type="checkbox"
-              checked={toggles[item.key]}
-              onChange={() => toggle(item.key)}
-            />
-            <span className="toggle-slider" />
-          </label>
+          <ToggleSwitch
+            checked={toggles[item.key]}
+            onChange={() => toggle(item.key)}
+            id={`notif-${item.key}`}
+          />
         </div>
       ))}
     </div>
@@ -312,53 +362,66 @@ function TabAparencia() {
   const { theme, toggleTheme } = useUIStore();
 
   return (
-    <div className="settings-section active" data-settings-panel="aparencia">
-      <h3>Aparência</h3>
-      <div className="sub">Personalize a aparência do sistema</div>
-      <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
-        <button className="btn" onClick={() => { if (theme !== 'dark') toggleTheme(); }}>
+    <div>
+      <h3 className="font-display text-lg font-semibold text-ink dark:text-ink-dark mb-1">Aparência</h3>
+      <p className="text-sm text-ink-faint dark:text-ink-dark-faint mb-5">
+        Personalize a aparência do sistema
+      </p>
+
+      <div className="flex flex-wrap gap-3 mb-6">
+        <button className="btn btn-sm" onClick={() => { if (theme !== 'dark') toggleTheme(); }}>
           Alternar para tema escuro
         </button>
-        <button className="btn ghost" onClick={() => { if (theme === 'dark') toggleTheme(); }}>
+        <button className="btn-ghost btn-sm" onClick={() => { if (theme === 'dark') toggleTheme(); }}>
           Alternar para tema claro
         </button>
       </div>
-      <div style={{ borderTop: '1px solid var(--border)', paddingTop: 20 }}>
-        <h3 style={{ marginBottom: 12 }}>Auditoria</h3>
-        <div className="sub">Últimas atividades registradas no sistema</div>
-        <div className="audit-item">
-          <span className="audit-dot login" />
-          <div className="audit-info">
-            <div className="audit-action">Ana Souza fez login</div>
-            <div className="audit-detail">Hoje às 08:32 · IP 192.168.1.100</div>
+
+      <div className="border-t border-border dark:border-border-dark pt-6">
+        <h3 className="font-display text-lg font-semibold text-ink dark:text-ink-dark mb-1">Auditoria</h3>
+        <p className="text-sm text-ink-faint dark:text-ink-dark-faint mb-4">
+          Últimas atividades registradas no sistema
+        </p>
+
+        <div className="space-y-1">
+          <div className="flex items-start gap-3 py-2.5 border-b border-border dark:border-border-dark last:border-b-0">
+            <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 bg-sage dark:bg-sage-dark" />
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-ink dark:text-ink-dark">Ana Souza fez login</div>
+              <div className="text-xs text-ink-soft dark:text-ink-dark-soft mt-0.5">Hoje às 08:32 · IP 192.168.1.100</div>
+            </div>
           </div>
-        </div>
-        <div className="audit-item">
-          <span className="audit-dot create" />
-          <div className="audit-info">
-            <div className="audit-action">Novo agendamento criado</div>
-            <div className="audit-detail">Marina Costa · Limpeza de pele · Hoje às 08:45</div>
+
+          <div className="flex items-start gap-3 py-2.5 border-b border-border dark:border-border-dark last:border-b-0">
+            <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 bg-brand dark:bg-brand-dark" />
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-ink dark:text-ink-dark">Novo agendamento criado</div>
+              <div className="text-xs text-ink-soft dark:text-ink-dark-soft mt-0.5">Marina Costa · Limpeza de pele · Hoje às 08:45</div>
+            </div>
           </div>
-        </div>
-        <div className="audit-item">
-          <span className="audit-dot update" />
-          <div className="audit-info">
-            <div className="audit-action">Cadastro de cliente atualizado</div>
-            <div className="audit-detail">Patrícia Nogueira · Telefone alterado · Ontem às 17:20</div>
+
+          <div className="flex items-start gap-3 py-2.5 border-b border-border dark:border-border-dark last:border-b-0">
+            <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 bg-gold dark:bg-gold-dark" />
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-ink dark:text-ink-dark">Cadastro de cliente atualizado</div>
+              <div className="text-xs text-ink-soft dark:text-ink-dark-soft mt-0.5">Patrícia Nogueira · Telefone alterado · Ontem às 17:20</div>
+            </div>
           </div>
-        </div>
-        <div className="audit-item">
-          <span className="audit-dot delete" />
-          <div className="audit-info">
-            <div className="audit-action">Agendamento cancelado</div>
-            <div className="audit-detail">Larissa Teixeira · Botox · Ontem às 15:10</div>
+
+          <div className="flex items-start gap-3 py-2.5 border-b border-border dark:border-border-dark last:border-b-0">
+            <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 bg-rose dark:bg-rose-dark" />
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-ink dark:text-ink-dark">Agendamento cancelado</div>
+              <div className="text-xs text-ink-soft dark:text-ink-dark-soft mt-0.5">Larissa Teixeira · Botox · Ontem às 15:10</div>
+            </div>
           </div>
-        </div>
-        <div className="audit-item">
-          <span className="audit-dot view" />
-          <div className="audit-info">
-            <div className="audit-action">Relatório exportado</div>
-            <div className="audit-detail">Relatório de faturamento · CSV · Ontem às 14:00</div>
+
+          <div className="flex items-start gap-3 py-2.5 border-b border-border dark:border-border-dark last:border-b-0">
+            <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 bg-ink-faint dark:bg-ink-dark-faint" />
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-ink dark:text-ink-dark">Relatório exportado</div>
+              <div className="text-xs text-ink-soft dark:text-ink-dark-soft mt-0.5">Relatório de faturamento · CSV · Ontem às 14:00</div>
+            </div>
           </div>
         </div>
       </div>
@@ -386,12 +449,18 @@ function TabMultiunidade() {
   };
 
   return (
-    <div className="settings-section active" data-settings-panel="multiunidade">
-      <h3>Multiunidade</h3>
-      <div className="sub">Gerencie as unidades do Centro Vitta</div>
-      <div className="toolbar" style={{ marginBottom: 16 }}>
-        <button className="btn" onClick={() => setModalOpen(true)}>+ Nova unidade</button>
+    <div>
+      <h3 className="font-display text-lg font-semibold text-ink dark:text-ink-dark mb-1">Multiunidade</h3>
+      <p className="text-sm text-ink-faint dark:text-ink-dark-faint mb-5">
+        Gerencie as unidades do Centro Vitta
+      </p>
+
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        <button className="btn btn-sm" onClick={() => setModalOpen(true)}>
+          + Nova unidade
+        </button>
       </div>
+
       <div className="table-wrap">
         <table>
           <thead>
@@ -407,19 +476,24 @@ function TabMultiunidade() {
           <tbody>
             {units.map((u) => (
               <tr key={u.id}>
-                <td className="cell-primary">{u.nome}</td>
+                <td className="font-semibold">{u.nome}</td>
                 <td>{u.endereco}</td>
                 <td>{u.telefone}</td>
                 <td>
-                  <span className={`status-chip ${u.status === 'ativa' ? 'ok' : 'warn'}`}>
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                    u.status === 'ativa'
+                      ? 'bg-sage-soft dark:bg-sage-dark-soft text-sage dark:text-sage-dark'
+                      : 'bg-gold-soft dark:bg-gold-dark-soft text-gold dark:text-gold-dark'
+                  }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${
+                      u.status === 'ativa' ? 'bg-sage dark:bg-sage-dark' : 'bg-gold dark:bg-gold-dark'
+                    }`} />
                     {u.status === 'ativa' ? 'Ativa' : 'Configurando'}
                   </span>
                 </td>
                 <td>{u.clientesAtivos}</td>
                 <td>
-                  <button className="btn ghost" style={{ fontSize: 11, padding: '4px 10px' }}>
-                    Gerenciar
-                  </button>
+                  <button className="btn-ghost btn-sm">Gerenciar</button>
                 </td>
               </tr>
             ))}
@@ -431,30 +505,30 @@ function TabMultiunidade() {
       {modalOpen && (
         <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Nova Unidade" maxWidth="max-w-sm">
           <div className="p-5 space-y-4">
-            <div className="form-group">
-              <label>Nome da unidade</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-ink dark:text-ink-dark block">Nome da unidade</label>
               <input
-                className="form-input"
+                className="input"
                 type="text"
                 value={form.nome}
                 onChange={(e) => setForm({ ...form, nome: e.target.value })}
                 placeholder="Ex: Vitta Jardins — Moema"
               />
             </div>
-            <div className="form-group">
-              <label>Endereço</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-ink dark:text-ink-dark block">Endereço</label>
               <input
-                className="form-input"
+                className="input"
                 type="text"
                 value={form.endereco}
                 onChange={(e) => setForm({ ...form, endereco: e.target.value })}
                 placeholder="Ex: Av. Ibirapuera, 3.500"
               />
             </div>
-            <div className="form-group">
-              <label>Telefone</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-ink dark:text-ink-dark block">Telefone</label>
               <input
-                className="form-input"
+                className="input"
                 type="text"
                 value={form.telefone}
                 onChange={(e) => setForm({ ...form, telefone: e.target.value })}
@@ -462,8 +536,8 @@ function TabMultiunidade() {
               />
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <button onClick={() => setModalOpen(false)} className="btn ghost">Cancelar</button>
-              <button onClick={handleCreate} disabled={!form.nome} className="btn" style={{ padding: '8px 14px', fontSize: '12.5px' }}>
+              <button onClick={() => setModalOpen(false)} className="btn-ghost btn-sm">Cancelar</button>
+              <button onClick={handleCreate} disabled={!form.nome} className="btn btn-sm">
                 Criar unidade
               </button>
             </div>
@@ -485,7 +559,6 @@ function TabAgendamentoPublico() {
   const copiarLink = () => {
     const link = `${window.location.origin}/agendar.html`;
     navigator.clipboard.writeText(link).then(() => {
-      // Toast feedback
       const btn = document.getElementById('btnCopiarLink');
       if (btn) {
         const original = btn.textContent;
@@ -496,50 +569,49 @@ function TabAgendamentoPublico() {
   };
 
   return (
-    <div className="settings-section active" data-settings-panel="agendamento-publico">
-      <h3>Agendamento Público</h3>
-      <div className="sub">Permita que clientes agendem online sem precisar ligar</div>
-      <div className="int-card">
-        <div className="int-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4.5" width="18" height="16" rx="2" /><path d="M3 9.5h18M8 3v3M16 3v3" /></svg>
+    <div>
+      <h3 className="font-display text-lg font-semibold text-ink dark:text-ink-dark mb-1">Agendamento Público</h3>
+      <p className="text-sm text-ink-faint dark:text-ink-dark-faint mb-5">
+        Permita que clientes agendem online sem precisar ligar
+      </p>
+
+      <div className="flex items-center gap-3.5 p-4 card mb-5">
+        <div className="w-9 h-9 rounded-lg bg-surface-2 dark:bg-surface-dark-2 flex items-center justify-center flex-shrink-0 text-ink-faint dark:text-ink-dark-faint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-[18px] h-[18px]"><rect x="3" y="4.5" width="18" height="16" rx="2" /><path d="M3 9.5h18M8 3v3M16 3v3" /></svg>
         </div>
-        <div className="int-info">
-          <div className="int-name">Link público de agendamento</div>
-          <div className="int-desc">Compartilhe este link com suas clientes para agendamento online</div>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-semibold text-ink dark:text-ink-dark">Link público de agendamento</div>
+          <div className="text-xs text-ink-faint dark:text-ink-dark-faint mt-0.5">Compartilhe este link com suas clientes para agendamento online</div>
         </div>
-        <button className="btn ghost" id="btnCopiarLink" onClick={copiarLink} style={{ fontSize: 11, padding: '5px 10px' }}>
+        <button className="btn-ghost btn-sm" id="btnCopiarLink" onClick={copiarLink}>
           Copiar link
         </button>
       </div>
-      <div className="toggle-row">
-        <div className="toggle-info">
-          <div className="toggle-name">Agendamento público ativo</div>
-          <div className="toggle-desc">Clientes podem agendar sem estar logadas</div>
+
+      <div className="divide-y divide-border dark:divide-border-dark">
+        <div className="flex items-center justify-between py-3">
+          <div className="flex-1 min-w-0 pr-4">
+            <div className="text-sm font-semibold text-ink dark:text-ink-dark">Agendamento público ativo</div>
+            <div className="text-xs text-ink-faint dark:text-ink-dark-faint mt-0.5">Clientes podem agendar sem estar logadas</div>
+          </div>
+          <ToggleSwitch checked={publicActive} onChange={() => setPublicActive(!publicActive)} id="public-active" />
         </div>
-        <label className="toggle-switch">
-          <input type="checkbox" checked={publicActive} onChange={() => setPublicActive(!publicActive)} />
-          <span className="toggle-slider" />
-        </label>
-      </div>
-      <div className="toggle-row">
-        <div className="toggle-info">
-          <div className="toggle-name">Limitar por profissional</div>
-          <div className="toggle-desc">Clientes escolhem o profissional ao agendar</div>
+
+        <div className="flex items-center justify-between py-3">
+          <div className="flex-1 min-w-0 pr-4">
+            <div className="text-sm font-semibold text-ink dark:text-ink-dark">Limitar por profissional</div>
+            <div className="text-xs text-ink-faint dark:text-ink-dark-faint mt-0.5">Clientes escolhem o profissional ao agendar</div>
+          </div>
+          <ToggleSwitch checked={limitProfessional} onChange={() => setLimitProfessional(!limitProfessional)} id="limit-prof" />
         </div>
-        <label className="toggle-switch">
-          <input type="checkbox" checked={limitProfessional} onChange={() => setLimitProfessional(!limitProfessional)} />
-          <span className="toggle-slider" />
-        </label>
-      </div>
-      <div className="toggle-row">
-        <div className="toggle-info">
-          <div className="toggle-name">Agendamento com depósito</div>
-          <div className="toggle-desc">Exigir depósito de 50% para confirmar</div>
+
+        <div className="flex items-center justify-between py-3">
+          <div className="flex-1 min-w-0 pr-4">
+            <div className="text-sm font-semibold text-ink dark:text-ink-dark">Agendamento com depósito</div>
+            <div className="text-xs text-ink-faint dark:text-ink-dark-faint mt-0.5">Exigir depósito de 50% para confirmar</div>
+          </div>
+          <ToggleSwitch checked={requireDeposit} onChange={() => setRequireDeposit(!requireDeposit)} id="require-deposit" />
         </div>
-        <label className="toggle-switch">
-          <input type="checkbox" checked={requireDeposit} onChange={() => setRequireDeposit(!requireDeposit)} />
-          <span className="toggle-slider" />
-        </label>
       </div>
     </div>
   );
@@ -564,30 +636,40 @@ export default function Configuracoes() {
   return (
     <div className="animate-fade-in pb-6">
       {/* Header */}
-      <div className="page-head">
-        <div className="eyebrow">Gestão</div>
-        <h1>Configurações</h1>
-        <p>Gerencie unidades, equipe, integrações e preferências do sistema.</p>
+      <div className="mb-7">
+        <div className="text-xs font-semibold text-ink-faint dark:text-ink-dark-faint uppercase tracking-[1.2px] mb-1.5">
+          Gestão
+        </div>
+        <h1 className="font-display text-2xl font-semibold text-ink dark:text-ink-dark mb-1.5">
+          Configurações
+        </h1>
+        <p className="text-sm text-ink-soft dark:text-ink-dark-soft max-w-[600px]">
+          Gerencie unidades, equipe, integrações e preferências do sistema.
+        </p>
       </div>
 
       {/* Settings layout: sidebar tabs + content */}
-      <div className="settings-layout">
+      <div className="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-6 items-start">
         {/* Sidebar Tabs */}
-        <div className="settings-tabs" id="settingsTabs">
+        <div className="card overflow-hidden sticky top-[90px]">
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              className={`settings-tab ${activeTab === tab.id ? 'active' : ''}`}
               onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2.5 w-full px-4 py-3 text-sm font-medium text-left border-b border-border dark:border-border-dark last:border-b-0 transition-colors ${
+                activeTab === tab.id
+                  ? 'bg-brand-soft/30 dark:bg-brand-dark-soft/20 text-brand dark:text-brand-dark font-semibold'
+                  : 'text-ink-soft dark:text-ink-dark-soft hover:bg-surface-2 dark:hover:bg-surface-dark-2 hover:text-ink dark:hover:text-ink-dark'
+              }`}
             >
-              {tab.icon}
+              <span className="w-4 h-4 flex-shrink-0">{tab.icon}</span>
               {tab.label}
             </button>
           ))}
         </div>
 
         {/* Content */}
-        <div className="settings-content">
+        <div className="card p-6 sm:p-7">
           {activeTab === 'unidade' && <TabUnidade />}
           {activeTab === 'equipe' && <TabEquipe />}
           {activeTab === 'integracoes' && <TabIntegracoes />}

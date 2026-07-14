@@ -1045,9 +1045,9 @@ begin
   if v_sessao_ativa.id is not null then
     update salas
     set status = case
-          when v_sessao_ativa.status = 'ativo' then 'em_uso'
-          when v_sessao_ativa.status = 'aguardando' then 'disponivel'
-          else 'ocupada'
+          when v_sessao_ativa.status = 'ativo' then 'em_uso'::status_sala
+          when v_sessao_ativa.status = 'aguardando' then 'disponivel'::status_sala
+          else 'ocupada'::status_sala
         end,
         sessao_atual_id = v_sessao_ativa.id,
         updated_at = now()
@@ -1055,8 +1055,8 @@ begin
   else
     update salas
     set status = case
-          when manutencao_previsao is not null then 'manutencao'
-          else 'disponivel'
+          when manutencao_previsao is not null then 'manutencao'::status_sala
+          else 'disponivel'::status_sala
         end,
         sessao_atual_id = null,
         updated_at = now()
@@ -1335,7 +1335,7 @@ begin
     categoria, data, valor, tipo, status, forma_pagamento, created_by)
   values (p_unidade_id, p_cliente_id, 'Venda PDV #' || v_venda_id,
     'PDV', current_date, v_valor_total, 'receita',
-    case when p_forma_pagamento in ('pix', 'dinheiro', 'debito') then 'Pago' else 'Pendente' end,
+    case when p_forma_pagamento in ('pix', 'dinheiro', 'debito') then 'Pago'::status_transacao else 'Pendente'::status_transacao end,
     p_forma_pagamento, p_created_by);
 
   return v_venda_id;
@@ -1397,8 +1397,10 @@ begin
       'taxa_ocupacao', coalesce((select round(
         count(*) filter (where sf.status in ('ativo', 'aguardando', 'atrasado'))
         * 100.0 / nullif(count(*), 0))
-        from sessoes_fila sf join salas s on s.id = sf.sala_id
-        where sf.unidade_id = p_unidade_id and sf.hora_programada::date = v_hoje), 0)
+        from sessoes_fila sf
+        join salas s on s.id = sf.sala_id
+        left join agendamentos a on a.id = sf.agendamento_id
+        where sf.unidade_id = p_unidade_id and coalesce(a.data, sf.created_at::date) = v_hoje), 0)
     ),
     'agendamentos_hoje_lista', coalesce((select jsonb_agg(jsonb_build_object(
       'id', a.id, 'hora', a.hora, 'cliente', c.nome,
@@ -1733,7 +1735,9 @@ on conflict (id) do nothing;
 
 -- 14.10. Fidelidade — Pontos dos clientes
 insert into fidelidade_clientes (cliente_id, unidade_id, pontos, nivel_id, pontos_resgate)
-select c.id, c.unidade_id,
+select
+  c.id,
+  c.unidade_id,
   case c.id
     when '10000000-0000-0000-0000-000000000006' then 1050
     when '10000000-0000-0000-0000-000000000004' then 620
@@ -1742,14 +1746,15 @@ select c.id, c.unidade_id,
     when '10000000-0000-0000-0000-000000000002' then 180
     else 0
   end,
-  case c.id
-    when '10000000-0000-0000-0000-000000000006' then '80000000-0000-0000-0000-000000000005'
-    when '10000000-0000-0000-0000-000000000004' then '80000000-0000-0000-0000-000000000004'
-    when '10000000-0000-0000-0000-000000000003' then '80000000-0000-0000-0000-000000000003'
-    when '10000000-0000-0000-0000-000000000001' then '80000000-0000-0000-0000-000000000003'
-    when '10000000-0000-0000-0000-000000000002' then '80000000-0000-0000-0000-000000000002'
-    else '80000000-0000-0000-0000-000000000001'
-  end, 0
+  (case c.id
+    when '10000000-0000-0000-0000-000000000006' then '80000000-0000-0000-0000-000000000005'::uuid
+    when '10000000-0000-0000-0000-000000000004' then '80000000-0000-0000-0000-000000000004'::uuid
+    when '10000000-0000-0000-0000-000000000003' then '80000000-0000-0000-0000-000000000003'::uuid
+    when '10000000-0000-0000-0000-000000000001' then '80000000-0000-0000-0000-000000000003'::uuid
+    when '10000000-0000-0000-0000-000000000002' then '80000000-0000-0000-0000-000000000002'::uuid
+    else '80000000-0000-0000-0000-000000000001'::uuid
+  end),
+  0
 from clientes c
 where c.unidade_id = 'a0000000-0000-0000-0000-000000000001'
 on conflict (cliente_id, unidade_id) do nothing;

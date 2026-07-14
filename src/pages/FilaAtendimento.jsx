@@ -1,8 +1,8 @@
 /** @format */
 
 import React, { useEffect, useState } from 'react';
-import { useFilaStore } from '../store/useFilaStore';
-import TimelineItem from '../components/dashboard/TimelineItem';
+import { useFilaStore } from '../store';
+import { TimelineItem } from '../components/dashboard';
 
 export default function FilaAtendimento() {
   const { activeFilter, setFilter, filterOptions, getFilteredSessions, getSummary } = useFilaStore();

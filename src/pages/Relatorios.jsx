@@ -1,9 +1,8 @@
 /** @format */
 
 import React, { useState } from 'react';
-import { Helpers } from '../utils/helpers';
-import { useFinanceiroStore } from '../store/useFinanceiroStore';
-import { useEstoqueStore } from '../store/useEstoqueStore';
+import { Helpers } from '../utils';
+import { useFinanceiroStore, useEstoqueStore } from '../store';
 
 /* ─── KPI Card ─── */
 function KPIBlock({ label, value, sub, color = 'text-ink dark:text-ink-dark' }) {

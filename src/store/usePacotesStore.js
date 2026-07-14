@@ -1,7 +1,7 @@
 /** @format */
 
 import { create } from 'zustand';
-import { Helpers } from '../utils/helpers';
+import { Helpers } from '../utils';
 
 const initialState = {
   list: [

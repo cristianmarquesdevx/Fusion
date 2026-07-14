@@ -2,6 +2,8 @@
 
 import { create } from 'zustand';
 import { FIDELIDADE_NIVEIS } from '../utils/constants';
+import { supabaseData } from '../services/supabase-data';
+import { withSupabaseFallback, trySync } from '../hooks/useSupabaseInit';
 
 const initialState = {
   niveis: FIDELIDADE_NIVEIS.map((n, i) => ({
@@ -31,10 +33,34 @@ const initialState = {
   searchTerm: '',
   activeFilter: null,
   loading: false,
+  supabaseLoaded: false,
 };
 
 export const useFidelidadeStore = create((set, get) => ({
   ...initialState,
+
+  loadFromSupabase: async () => {
+    const data = await withSupabaseFallback(
+      () => supabaseData.loadFidelidadeCompleta(null),
+      null
+    );
+    if (data && Array.isArray(data) && data.length > 0) {
+      const mapped = data.map((c, i) => ({
+        id: String(c.id || i + 1),
+        nome: c.cliente_nome || c.nome || '',
+        nivel: c.nivel || 'Bronze',
+        pontos: Number(c.pontos || 0),
+        ultima: c.ultima_visita || c.ultima || '',
+      }));
+      set({
+        clientes: mapped,
+        totalPontos: mapped.reduce((s, c) => s + c.pontos, 0),
+        supabaseLoaded: true,
+      });
+    } else {
+      set({ supabaseLoaded: false });
+    }
+  },
 
   getDistribuicao() {
     const dist = {};
@@ -63,6 +89,10 @@ export const useFidelidadeStore = create((set, get) => ({
     if (!cliente) return;
     const novosPontos = cliente.pontos + pontos;
     const novoNivel = state.getNivelByPontos(novosPontos);
+    trySync(() => supabaseData.fidelidadeClientes.save({
+      cliente_id: clienteId,
+      pontos_adicionados: pontos,
+    }));
     set({
       clientes: state.clientes.map((c) =>
         c.id === clienteId
@@ -79,12 +109,8 @@ export const useFidelidadeStore = create((set, get) => ({
   getFilteredClientes() {
     let list = get().clientes;
     const term = get().searchTerm?.toLowerCase();
-    if (term) {
-      list = list.filter((c) => c.nome.toLowerCase().includes(term));
-    }
-    if (get().activeFilter) {
-      list = list.filter((c) => c.nivel === get().activeFilter);
-    }
+    if (term) list = list.filter((c) => c.nome.toLowerCase().includes(term));
+    if (get().activeFilter) list = list.filter((c) => c.nivel === get().activeFilter);
     return list;
   },
 }));

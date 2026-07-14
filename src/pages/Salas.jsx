@@ -1,10 +1,9 @@
 /** @format */
 
 import React, { useState } from 'react';
-import { useSalasStore } from '../store/useSalasStore';
-import { Helpers } from '../utils/helpers';
-import SearchInput from '../components/ui/SearchInput';
-import Modal from '../components/ui/Modal';
+import { useSalasStore } from '../store';
+import { Helpers } from '../utils';
+import { SearchInput, Modal } from '../components/ui';
 
 /* ─── BARRA DE TIMELINE ─── */
 function TimelineBar({ salaId, compact = false }) {
@@ -475,8 +474,7 @@ export default function Salas() {
       {filtered.length > 0 && <ComparisonBar rooms={filtered} analytics={analytics} />}
 
       {/* Modal Nova Sala */}
-      {modalOpen && (
-        <Modal onClose={() => setModalOpen(false)} title="Nova Sala" maxWidth="max-w-sm">
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Nova Sala" maxWidth="max-w-sm">
           <div className="p-5 space-y-4">
             <div>
               <label className="text-xs font-semibold text-ink-soft dark:text-ink-dark-soft mb-1.5 block">Nome da sala</label>
@@ -496,7 +494,6 @@ export default function Salas() {
             </div>
           </div>
         </Modal>
-      )}
     </div>
   );
 }

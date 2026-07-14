@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFinanceiroStore } from '../../store/useFinanceiroStore';
 import Modal from '../ui/Modal';
 
@@ -15,10 +15,36 @@ const emptyForm = {
   observacoes: '',
 };
 
-export default function TransacaoModal({ open, onClose }) {
+export default function TransacaoModal({ open, onClose, editingTransacao }) {
   const addTransacao = useFinanceiroStore((s) => s.addTransacao);
+  const updateTransacao = useFinanceiroStore((s) => s.updateTransacao);
   const [form, setForm] = useState(emptyForm);
   const [toast, setToast] = useState(null);
+  const isEditing = !!editingTransacao;
+
+  // Preenche formulário quando edita
+  useEffect(() => {
+    if (editingTransacao) {
+      // Converte data do formato DD/MM para YYYY-MM-DD
+      const parts = editingTransacao.data?.split('/');
+      const dataISO = parts?.length === 2
+        ? `${new Date().getFullYear()}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`
+        : new Date().toISOString().split('T')[0];
+
+      setForm({
+        tipo: editingTransacao.tipo || 'receita',
+        descricao: editingTransacao.descricao || '',
+        categoria: editingTransacao.categoria || 'Procedimento',
+        valor: String(editingTransacao.valor || ''),
+        formaPagamento: editingTransacao.formaPagamento || '',
+        data: dataISO,
+        status: editingTransacao.status || 'Pago',
+        observacoes: editingTransacao.observacoes || '',
+      });
+    } else {
+      setForm(emptyForm);
+    }
+  }, [editingTransacao, open]);
 
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -42,7 +68,7 @@ export default function TransacaoModal({ open, onClose }) {
     const dataParts = data.split('-');
     const dataBr = `${dataParts[2]}/${dataParts[1]}`;
 
-    const transacao = {
+    const transacaoData = {
       descricao: descricao.trim(),
       categoria,
       data: dataBr,
@@ -53,13 +79,21 @@ export default function TransacaoModal({ open, onClose }) {
       observacoes: form.observacoes.trim() || '',
     };
 
-    addTransacao(transacao);
+    if (isEditing) {
+      updateTransacao(editingTransacao.id, transacaoData);
+      setToast({
+        type: 'success',
+        msg: `Transação atualizada: ${descricao.trim()}`,
+      });
+    } else {
+      addTransacao(transacaoData);
+      const sinal = tipo === 'receita' ? 'R$' : '− R$';
+      setToast({
+        type: 'success',
+        msg: `${tipo.charAt(0).toUpperCase() + tipo.slice(1)} • ${descricao.trim()} • ${sinal} ${valorNum.toFixed(2)}`,
+      });
+    }
 
-    const sinal = tipo === 'receita' ? 'R$' : '− R$';
-    setToast({
-      type: 'success',
-      msg: `${tipo.charAt(0).toUpperCase() + tipo.slice(1)} • ${descricao.trim()} • ${sinal} ${valorNum.toFixed(2)}`,
-    });
     setTimeout(() => {
       setToast(null);
       setForm(emptyForm);
@@ -68,7 +102,7 @@ export default function TransacaoModal({ open, onClose }) {
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Nova transação" width="520px">
+    <Modal open={open} onClose={onClose} title={isEditing ? 'Editar transação' : 'Nova transação'} width="520px">
       {/* Toast */}
       {toast && (
         <div
@@ -254,7 +288,7 @@ export default function TransacaoModal({ open, onClose }) {
             Cancelar
           </button>
           <button type="submit" className="btn">
-            Salvar transação
+            {isEditing ? 'Salvar alterações' : 'Salvar transação'}
           </button>
         </div>
       </form>

@@ -20,7 +20,7 @@ const colorMap = {
   },
 };
 
-export default function WeekGrid({ timeSlots, weekDays, weekGrid, onCellClick, onMoveAppointment }) {
+export default function WeekGrid({ timeSlots, weekDays, weekGrid, onCellClick, onMoveAppointment, onAppointmentClick }) {
   const [dragState, setDragState] = useState(null);
   const [dropTarget, setDropTarget] = useState(null);
   const dragRef = useRef(null);
@@ -130,17 +130,29 @@ export default function WeekGrid({ timeSlots, weekDays, weekGrid, onCellClick, o
                 onDragOver={(e) => handleDragOver(e, rowIdx, colIdx)}
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, rowIdx, colIdx)}
-                onClick={() => !dragState && onCellClick?.(time, colIdx)}
+                onClick={() => {
+                  if (!dragState) {
+                    if (appt && onAppointmentClick) {
+                      onAppointmentClick(appt);
+                    } else if (!appt) {
+                      onCellClick?.(time, colIdx);
+                    }
+                  }
+                }}
               >
                 {appt ? (
                   <div
                     draggable
                     onDragStart={(e) => handleDragStart(e, rowIdx, colIdx)}
                     onDragEnd={handleDragEnd}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!dragState) onAppointmentClick?.(appt);
+                    }}
                     className={`
-                      w-full rounded-md px-2 py-1.5 border-l-2 cursor-grab active:cursor-grabbing
+                      w-full rounded-md px-2 py-1.5 border-l-2 cursor-pointer active:cursor-grabbing
                       transition-all duration-150
-                      ${dragging ? 'opacity-30 scale-95 shadow-none' : 'hover:shadow-sm active:scale-[0.98]'}
+                      ${dragging ? 'opacity-30 scale-95 shadow-none' : 'hover:shadow-md active:scale-[0.98]'}
                       ${hovering && !dragging ? 'ring-2 ring-brand/30 dark:ring-brand-dark/30' : ''}
                       ${colors?.bg} ${colors?.border || ''}
                     `}
@@ -156,6 +168,17 @@ export default function WeekGrid({ timeSlots, weekDays, weekGrid, onCellClick, o
                     <div className={`text-[10.5px] font-medium ${colors?.text || ''} truncate leading-tight mt-0.5`}>
                       {appt.service}
                     </div>
+                    {appt.status === 'em_atendimento' && (
+                      <span className="inline-flex items-center gap-1 mt-1 text-[9px] font-semibold text-blue-500">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                        Em atendimento
+                      </span>
+                    )}
+                    {appt.valor && (
+                      <div className="text-[10px] font-mono font-medium text-ink-faint dark:text-ink-dark-faint mt-0.5">
+                        R$ {appt.valor}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <button

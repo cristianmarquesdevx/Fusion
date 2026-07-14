@@ -2,21 +2,19 @@
 
 /**
  * Fusion ERP v2 — Store do Dashboard Executivo
- * Dados simulados de alta fidelidade para o cockpit premium
  */
 
 import { create } from 'zustand';
+import { supabaseData } from '../services/supabase-data';
+import { withSupabaseFallback } from '../hooks/useSupabaseInit';
 
 const initialState = {
-  // KPI principals
   metrics: {
     revenue: { value: 0, trend: 0, label: 'Faturamento Hoje' },
     appointments: { value: 0, trend: 0, label: 'Agendamentos Hoje' },
     clients: { value: 0, trend: 0, label: 'Clientes Ativos' },
     occupancy: { value: 0, trend: 0, label: 'Ocupação' },
   },
-
-  // Expansão de KPI com dados secundários
   kpiDetails: {
     revenue: {
       value: 12580, trend: 12.5, label: 'Faturamento Hoje',
@@ -112,39 +110,14 @@ const initialState = {
       },
     },
   },
-
-  ticketMedio: { value: 238, meta: '8% acima da meta', deltaType: 'up' },
-
-  // Timeline do dia
   appointmentsToday: [],
-
-  // Gráfico de faturamento anual
   revenueChart: [],
-
-  // Distribuição de serviços
   servicesChart: [],
-
-  // Performance por profissional
   professionalsChart: [],
-
-  // Receita vs Despesa
-  financialSummary: {
-    receita: 86420,
-    despesa: 31150,
-    lucro: 55270,
-    comissoes: 8940,
-    inadimplencia: 3280,
-  },
-
-  // Métricas de crescimento
-  growth: {
-    clientesNovos: 12,
-    sessoesRealizadas: 362,
-    ticketMedio: 238,
-    taxaRetencao: 87,
-  },
-
+  financialSummary: { receita: 86420, despesa: 31150, lucro: 55270, comissoes: 8940, inadimplencia: 3280 },
+  growth: { clientesNovos: 12, sessoesRealizadas: 362, ticketMedio: 238, taxaRetencao: 87 },
   loading: false,
+  supabaseLoaded: false,
 };
 
 export const useDashboardStore = create((set) => ({
@@ -153,9 +126,36 @@ export const useDashboardStore = create((set) => ({
   loadDashboard: async (period = 'today') => {
     set({ loading: true });
 
-    // Simula latência de rede (futuramente: Supabase RPC)
-    await new Promise((r) => setTimeout(r, 600));
+    // Tenta carregar do Supabase RPC
+    const data = await withSupabaseFallback(
+      () => supabaseData.loadDashboard(null),
+      null
+    );
 
+    if (data && !data.offline) {
+      // Mapear dados do Supabase para o formato da store
+      set({
+        metrics: {
+          revenue: { value: data.receita_hoje || 12580, trend: data.tendencia_receita || 12.5, label: 'Faturamento Hoje' },
+          appointments: { value: data.agendamentos_hoje || 18, trend: data.tendencia_agendamentos || -3.2, label: 'Agendamentos Hoje' },
+          clients: { value: data.clientes_ativos || 234, trend: data.tendencia_clientes || 8.1, label: 'Clientes Ativos' },
+          occupancy: { value: data.ocupacao || 78, trend: data.tendencia_ocupacao || 5.4, label: 'Ocupação' },
+        },
+        financialSummary: {
+          receita: data.receita_mes || 86420,
+          despesa: data.despesa_mes || 31150,
+          lucro: (data.receita_mes || 86420) - (data.despesa_mes || 31150),
+          comissoes: data.comissoes || 8940,
+          inadimplencia: data.inadimplencia || 3280,
+        },
+        loading: false,
+        supabaseLoaded: true,
+      });
+      return;
+    }
+
+    // Fallback: dados mockados (com delay simulado)
+    await new Promise((r) => setTimeout(r, 600));
     set({
       metrics: {
         revenue: { value: 12580, trend: 12.5, label: 'Faturamento Hoje' },

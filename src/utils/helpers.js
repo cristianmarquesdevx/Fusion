@@ -220,6 +220,28 @@ export const Helpers = {
     );
   },
 
+  formatRelativeTime(dateOrIso) {
+    if (!dateOrIso) return '';
+    const now = Date.now();
+    const date = new Date(dateOrIso).getTime();
+    if (isNaN(date)) return '';
+    const diff = now - date;
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (seconds < 10) return 'agora';
+    if (seconds < 60) return `há ${seconds}s`;
+    if (minutes < 60) return `há ${minutes}min`;
+    if (hours < 24) return `há ${hours}h`;
+    if (days < 7) return `há ${days}d`;
+    return new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+    }).format(date);
+  },
+
   sortBy(array, field, direction = 'asc') {
     if (!array || !Array.isArray(array)) return [];
     const sorted = [...array];

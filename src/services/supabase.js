@@ -6,7 +6,7 @@
  * Inclui fallback para localStorage quando Supabase não está disponível.
  */
 
-import { APP_CONFIG } from '../utils/constants';
+import { APP_CONFIG } from '../utils';
 import { StorageService } from './storage';
 
 let supabaseClient = null;
@@ -30,7 +30,6 @@ async function getClient() {
     clientReady = true;
     return supabaseClient;
   } catch (e) {
-    console.warn('[Supabase] SDK não disponível:', e.message);
     return null;
   }
 }
@@ -61,7 +60,6 @@ function applyFilters(q, params) {
 
 async function query(table, method = 'select', params = {}) {
   if (!clientReady || !supabaseClient) {
-    console.warn(`[Supabase] Offline — ${method} em "${table}" ignorado`);
     return { data: null, error: new Error('Supabase offline'), offline: true };
   }
   try {
@@ -106,7 +104,6 @@ async function query(table, method = 'select', params = {}) {
 
     return result;
   } catch (e) {
-    console.error(`[Supabase] Erro em ${method} "${table}":`, e);
     return { data: null, error: e };
   }
 }
@@ -186,19 +183,12 @@ export const SupabaseService = {
             session: result.data.session,
           };
         }
-        console.warn('[Supabase] SignIn falhou, tentando fallback local:', result.error.message);
+        // Supabase offline — fallback local
       } catch (e) {
-        console.warn('[Supabase] SignIn com erro de rede, tentando fallback local:', e.message);
+        // Rede indisponível — fallback local
       }
     }
     return this._fallbackSignIn(email, password);
-  },
-
-  /**
-   * Login com GitHub OAuth — redireciona para página de autorização do GitHub
-   */
-  async signInWithGithub() {
-    return this._signInWithOAuth('github', 'read:user user:email');
   },
 
   /**
@@ -225,12 +215,10 @@ export const SupabaseService = {
         },
       });
       if (error) {
-        console.error(`[Supabase] ${provider} OAuth error:`, error.message);
         return { success: false, error: error.message };
       }
       return { success: true, url: data.url };
     } catch (e) {
-      console.error(`[Supabase] ${provider} OAuth exception:`, e.message);
       return { success: false, error: e.message };
     }
   },
@@ -254,7 +242,6 @@ export const SupabaseService = {
       }
       return { success: false, error: 'Nenhuma sessão encontrada.' };
     } catch (e) {
-      console.error('[Supabase] Auth callback error:', e.message);
       return { success: false, error: e.message };
     }
   },
@@ -278,7 +265,6 @@ export const SupabaseService = {
    */
   onAuthStateChange(callback) {
     if (!this.isReady()) {
-      console.warn('[Supabase] onAuthStateChange: client not ready');
       return () => {};
     }
     const { data } = supabaseClient.auth.onAuthStateChange((event, session) => {
@@ -325,7 +311,7 @@ export const SupabaseService = {
       try {
         await supabaseClient.auth.signOut();
       } catch (e) {
-        console.warn('[Supabase] Erro ao fazer logout:', e);
+        // Ignora erro no logout
       }
     }
     clientReady = false;

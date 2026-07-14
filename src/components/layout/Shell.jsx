@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
+import NotificationToast from '../ui/NotificationToast';
 import { useDashboardStore } from '../../store/useDashboardStore';
 import { useUIStore } from '../../store/useUIStore';
 
@@ -40,6 +41,9 @@ export default function Shell({ children }) {
           {children}
         </main>
       </div>
+
+      {/* Global notification toast */}
+      <NotificationToast />
     </div>
   );
 }

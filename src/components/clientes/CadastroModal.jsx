@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useClientStore } from '../../store/useClientStore';
 import Modal from '../ui/Modal';
 
@@ -19,15 +19,30 @@ function maskCPF(value) {
   return `${cleaned.slice(0, 3)}.${cleaned.slice(3, 6)}.${cleaned.slice(6, 9)}-${cleaned.slice(9, 11)}`;
 }
 
-export default function CadastroModal({ open, onClose }) {
+const emptyForm = {
+  nome: '', tel: '', email: '', cpf: '',
+};
+
+export default function CadastroModal({ open, onClose, editingClient }) {
   const addClient = useClientStore((s) => s.addClient);
-  const [form, setForm] = useState({
-    nome: '',
-    tel: '',
-    email: '',
-    cpf: '',
-  });
+  const updateClient = useClientStore((s) => s.updateClient);
+  const [form, setForm] = useState(emptyForm);
   const [toast, setToast] = useState(null);
+  const isEditing = !!editingClient;
+
+  // Preenche formulário quando edita
+  useEffect(() => {
+    if (editingClient) {
+      setForm({
+        nome: editingClient.nome || '',
+        tel: editingClient.tel || '',
+        email: editingClient.email || '',
+        cpf: editingClient.cpf || '',
+      });
+    } else {
+      setForm(emptyForm);
+    }
+  }, [editingClient, open]);
 
   const handleChange = (field, value) => {
     if (field === 'tel') value = maskPhone(value);
@@ -41,26 +56,37 @@ export default function CadastroModal({ open, onClose }) {
       setTimeout(() => setToast(null), 3000);
       return;
     }
-    addClient({
+
+    const data = {
       nome: form.nome.trim(),
       tel: form.tel.trim(),
       email: form.email.trim(),
       cpf: form.cpf.trim(),
-      desde: String(new Date().getFullYear()),
-      ultima: '—',
-      pacote: 'Sem pacote ativo',
-      status: 'Em dia',
-    });
-    setToast({ type: 'success', msg: `Cliente "${form.nome.trim()}" cadastrada com sucesso!` });
+    };
+
+    if (isEditing) {
+      updateClient(editingClient.id, data);
+      setToast({ type: 'success', msg: `Cliente "${form.nome.trim()}" atualizada com sucesso!` });
+    } else {
+      addClient({
+        ...data,
+        desde: String(new Date().getFullYear()),
+        ultima: '—',
+        pacote: 'Sem pacote ativo',
+        status: 'Em dia',
+      });
+      setToast({ type: 'success', msg: `Cliente "${form.nome.trim()}" cadastrada com sucesso!` });
+    }
+
     setTimeout(() => {
       setToast(null);
-      setForm({ nome: '', tel: '', email: '', cpf: '' });
+      setForm(emptyForm);
       onClose();
     }, 1200);
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Nova cliente" width="480px">
+    <Modal open={open} onClose={onClose} title={isEditing ? 'Editar cliente' : 'Nova cliente'} width="480px">
       {/* Toast */}
       {toast && (
         <div
@@ -139,7 +165,7 @@ export default function CadastroModal({ open, onClose }) {
             Cancelar
           </button>
           <button type="submit" className="btn">
-            Cadastrar cliente
+            {isEditing ? 'Salvar alterações' : 'Cadastrar cliente'}
           </button>
         </div>
       </form>

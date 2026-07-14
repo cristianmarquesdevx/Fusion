@@ -11,7 +11,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/useAuthStore';
+import { useAuthStore } from '../store';
 
 export default function AuthCallback() {
   const navigate = useNavigate();

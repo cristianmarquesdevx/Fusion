@@ -177,11 +177,31 @@ export const CARGOS = {
 };
 
 export const FIDELIDADE_NIVEIS = [
-  { nome: 'Bronze', pontosMin: 0, cor: '#CD7F32' },
-  { nome: 'Prata', pontosMin: 100, cor: '#C0C0C0' },
-  { nome: 'Ouro', pontosMin: 300, cor: '#FFD700' },
-  { nome: 'Platina', pontosMin: 600, cor: '#E5E4E2' },
-  { nome: 'Diamante', pontosMin: 1000, cor: '#B9F2FF' },
+  {
+    nome: 'Bronze', pontosMin: 0, cor: '#CD7F32',
+    icone: '🥉',
+    beneficios: ['5% de desconto em procedimentos'],
+  },
+  {
+    nome: 'Prata', pontosMin: 100, cor: '#C0C0C0',
+    icone: '🥈',
+    beneficios: ['10% de desconto', 'Prioridade em agendamentos'],
+  },
+  {
+    nome: 'Ouro', pontosMin: 300, cor: '#FFD700',
+    icone: '🥇',
+    beneficios: ['15% de desconto', '1 brinde de aniversário', 'Acesso a eventos VIP'],
+  },
+  {
+    nome: 'Platina', pontosMin: 600, cor: '#E5E4E2',
+    icone: '💎',
+    beneficios: ['20% de desconto', 'Brinde de aniversário + convidado', 'Acesso antecipado a lançamentos', 'Sessão gratuita a cada 12 avulsas'],
+  },
+  {
+    nome: 'Diamante', pontosMin: 1000, cor: '#B9F2FF',
+    icone: '👑',
+    beneficios: ['30% de desconto', 'Brinde VIP + convidado', 'Acesso total a eventos', 'Sessão gratuita a cada 8 avulsas', 'Consultoria personalizada mensal'],
+  },
 ];
 
 export const MESES = [

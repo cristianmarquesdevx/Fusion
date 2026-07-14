@@ -1,8 +1,8 @@
 /** @format */
 
 import React from 'react';
-import { useBIStore } from '../store/useBIStore';
-import { Helpers } from '../utils/helpers';
+import { useBIStore } from '../store';
+import { Helpers } from '../utils';
 
 /* ─── Barra de serviço (hbars) ─── */
 function ServiceBar({ name, pct, value, cor, idx }) {

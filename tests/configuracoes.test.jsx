@@ -88,11 +88,11 @@ describe('Configuracoes', () => {
       expect(labels.some((t) => t.includes('Agendamento'))).toBe(true);
     });
 
-    it('deve destacar a aba ativa com classe active', () => {
+    it('deve destacar a aba ativa com classe font-semibold', () => {
       render(<Configuracoes />);
       const allBtns = screen.getAllByRole('button');
       const unidadeBtn = allBtns.find((b) => b.textContent.includes('Unidade'));
-      expect(unidadeBtn).toHaveClass('active');
+      expect(unidadeBtn).toHaveClass('font-semibold');
     });
 
     it('deve chamar setActiveTab ao clicar em outra aba', () => {
@@ -109,8 +109,8 @@ describe('Configuracoes', () => {
       const allBtns = screen.getAllByRole('button');
       const unidadeBtn = allBtns.find((b) => b.textContent.includes('Unidade'));
       const equipeBtn = allBtns.find((b) => b.textContent.includes('Equipe'));
-      expect(equipeBtn).toHaveClass('active');
-      expect(unidadeBtn).not.toHaveClass('active');
+      expect(equipeBtn).toHaveClass('font-semibold');
+      expect(unidadeBtn).not.toHaveClass('font-semibold');
     });
   });
 
@@ -140,11 +140,12 @@ describe('Configuracoes', () => {
       expect(screen.getByText('Carlos Oliveira')).toBeInTheDocument();
     });
 
-    it('deve mostrar status ativo com classe ok', () => {
+    it('deve mostrar status ativo com cor verde', () => {
       render(<Configuracoes />);
       const ativoBtns = screen.getAllByText('Ativo');
       expect(ativoBtns.length).toBeGreaterThanOrEqual(1);
-      expect(ativoBtns[0]).toHaveClass('ok');
+      // O botão ativo deve ter a classe de cor do tema sage (verde)
+      expect(ativoBtns[0].className).toContain('sage');
     });
 
     it('deve chamar toggleMemberStatus ao clicar no status', () => {

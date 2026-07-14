@@ -1,10 +1,9 @@
 /** @format */
 
 import React, { useState, useCallback } from 'react';
-import { usePDVStore } from '../store/usePDVStore';
-import { Helpers } from '../utils/helpers';
-import SearchInput from '../components/ui/SearchInput';
-import Modal from '../components/ui/Modal';
+import { usePDVStore } from '../store';
+import { Helpers } from '../utils';
+import { SearchInput, Modal } from '../components/ui';
 
 /* ─── Cartão de produto/serviço ─── */
 function ProductCard({ item, onAdd }) {
@@ -257,8 +256,7 @@ export default function PDV() {
       )}
 
       {/* Modal Desconto */}
-      {discountModal && (
-        <Modal onClose={() => setDiscountModal(false)} title="Adicionar Desconto" maxWidth="max-w-sm">
+      <Modal open={discountModal} onClose={() => setDiscountModal(false)} title="Adicionar Desconto" maxWidth="max-w-sm">
           <div className="p-5 space-y-4">
             <div className="flex gap-2">
               {[

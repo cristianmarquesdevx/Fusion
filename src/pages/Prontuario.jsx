@@ -1,9 +1,9 @@
 /** @format */
 
 import React, { useState } from 'react';
-import { useClientStore } from '../store/useClientStore';
-import SearchInput from '../components/ui/SearchInput';
-import ProntuarioModal from '../components/clientes/ProntuarioModal';
+import { useClientStore } from '../store';
+import { SearchInput } from '../components/ui';
+import { ProntuarioModal } from '../components/clientes';
 
 /* ─── Card de cliente compacto ─── */
 function ClientCard({ cliente, onClick, idx }) {

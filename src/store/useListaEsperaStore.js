@@ -1,7 +1,8 @@
 /** @format */
 
 import { create } from 'zustand';
-import { Helpers } from '../utils/helpers';
+import { Helpers } from '../utils';
+import { scheduleLocalNotification, cancelScheduledNotification } from '../services/push-notifications';
 
 const initialState = {
   list: [
@@ -23,9 +24,23 @@ export const useListaEsperaStore = create((set, get) => ({
     const state = get();
     const newEntry = { ...entry, id: Helpers.generateId() };
     set({ list: [...state.list, newEntry] });
+
+    // Agenda notificação push simulando desistência/vaga 2h depois
+    const now = new Date();
+    const notifTime = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+    scheduleLocalNotification({
+      id: `waitlist-${newEntry.id}`,
+      title: 'Fila de espera — vaga disponível?',
+      body: `${entry.nome || 'Cliente'} aguarda ${entry.servico || 'procedimento'} (${entry.preferencia || 'qualquer horário'}). Verifique disponibilidade.`,
+      scheduledAt: notifTime.toISOString(),
+      type: 'waiting_list',
+      data: { url: '/lista-espera', clientId: newEntry.id },
+    });
   },
 
   removeFromWaitlist: (id) => {
+    // Cancela notificação pendente
+    cancelScheduledNotification(`waitlist-${id}`);
     set((state) => ({ list: state.list.filter((e) => e.id !== id) }));
   },
 

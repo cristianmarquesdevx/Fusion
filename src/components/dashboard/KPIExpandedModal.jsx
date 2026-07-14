@@ -123,7 +123,7 @@ export default function KPIExpandedModal({ kpiKey, data, onClose }) {
   };
 
   return (
-    <Modal open={true} onClose={onClose} title={titles[kpiKey] || 'Detalhes'} maxWidth="max-w-2xl">
+    <Modal open={!!kpiKey && !!data} onClose={onClose} title={titles[kpiKey] || 'Detalhes'} maxWidth="max-w-2xl">
       <div className="p-5 sm:p-6 max-h-[70vh] overflow-y-auto">
         {renderContent()}
       </div>

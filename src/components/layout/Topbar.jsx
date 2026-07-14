@@ -1,12 +1,14 @@
 /** @format */
 
-import React from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useUIStore } from '../../store/useUIStore';
 import { useTheme } from '../../hooks/useTheme';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { useAuthListener } from '../../hooks/useAuthListener';
+import usePushNotifications from '../../hooks/usePushNotifications';
+import useLocalNotifications from '../../hooks/useLocalNotifications';
 import { Helpers } from '../../utils/helpers';
 
 export default function Topbar() {
@@ -16,9 +18,57 @@ export default function Topbar() {
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const { isDark, toggleTheme } = useTheme();
 
-  const { isOnline, isOffline, queueSize, updateAvailable, checking, dismissUpdate, checkNow } = useOnlineStatus();
-
+  const { isOnline, isOffline, queueSize, updateAvailable, checking, dismissUpdate } = useOnlineStatus();
   const { authToast, dismissAuthToast } = useAuthListener();
+
+  // ── Push notifications ────────────────────────────────────────────────────
+  const { status, loading: pushLoading, requestPermission, subscribe, unsubscribe } = usePushNotifications();
+  useLocalNotifications(true);
+
+  const storeNotifications = useUIStore((s) => s.notifications);
+  const [notifPanelOpen, setNotifPanelOpen] = useState(false);
+  const panelRef = useRef(null);
+  const bellRef = useRef(null);
+
+  const totalNotifications = storeNotifications.length;
+  const hasUnread = totalNotifications > 0;
+
+  // Fecha o painel ao clicar fora
+  useEffect(() => {
+    if (!notifPanelOpen) return;
+    const handleClickOutside = (e) => {
+      if (
+        panelRef.current &&
+        !panelRef.current.contains(e.target) &&
+        bellRef.current &&
+        !bellRef.current.contains(e.target)
+      ) {
+        setNotifPanelOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [notifPanelOpen]);
+
+  // Fecha com Escape
+  useEffect(() => {
+    if (!notifPanelOpen) return;
+    const handleKey = (e) => {
+      if (e.key === 'Escape') setNotifPanelOpen(false);
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [notifPanelOpen]);
+
+  const removeNotification = useUIStore((s) => s.removeNotification);
+
+  const handleDismissNotif = useCallback((id) => {
+    removeNotification(id);
+  }, [removeNotification]);
+
+  const handleClearAll = useCallback(() => {
+    storeNotifications.forEach((n) => removeNotification(n.id));
+  }, [storeNotifications, removeNotification]);
 
   return (
     <>
@@ -52,7 +102,7 @@ export default function Topbar() {
           <path d="M12 21s7-6.3 7-11.5A7 7 0 005 9.5C5 14.7 12 21 12 21z" />
           <circle cx="12" cy="9.5" r="2.3" />
         </svg>
-        <span className="max-lg:hidden">Centro Vitta — Unidade Jardins</span>
+        <span className="max-lg:hidden">{user?.company || 'Centro Vitta — Unidade Jardins'}</span>
       </button>
 
       <div className="flex-1" />
@@ -136,20 +186,216 @@ export default function Topbar() {
         )}
       </button>
 
-      {/* Notifications */}
-      <button className="w-9 h-9 flex items-center justify-center rounded-sm border border-border dark:border-border-dark bg-surface dark:bg-surface-dark relative">
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          className="w-4 h-4"
-        >
-          <path d="M6 8a6 6 0 0112 0c0 3.5 1 5.5 2 7H4c1-1.5 2-3.5 2-7z" />
-          <path d="M10 20a2 2 0 004 0" />
-        </svg>
-        <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-rose dark:bg-rose-dark border border-surface dark:border-surface-dark" />
+      {/* Push subscription toggle */}
+      <button
+        onClick={async () => {
+          if (status.permission === 'granted' && status.subscribed) {
+            await unsubscribe();
+          } else {
+            await requestPermission();
+          }
+        }}
+        disabled={!status.supported || pushLoading}
+        className={`w-9 h-9 flex items-center justify-center rounded-sm border ${
+          status.subscribed
+            ? 'border-sage/50 dark:border-sage-dark/50 bg-sage-soft dark:bg-sage-dark-soft text-sage dark:text-sage-dark'
+            : 'border-border dark:border-border-dark bg-surface dark:bg-surface-dark text-ink-faint dark:text-ink-dark-faint'
+        }`}
+        aria-label={status.subscribed ? 'Notificações push ativadas' : 'Ativar notificações push'}
+        title={status.subscribed ? 'Push ativado' : 'Ativar push'}
+      >
+        {pushLoading ? (
+          <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-4 h-4">
+            <path d="M12 2a2 2 0 00-2 2c0 .5.2 1 .5 1.4A7 7 0 005 12v3l-1 1.5v1h16v-1L19 15v-3a7 7 0 00-5.5-6.6c.3-.4.5-.9.5-1.4a2 2 0 00-2-2z" />
+            <path d="M10 19a2 2 0 004 0" />
+          </svg>
+        )}
       </button>
+
+      {/* Notifications bell */}
+      <div className="relative">
+        <button
+          ref={bellRef}
+          onClick={() => setNotifPanelOpen((prev) => !prev)}
+          className="w-9 h-9 flex items-center justify-center rounded-sm border border-border dark:border-border-dark bg-surface dark:bg-surface-dark relative"
+          aria-label="Notificações"
+          aria-expanded={notifPanelOpen}
+          aria-haspopup="true"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            className="w-4 h-4"
+          >
+            <path d="M6 8a6 6 0 0112 0c0 3.5 1 5.5 2 7H4c1-1.5 2-3.5 2-7z" />
+            <path d="M10 20a2 2 0 004 0" />
+          </svg>
+          {hasUnread && (
+            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center px-1 rounded-full bg-rose dark:bg-rose-dark text-white text-[9px] font-bold leading-none border-2 border-bg dark:border-bg-dark">
+              {totalNotifications > 99 ? '99+' : totalNotifications}
+            </span>
+          )}
+        </button>
+
+        {/* Notification dropdown panel */}
+        {notifPanelOpen && (
+          <div
+            ref={panelRef}
+            role="menu"
+            className="absolute right-0 top-full mt-2 w-[380px] max-w-[calc(100vw-32px)] bg-surface dark:bg-surface-dark border border-border dark:border-border-dark rounded-xl shadow-xl animate-scale-in origin-top-right z-50"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border dark:border-border-dark">
+              <h3 className="font-display text-sm font-semibold text-ink dark:text-ink-dark">
+                Notificações
+              </h3>
+              <div className="flex items-center gap-2">
+                {totalNotifications > 0 && (
+                  <button
+                    onClick={handleClearAll}
+                    className="text-[11px] font-medium text-ink-faint dark:text-ink-dark-faint hover:text-ink dark:hover:text-ink-dark transition-colors"
+                  >
+                    Limpar tudo
+                  </button>
+                )}
+                <button
+                  onClick={() => setNotifPanelOpen(false)}
+                  className="p-1 rounded-sm hover:bg-surface-2 dark:hover:bg-surface-dark-2 transition-colors"
+                  aria-label="Fechar"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Push subscription status */}
+            {status.supported && status.permission !== 'granted' && (
+              <div className="mx-4 mt-3 mb-2 p-3 rounded-lg bg-brand-soft/20 dark:bg-brand-dark-soft/10 border border-brand/20 dark:border-brand-dark/20">
+                <div className="flex items-start gap-2.5">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 mt-0.5 text-brand dark:text-brand-dark shrink-0">
+                    <path d="M12 2a2 2 0 00-2 2c0 .5.2 1 .5 1.4A7 7 0 005 12v3l-1 1.5v1h16v-1L19 15v-3a7 7 0 00-5.5-6.6c.3-.4.5-.9.5-1.4a2 2 0 00-2-2z" />
+                    <path d="M10 19a2 2 0 004 0" />
+                  </svg>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-ink dark:text-ink-dark">
+                      Notificações push
+                    </p>
+                    <p className="text-[11px] text-ink-faint dark:text-ink-dark-faint mt-0.5">
+                      Ative para receber lembretes de agendamentos e alertas em tempo real.
+                    </p>
+                    <button
+                      onClick={async () => {
+                        await requestPermission();
+                      }}
+                      disabled={pushLoading}
+                      className="mt-2 px-3 py-1.5 rounded-lg bg-brand dark:bg-brand-dark text-white text-[11px] font-semibold hover:bg-brand-hover dark:hover:bg-brand-dark-hover transition-colors disabled:opacity-60"
+                    >
+                      {pushLoading ? 'Ativando…' : 'Ativar notificações'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* List */}
+            <div className="max-h-[360px] overflow-y-auto">
+              {storeNotifications.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+                  <div className="w-10 h-10 rounded-full bg-surface-2 dark:bg-surface-dark-2 flex items-center justify-center mb-3">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 text-ink-faint dark:text-ink-dark-faint">
+                      <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                      <path d="M13.73 21a2 2 0 01-3.46 0" />
+                    </svg>
+                  </div>
+                  <p className="text-sm font-medium text-ink-soft dark:text-ink-dark-soft">
+                    Nenhuma notificação
+                  </p>
+                  <p className="text-xs text-ink-faint dark:text-ink-dark-faint mt-1">
+                    Você será notificado sobre agendamentos, fila de espera e alertas do sistema.
+                  </p>
+                </div>
+              ) : (
+                <ul className="divide-y divide-border dark:divide-border-dark">
+                  {storeNotifications.map((notif) => (
+                    <li
+                      key={notif.id}
+                      className="px-4 py-3 hover:bg-surface-2 dark:hover:bg-surface-dark-2 transition-colors group"
+                    >
+                      <div className="flex items-start gap-3">
+                        {/* Icon based on type */}
+                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                          notif.type === 'error'
+                            ? 'bg-rose/10 dark:bg-rose-dark/10 text-rose dark:text-rose-dark'
+                            : notif.type === 'warning'
+                            ? 'bg-gold/10 dark:bg-gold-dark/10 text-gold dark:text-gold-dark'
+                            : 'bg-brand-soft/30 dark:bg-brand-dark-soft/20 text-brand dark:text-brand-dark'
+                        }`}>
+                          {notif.type === 'success' ? (
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
+                              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                              <path d="M22 4L12 14.01l-3-3" />
+                            </svg>
+                          ) : notif.type === 'error' ? (
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
+                              <circle cx="12" cy="12" r="10" />
+                              <path d="M15 9l-6 6M9 9l6 6" />
+                            </svg>
+                          ) : notif.type === 'warning' ? (
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
+                              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                              <path d="M12 9v4M12 17h.01" />
+                            </svg>
+                          ) : (
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
+                              <circle cx="12" cy="12" r="10" />
+                              <path d="M12 16v-4M12 8h.01" />
+                            </svg>
+                          )}
+                        </div>
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-ink dark:text-ink-dark truncate">
+                            {notif.title}
+                          </p>
+                          {notif.message && (
+                            <p className="text-xs text-ink-faint dark:text-ink-dark-faint mt-0.5 line-clamp-2">
+                              {notif.message}
+                            </p>
+                          )}
+                          {notif.timestamp && (
+                            <p className="text-[10px] text-ink-faint/60 dark:text-ink-dark-faint/60 mt-1">
+                              {Helpers.formatRelativeTime(notif.timestamp)}
+                            </p>
+                          )}
+                        </div>
+                        {/* Dismiss */}
+                        <button
+                          onClick={() => handleDismissNotif(notif.id)}
+                          className="opacity-0 group-hover:opacity-100 p-1 rounded-sm hover:bg-surface-2 dark:hover:bg-surface-dark-2 transition-all"
+                          aria-label="Descartar notificação"
+                        >
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3">
+                            <path d="M18 6L6 18M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Logout */}
       <button

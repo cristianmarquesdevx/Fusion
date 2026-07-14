@@ -1,6 +1,7 @@
 /**
  * Fusion ERP - Service Worker
  * Estrategia: cache-first para assets, network-first para API, fila offline
+ * Notificacoes Push: agendamentos, fila de espera, estoque critico
  */
 
 'use strict';
@@ -143,4 +144,93 @@ self.addEventListener('message',function(e){
   if(d.type==='ADD_MUTATION'&&d.mutation){
     getDB().then(function(db){var tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).add({url:d.mutation.url,method:d.mutation.method||'POST',timestamp:Date.now(),retries:0,maxRetries:5});});
   }
+  // Forward notification requests from the client to show browser notifications
+  if(d.type==='SHOW_NOTIFICATION'&&d.payload){
+    self.registration.showNotification(d.payload.title||'Fusion ERP',{
+      body:d.payload.body||'',
+      icon:d.payload.icon||'/LOGO.png',
+      badge:d.payload.badge||'/LOGO.png',
+      tag:d.payload.tag||'fusion-default',
+      data:d.payload.data||{},
+      requireInteraction:d.payload.requireInteraction||false,
+      vibrate:d.payload.vibrate||[200,100,200],
+      actions:d.payload.actions||[]
+    });
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   PUSH NOTIFICATIONS
+   ═══════════════════════════════════════════════════════════════ */
+
+// Push event — recebida do servidor (via VAPID / Supabase Realtime)
+self.addEventListener('push', function(e) {
+  if (!e.data) return;
+
+  var payload;
+  try {
+    payload = e.data.json();
+  } catch (_) {
+    payload = { title: 'Fusion ERP', body: e.data.text() };
+  }
+
+  var title = payload.title || 'Fusion ERP';
+  var options = {
+    body: payload.body || '',
+    icon: payload.icon || '/LOGO.png',
+    badge: '/LOGO.png',
+    tag: payload.tag || 'fusion-push-' + Date.now(),
+    data: payload.data || { url: payload.url || '/' },
+    vibrate: payload.vibrate || [200, 100, 200],
+    requireInteraction: payload.requireInteraction || false,
+    actions: payload.actions || [
+      { action: 'open', title: 'Abrir' },
+      { action: 'dismiss', title: 'Dispensar' },
+    ],
+  };
+
+  e.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Notificação clicada — navega para a URL relevante
+self.addEventListener('notificationclick', function(e) {
+  e.notification.close();
+
+  var action = e.action;
+  var url = '/';
+
+  if (e.notification.data && e.notification.data.url) {
+    url = e.notification.data.url;
+  }
+
+  // Ações customizadas
+  if (action === 'agenda') url = '/agenda';
+  if (action === 'clientes') url = '/clientes';
+  if (action === 'fila') url = '/fila-atendimento';
+  if (action === 'financeiro') url = '/financeiro';
+  if (action === 'estoque') url = '/estoque';
+  if (action === 'dashboard') url = '/dashboard';
+
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+      // Se já há uma janela aberta, foca nela e navega
+      for (var i = 0; i < clientList.length; i++) {
+        var client = clientList[i];
+        if ('focus' in client) {
+          client.focus();
+          client.navigate(url);
+          return;
+        }
+      }
+      // Abre nova janela
+      if (clients.openWindow) {
+        return clients.openWindow(url);
+      }
+    })
+  );
+});
+
+// Fechou a notificação sem clicar em ação
+self.addEventListener('notificationclose', function(e) {
+  // Log opcional — pode enviar analytics
 });

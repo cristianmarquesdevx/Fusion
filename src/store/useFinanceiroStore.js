@@ -5,6 +5,8 @@
  */
 
 import { create } from 'zustand';
+import { supabaseData } from '../services/supabase-data';
+import { withSupabaseFallback, trySync } from '../hooks/useSupabaseInit';
 
 const initialTransactions = [
   { id: '1', descricao: 'Sessão · Juliana Prado', categoria: 'Procedimento', data: '30/06', valor: 890.00, tipo: 'receita', status: 'Pago', formaPagamento: 'Crédito', observacoes: '' },
@@ -39,6 +41,21 @@ const filterOptions = {
   ],
 };
 
+function recalcKPIs(transacoes) {
+  const receitas = transacoes
+    .filter((t) => t.tipo === 'receita')
+    .reduce((sum, t) => sum + t.valor, 0);
+  const despesas = transacoes
+    .filter((t) => t.tipo === 'despesa')
+    .reduce((sum, t) => sum + t.valor, 0);
+  return {
+    receita: { ...kpisIniciais.receita, valor: receitas },
+    despesas: { ...kpisIniciais.despesas, valor: despesas },
+    lucro: { ...kpisIniciais.lucro, valor: receitas - despesas },
+    comissoes: kpisIniciais.comissoes,
+  };
+}
+
 export const useFinanceiroStore = create((set, get) => ({
   transacoes: initialTransactions,
   searchTerm: '',
@@ -46,6 +63,38 @@ export const useFinanceiroStore = create((set, get) => ({
   nextId: 6,
   kpis: kpisIniciais,
   filterOptions,
+  supabaseLoaded: false,
+
+  /** Carrega transações do Supabase (com fallback local) */
+  loadFromSupabase: async () => {
+    const data = await withSupabaseFallback(
+      () => supabaseData.transacoes.load({
+        order: { field: 'data', ascending: false },
+      }),
+      null
+    );
+    if (data && Array.isArray(data) && data.length > 0) {
+      const mapped = data.map((t, i) => ({
+        id: String(t.id || i + 1),
+        descricao: t.descricao || t.description || '',
+        categoria: t.categoria || t.category || '',
+        data: t.data || t.date || '',
+        valor: Number(t.valor || t.value || 0),
+        tipo: t.tipo || t.type || 'receita',
+        status: t.status || 'Pago',
+        formaPagamento: t.forma_pagamento || '',
+        observacoes: t.observacoes || '',
+      }));
+      set({
+        transacoes: mapped,
+        kpis: recalcKPIs(mapped),
+        nextId: mapped.length + 1,
+        supabaseLoaded: true,
+      });
+    } else {
+      set({ supabaseLoaded: false });
+    }
+  },
 
   setSearchTerm: (term) => set({ searchTerm: term }),
 
@@ -58,32 +107,41 @@ export const useFinanceiroStore = create((set, get) => ({
 
   clearFilters: () => set({ activeFilters: {} }),
 
-  addTransacao: (transacao) =>
+  addTransacao: (transacao) => {
+    const state = get();
+    const newId = String(state.nextId);
+    const nova = { id: newId, ...transacao };
+    // Tenta sync com Supabase
+    trySync(() => supabaseData.transacoes.save(transacao));
+    const all = [...state.transacoes, nova];
+    set({
+      transacoes: all,
+      nextId: state.nextId + 1,
+      kpis: recalcKPIs(all),
+    });
+  },
+
+  updateTransacao: (id, data) => {
+    trySync(() => supabaseData.transacoes.update(id, data));
     set((state) => {
-      const newId = String(state.nextId);
-      const nova = { id: newId, ...transacao };
-      const receitas = [...state.transacoes, nova]
-        .filter((t) => t.tipo === 'receita')
-        .reduce((sum, t) => sum + t.valor, 0);
-      const despesas = [...state.transacoes, nova]
-        .filter((t) => t.tipo === 'despesa')
-        .reduce((sum, t) => sum + t.valor, 0);
-      return {
-        transacoes: [...state.transacoes, nova],
-        nextId: state.nextId + 1,
-        kpis: {
-          ...state.kpis,
-          receita: { ...state.kpis.receita, valor: receitas },
-          despesas: { ...state.kpis.despesas, valor: despesas },
-          lucro: { ...state.kpis.lucro, valor: receitas - despesas },
-        },
-      };
-    }),
+      const all = state.transacoes.map((t) =>
+        t.id === id ? { ...t, ...data } : t
+      );
+      return { transacoes: all, kpis: recalcKPIs(all) };
+    });
+  },
+
+  deleteTransacao: (id) => {
+    trySync(() => supabaseData.transacoes.remove(id));
+    set((state) => {
+      const all = state.transacoes.filter((t) => t.id !== id);
+      return { transacoes: all, kpis: recalcKPIs(all) };
+    });
+  },
 
   getFilteredTransacoes: () => {
     const { transacoes, searchTerm, activeFilters } = get();
     let filtered = [...transacoes];
-
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase().trim();
       filtered = filtered.filter(
@@ -93,17 +151,9 @@ export const useFinanceiroStore = create((set, get) => ({
           t.status.toLowerCase().includes(term)
       );
     }
-
-    if (activeFilters.tipo) {
-      filtered = filtered.filter((t) => t.tipo === activeFilters.tipo);
-    }
-    if (activeFilters.status) {
-      filtered = filtered.filter((t) => t.status === activeFilters.status);
-    }
-    if (activeFilters.categoria) {
-      filtered = filtered.filter((t) => t.categoria === activeFilters.categoria);
-    }
-
+    if (activeFilters.tipo) filtered = filtered.filter((t) => t.tipo === activeFilters.tipo);
+    if (activeFilters.status) filtered = filtered.filter((t) => t.status === activeFilters.status);
+    if (activeFilters.categoria) filtered = filtered.filter((t) => t.categoria === activeFilters.categoria);
     return filtered.sort((a, b) => {
       const [dA, mA] = a.data.split('/').map(Number);
       const [dB, mB] = b.data.split('/').map(Number);

@@ -5,6 +5,8 @@
  */
 
 import { create } from 'zustand';
+import { supabaseData } from '../services/supabase-data';
+import { withSupabaseFallback, trySync } from '../hooks/useSupabaseInit';
 
 const initialClients = [
   { id: '1', nome: 'Marina Costa', tel: '(11) 98221-4410', email: 'marina.costa@email.com', desde: '2022', ultima: 'Hoje, 09:00', pacote: 'Limpeza facial · 4/10 sessões', status: 'Em dia' },
@@ -144,6 +146,37 @@ export const useClientStore = create((set, get) => ({
   total: 328,
   prontData,
   filterOptions,
+  supabaseLoaded: false,
+  supabaseEnabled: supabaseData.isReady,
+
+  /** Carrega clientes do Supabase (com fallback local) */
+  loadFromSupabase: async () => {
+    const data = await withSupabaseFallback(
+      () => supabaseData.clientes.load({ order: { field: 'nome', ascending: true } }),
+      null
+    );
+    if (data && Array.isArray(data) && data.length > 0) {
+      // Mapeia campos do Supabase para o formato da store
+      const mapped = data.map((c, i) => ({
+        id: String(c.id || i + 1),
+        nome: c.nome || c.name || '',
+        tel: c.telefone || c.tel || '',
+        email: c.email || '',
+        desde: c.desde || String(new Date().getFullYear()),
+        ultima: c.ultima_visita || c.ultima || '',
+        pacote: c.pacote || c.pacote_ativo || 'Sem pacote ativo',
+        status: c.status || 'Em dia',
+      }));
+      set({
+        clients: mapped,
+        total: mapped.length,
+        nextId: mapped.length + 1,
+        supabaseLoaded: true,
+      });
+    } else {
+      set({ supabaseLoaded: false });
+    }
+  },
 
   setSearchTerm: (term) => set({ searchTerm: term }),
 
@@ -156,22 +189,41 @@ export const useClientStore = create((set, get) => ({
 
   clearFilters: () => set({ activeFilters: {} }),
 
-  addClient: (cliente) =>
-    set((state) => {
-      const newId = String(state.nextId);
-      const newClient = { id: newId, ...cliente };
-      return {
-        clients: [...state.clients, newClient],
-        nextId: state.nextId + 1,
-        total: state.total + 1,
-      };
-    }),
+  addClient: (cliente) => {
+    const state = get();
+    const newId = String(state.nextId);
+    const newClient = { id: newId, ...cliente };
+    // Tenta sync com Supabase (não bloqueia UI)
+    trySync(() => supabaseData.clientes.save(cliente));
+    set({
+      clients: [...state.clients, newClient],
+      nextId: state.nextId + 1,
+      total: state.total + 1,
+    });
+  },
+
+  updateClient: (id, data) => {
+    // Tenta sync com Supabase
+    trySync(() => supabaseData.clientes.update(id, data));
+    set((state) => ({
+      clients: state.clients.map((c) =>
+        c.id === id ? { ...c, ...data } : c
+      ),
+    }));
+  },
+
+  deleteClient: (id) => {
+    // Tenta sync com Supabase
+    trySync(() => supabaseData.clientes.remove(id));
+    set((state) => ({
+      clients: state.clients.filter((c) => c.id !== id),
+      total: state.total - 1,
+    }));
+  },
 
   getFilteredClients: () => {
     const { clients, searchTerm, activeFilters } = get();
     let filtered = [...clients];
-
-    // Apply search
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase().trim();
       filtered = filtered.filter(
@@ -182,14 +234,27 @@ export const useClientStore = create((set, get) => ({
           (c.cpf && c.cpf.toLowerCase().includes(term))
       );
     }
-
-    // Apply filters
     if (activeFilters.status) {
       filtered = filtered.filter((c) => c.status === activeFilters.status);
     }
-
     return filtered;
   },
 
+  getClientById: (id) => get().clients.find((c) => c.id === id),
 
+  // ─── Anamnese ───
+  anamneseData: {},
+
+  getAnamnese: (clientName) => {
+    return get().anamneseData[clientName] || null;
+  },
+
+  saveAnamnese: (clientName, data) => {
+    set((state) => ({
+      anamneseData: {
+        ...state.anamneseData,
+        [clientName]: data,
+      },
+    }));
+  },
 }));

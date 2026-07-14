@@ -1,9 +1,8 @@
 /** @format */
 
 import React, { useState } from 'react';
-import { useListaEsperaStore } from '../store/useListaEsperaStore';
-import SearchInput from '../components/ui/SearchInput';
-import Modal from '../components/ui/Modal';
+import { useListaEsperaStore } from '../store';
+import { SearchInput, Modal } from '../components/ui';
 
 /* ─── Badge de tempo de espera ─── */
 function TimeBadge({ dias }) {
@@ -169,8 +168,7 @@ export default function ListaEspera() {
       </div>
 
       {/* Modal Adicionar */}
-      {modalOpen && (
-        <Modal onClose={() => setModalOpen(false)} title="Adicionar à Lista de Espera" maxWidth="max-w-sm">
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Adicionar à Lista de Espera" maxWidth="max-w-sm">
           <div className="p-5 space-y-4">
             <div>
               <label className="text-xs font-semibold text-ink-soft dark:text-ink-dark-soft mb-1.5 block">Nome do cliente</label>
@@ -226,7 +224,6 @@ export default function ListaEspera() {
             </div>
           </div>
         </Modal>
-      )}
     </div>
   );
 }

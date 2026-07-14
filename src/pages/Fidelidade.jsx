@@ -1,9 +1,8 @@
 /** @format */
 
-import React, { useState } from 'react';
-import { useFidelidadeStore } from '../store/useFidelidadeStore';
-import SearchInput from '../components/ui/SearchInput';
-import Modal from '../components/ui/Modal';
+import React, { useState, useEffect } from 'react';
+import { useFidelidadeStore } from '../store';
+import { SearchInput, Modal } from '../components/ui';
 
 /* ─── Barra de nível horizontal ─── */
 function LevelBar({ nome, pontos, count, maxCount, cor, idx }) {
@@ -69,6 +68,10 @@ export default function Fidelidade() {
     searchTerm, activeFilter,
     setSearchTerm, setActiveFilter, addPontos, getFilteredClientes, getDistribuicao,
   } = useFidelidadeStore();
+
+  const loadFromSupabase = useFidelidadeStore((s) => s.loadFromSupabase);
+
+  useEffect(() => { loadFromSupabase(); }, [loadFromSupabase]);
 
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [addCliente, setAddCliente] = useState('');
@@ -234,8 +237,7 @@ export default function Fidelidade() {
       </div>
 
       {/* Modal Add Pontos */}
-      {addModalOpen && (
-        <Modal onClose={() => setAddModalOpen(false)} title="Adicionar Pontos" maxWidth="max-w-sm">
+      <Modal open={addModalOpen} onClose={() => setAddModalOpen(false)} title="Adicionar Pontos" maxWidth="max-w-sm">
           <div className="p-5 space-y-4">
             <div>
               <label className="text-xs font-semibold text-ink-soft dark:text-ink-dark-soft mb-1.5 block">Cliente</label>
@@ -283,7 +285,6 @@ export default function Fidelidade() {
             </div>
           </div>
         </Modal>
-      )}
     </div>
   );
 }

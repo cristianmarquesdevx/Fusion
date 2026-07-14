@@ -1,11 +1,10 @@
 /** @format */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useEstoqueStore } from '../store/useEstoqueStore';
-import SearchInput from '../components/ui/SearchInput';
-import StatusChip from '../components/ui/StatusChip';
-import EntradaModal from '../components/estoque/EntradaModal';
-import { EstoqueSkeleton } from '../components/dashboard/Skeleton';
+import { useEstoqueStore, useUIStore } from '../store';
+import { SearchInput, StatusChip, ConfirmDialog } from '../components/ui';
+import { EntradaModal, EditItemModal } from '../components/estoque';
+import { EstoqueSkeleton } from '../components/dashboard';
 
 function StockBar({ current, min }) {
   const ratio = Math.min(current / min, 1);
@@ -43,16 +42,25 @@ export default function Estoque() {
     setFilter,
     clearFilters,
     categorias,
+    deleteItem,
   } = useEstoqueStore();
 
   const filteredItems = useEstoqueStore((s) => s.getFilteredItems());
   const resumo = useEstoqueStore((s) => s.getResumo());
   const entries = useEstoqueStore((s) => s.entries);
+  const loadFromSupabase = useEstoqueStore((s) => s.loadFromSupabase);
+  const addNotification = useUIStore((s) => s.addNotification);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const [filterMenuOpen, setFilterMenuOpen] = useState(false);
   const [filterSection, setFilterSection] = useState(null);
   const filterRef = useRef(null);
+
+  // Load from Supabase on mount
+  useEffect(() => { loadFromSupabase(); }, [loadFromSupabase]);
 
   useEffect(() => {
     const handleClick = (e) => {
@@ -77,6 +85,23 @@ export default function Estoque() {
 
   const handleFilterSection = (section) => {
     setFilterSection(filterSection === section ? null : section);
+  };
+
+  const handleEdit = (item) => {
+    setEditingItem(item);
+    setEditModalOpen(true);
+  };
+
+  const handleDelete = (e, item) => {
+    e.stopPropagation();
+    setConfirmDelete(item);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!confirmDelete) return;
+    deleteItem(confirmDelete.id);
+    addNotification({ type: 'success', title: 'Item excluído', message: `"${confirmDelete.nome}" foi removido do estoque.` });
+    setConfirmDelete(null);
   };
 
   const renderFilterDropdown = () => {
@@ -254,7 +279,7 @@ export default function Estoque() {
           <table className="w-full border-collapse">
             <thead>
               <tr>
-                {['Item', 'Categoria', 'Quantidade', 'Mínimo', 'Status'].map((h) => (
+                {['Item', 'Categoria', 'Quantidade', 'Mínimo', 'Status', ''].map((h) => (
                   <th
                     key={h}
                     className="text-left text-xs uppercase tracking-wider text-ink-faint dark:text-ink-dark-faint font-semibold px-4 pb-3 pt-4 border-b border-border dark:border-border-dark"
@@ -267,7 +292,7 @@ export default function Estoque() {
             <tbody className="stagger-enter">
               {filteredItems.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-sm text-ink-faint dark:text-ink-dark-faint">
+                  <td colSpan={6} className="px-4 py-12 text-center text-sm text-ink-faint dark:text-ink-dark-faint">
                     {searchTerm || activeFilterCount > 0
                       ? 'Nenhum item encontrado com os critérios de busca.'
                       : 'Nenhum item cadastrado no estoque.'}
@@ -302,6 +327,31 @@ export default function Estoque() {
                       </td>
                       <td className="px-4 py-3.5 border-b border-border dark:border-border-dark">
                         <StatusChip status={statusType} />
+                      </td>
+                      <td className="px-4 py-3.5 border-b border-border dark:border-border-dark text-right">
+                        <div className="flex items-center gap-1 justify-end">
+                          <button
+                            onClick={() => handleEdit(item)}
+                            className="w-7 h-7 flex items-center justify-center rounded-sm text-ink-faint dark:text-ink-dark-faint hover:text-brand dark:hover:text-brand-dark hover:bg-surface-2 dark:hover:bg-surface-dark-2 transition-colors"
+                            aria-label={`Editar ${item.nome}`}
+                            title="Editar"
+                          >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-3.5 h-3.5">
+                              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={(e) => handleDelete(e, item)}
+                            className="w-7 h-7 flex items-center justify-center rounded-sm text-ink-faint dark:text-ink-dark-faint hover:text-rose dark:hover:text-rose-dark hover:bg-surface-2 dark:hover:bg-surface-dark-2 transition-colors"
+                            aria-label={`Excluir ${item.nome}`}
+                            title="Excluir"
+                          >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-3.5 h-3.5">
+                              <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                            </svg>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -375,8 +425,25 @@ export default function Estoque() {
         )}
       </div>
 
-      {/* Modal */}
+      {/* Modais */}
       <EntradaModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      {/* Confirmar exclusão */}
+      <ConfirmDialog
+        open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={handleConfirmDelete}
+        title="Excluir item?"
+        message={confirmDelete ? `Tem certeza que deseja excluir "${confirmDelete.nome}" do estoque? Esta ação não pode ser desfeita.` : ''}
+        confirmLabel="Sim, excluir"
+        cancelLabel="Cancelar"
+        variant="danger"
+      />
+
+      <EditItemModal
+        open={editModalOpen}
+        onClose={() => { setEditModalOpen(false); setEditingItem(null); }}
+        editingItem={editingItem}
+      />
     </div>
   );
 }

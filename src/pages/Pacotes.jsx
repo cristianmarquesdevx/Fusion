@@ -1,10 +1,9 @@
 /** @format */
 
 import React, { useState } from 'react';
-import { usePacotesStore } from '../store/usePacotesStore';
-import { Helpers } from '../utils/helpers';
-import SearchInput from '../components/ui/SearchInput';
-import Modal from '../components/ui/Modal';
+import { usePacotesStore } from '../store';
+import { Helpers } from '../utils';
+import { SearchInput, Modal } from '../components/ui';
 
 export default function Pacotes() {
   const {
@@ -135,8 +134,7 @@ export default function Pacotes() {
       </div>
 
       {/* Modal Novo Pacote */}
-      {modalOpen && (
-        <Modal onClose={() => setModalOpen(false)} title="Novo Pacote" maxWidth="max-w-sm">
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Novo Pacote" maxWidth="max-w-sm">
           <div className="p-5 space-y-4">
             {[
               { id: 'nome', label: 'Nome do pacote', type: 'text', placeholder: 'Ex: Limpeza facial' },

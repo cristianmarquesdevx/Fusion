@@ -15,7 +15,7 @@
  */
 
 import { SupabaseService } from '../services/supabase';
-import { APP_CONFIG } from '../utils/constants';
+import { APP_CONFIG } from '../utils';
 
 const DEFAULT_UNIDADE = APP_CONFIG.supabase.demoUnidadeId;
 
@@ -44,7 +44,7 @@ export function createSupabaseSync(table, unidadeId = DEFAULT_UNIDADE) {
           return data;
         }
       } catch (e) {
-        console.warn(`[SupabaseSync] Erro ao carregar ${table}:`, e);
+        // Silencia erro de carregamento
       }
       return false;
     },
@@ -59,7 +59,6 @@ export function createSupabaseSync(table, unidadeId = DEFAULT_UNIDADE) {
         if (error) throw error;
         return { success: true, data: result?.[0] || result };
       } catch (e) {
-        console.error(`[SupabaseSync] Erro ao salvar em ${table}:`, e);
         return { success: false, error: e };
       }
     },
@@ -74,7 +73,6 @@ export function createSupabaseSync(table, unidadeId = DEFAULT_UNIDADE) {
         if (error) throw error;
         return { success: true, data: result?.[0] };
       } catch (e) {
-        console.error(`[SupabaseSync] Erro ao atualizar ${table}:`, e);
         return { success: false, error: e };
       }
     },
@@ -89,7 +87,6 @@ export function createSupabaseSync(table, unidadeId = DEFAULT_UNIDADE) {
         if (error) throw error;
         return { success: true };
       } catch (e) {
-        console.error(`[SupabaseSync] Erro ao remover ${table}:`, e);
         return { success: false, error: e };
       }
     },

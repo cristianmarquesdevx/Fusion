@@ -1,28 +1,30 @@
 /** @format */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/useAuthStore';
 import { useUIStore } from './store/useUIStore';
-import Login from './pages/Login';
-import AuthCallback from './pages/AuthCallback';
-import Dashboard from './pages/Dashboard';
-import Clientes from './pages/Clientes';
-import Agenda from './pages/Agenda';
-import FilaAtendimento from './pages/FilaAtendimento';
-import Financeiro from './pages/Financeiro';
-import Estoque from './pages/Estoque';
-import Fidelidade from './pages/Fidelidade';
-import Pacotes from './pages/Pacotes';
-import PDV from './pages/PDV';
-import BI from './pages/BI';
-import PlanosRecorrentes from './pages/PlanosRecorrentes';
-import ListaEspera from './pages/ListaEspera';
-import Salas from './pages/Salas';
-import Configuracoes from './pages/Configuracoes';
-import Relatorios from './pages/Relatorios';
-import Prontuario from './pages/Prontuario';
 import Shell from './components/layout/Shell';
+
+// Lazy-loaded pages for code splitting
+const Login = lazy(() => import('./pages/Login'));
+const AuthCallback = lazy(() => import('./pages/AuthCallback'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Clientes = lazy(() => import('./pages/Clientes'));
+const Agenda = lazy(() => import('./pages/Agenda'));
+const FilaAtendimento = lazy(() => import('./pages/FilaAtendimento'));
+const Financeiro = lazy(() => import('./pages/Financeiro'));
+const Estoque = lazy(() => import('./pages/Estoque'));
+const Fidelidade = lazy(() => import('./pages/Fidelidade'));
+const Pacotes = lazy(() => import('./pages/Pacotes'));
+const PDV = lazy(() => import('./pages/PDV'));
+const BI = lazy(() => import('./pages/BI'));
+const PlanosRecorrentes = lazy(() => import('./pages/PlanosRecorrentes'));
+const ListaEspera = lazy(() => import('./pages/ListaEspera'));
+const Salas = lazy(() => import('./pages/Salas'));
+const Configuracoes = lazy(() => import('./pages/Configuracoes'));
+const Relatorios = lazy(() => import('./pages/Relatorios'));
+const Prontuario = lazy(() => import('./pages/Prontuario'));
 
 function ProtectedRoute({ children }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -70,7 +72,6 @@ function PlaceholderView() {
 function SplashScreen() {
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-bg dark:bg-bg-dark">
-      {/* Background glow */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -78,9 +79,7 @@ function SplashScreen() {
             'radial-gradient(circle at 50% 40%, rgba(47,74,62,0.08) 0%, transparent 50%)',
         }}
       />
-
       <div className="relative z-10 flex flex-col items-center">
-        {/* Logo */}
         <div className="mb-12">
           <img
             src="/LOGO.png"
@@ -88,8 +87,6 @@ function SplashScreen() {
             className="w-28 h-28 sm:w-32 sm:h-32 object-contain rounded-[28px] shadow-2xl ring-1 ring-black/5 dark:ring-white/10"
           />
         </div>
-
-        {/* Spinner */}
         <div className="relative mb-6">
           <svg
             className="animate-spin h-8 w-8 text-gold dark:text-gold-dark"
@@ -111,16 +108,31 @@ function SplashScreen() {
             />
           </svg>
         </div>
-
-        {/* Text */}
         <p className="text-sm text-ink-soft dark:text-ink-dark-soft animate-pulse">
           Restaurando sessão…
         </p>
-
-        {/* Version */}
         <p className="absolute bottom-8 text-[11px] text-ink-faint dark:text-ink-dark-faint">
           Fusion ERP v2.0.0
         </p>
+      </div>
+    </div>
+  );
+}
+
+/** Suspense fallback while lazy routes load */
+function RouteLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex flex-col items-center gap-4">
+        <svg
+          className="animate-spin h-8 w-8 text-gold dark:text-gold-dark"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+        <p className="text-sm text-ink-soft dark:text-ink-dark-soft">Carregando módulo…</p>
       </div>
     </div>
   );
@@ -133,232 +145,213 @@ export default function App() {
   const theme = useUIStore((s) => s.theme);
 
   useEffect(() => {
-    // Restore session on mount
     init();
   }, []);
 
   useEffect(() => {
-    // Sync theme class
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 
-  // Enquanto o init() está rodando, mostra a Splash Screen
-  // Isso evita o flash da tela de login antes de restaurar a sessão
-  // Exclui /auth/callback que tem seu próprio gerenciamento de loading
+  // Splash screen while init() runs (except on /auth/callback which handles its own loading)
   if (loading && !isAuthenticated && window.location.pathname !== '/auth/callback') {
     return <SplashScreen />;
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    <Suspense fallback={<RouteLoader />}>
+      <Routes>
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-      <Route
-        path="/auth/callback"
-        element={<AuthCallback />}
-      />
+        <Route path="/auth/callback" element={<AuthCallback />} />
 
-      <Route
-        path="/login"
-        element={
-          <PublicRoute>
-            <Login />
-          </PublicRoute>
-        }
-      />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
 
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Shell>
-              <Dashboard />
-            </Shell>
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Shell>
+                <Dashboard />
+              </Shell>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Clientes */}
-      <Route
-        path="/clientes"
-        element={
-          <ProtectedRoute>
-            <Shell>
-              <Clientes />
-            </Shell>
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/clientes"
+          element={
+            <ProtectedRoute>
+              <Shell>
+                <Clientes />
+              </Shell>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Agenda */}
-      <Route
-        path="/agenda"
-        element={
-          <ProtectedRoute>
-            <Shell>
-              <Agenda />
-            </Shell>
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/agenda"
+          element={
+            <ProtectedRoute>
+              <Shell>
+                <Agenda />
+              </Shell>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Fila de Atendimento */}
-      <Route
-        path="/fila-atendimento"
-        element={
-          <ProtectedRoute>
-            <Shell>
-              <FilaAtendimento />
-            </Shell>
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/fila-atendimento"
+          element={
+            <ProtectedRoute>
+              <Shell>
+                <FilaAtendimento />
+              </Shell>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Financeiro */}
-      <Route
-        path="/financeiro"
-        element={
-          <ProtectedRoute>
-            <Shell>
-              <Financeiro />
-            </Shell>
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/financeiro"
+          element={
+            <ProtectedRoute>
+              <Shell>
+                <Financeiro />
+              </Shell>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Estoque */}
-      <Route
-        path="/estoque"
-        element={
-          <ProtectedRoute>
-            <Shell>
-              <Estoque />
-            </Shell>
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/estoque"
+          element={
+            <ProtectedRoute>
+              <Shell>
+                <Estoque />
+              </Shell>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Fidelidade */}
-      <Route
-        path="/fidelidade"
-        element={
-          <ProtectedRoute>
-            <Shell>
-              <Fidelidade />
-            </Shell>
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/fidelidade"
+          element={
+            <ProtectedRoute>
+              <Shell>
+                <Fidelidade />
+              </Shell>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Pacotes */}
-      <Route
-        path="/pacotes"
-        element={
-          <ProtectedRoute>
-            <Shell>
-              <Pacotes />
-            </Shell>
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/pacotes"
+          element={
+            <ProtectedRoute>
+              <Shell>
+                <Pacotes />
+              </Shell>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* PDV */}
-      <Route
-        path="/pdv"
-        element={
-          <ProtectedRoute>
-            <Shell>
-              <PDV />
-            </Shell>
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/pdv"
+          element={
+            <ProtectedRoute>
+              <Shell>
+                <PDV />
+              </Shell>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Planos Recorrentes */}
-      <Route
-        path="/planos-recorrentes"
-        element={
-          <ProtectedRoute>
-            <Shell>
-              <PlanosRecorrentes />
-            </Shell>
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/planos-recorrentes"
+          element={
+            <ProtectedRoute>
+              <Shell>
+                <PlanosRecorrentes />
+              </Shell>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Lista de Espera */}
-      <Route
-        path="/lista-espera"
-        element={
-          <ProtectedRoute>
-            <Shell>
-              <ListaEspera />
-            </Shell>
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/lista-espera"
+          element={
+            <ProtectedRoute>
+              <Shell>
+                <ListaEspera />
+              </Shell>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Salas */}
-      <Route
-        path="/salas"
-        element={
-          <ProtectedRoute>
-            <Shell>
-              <Salas />
-            </Shell>
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/salas"
+          element={
+            <ProtectedRoute>
+              <Shell>
+                <Salas />
+              </Shell>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Prontuario */}
-      <Route
-        path="/prontuario"
-        element={
-          <ProtectedRoute>
-            <Shell>
-              <Prontuario />
-            </Shell>
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/prontuario"
+          element={
+            <ProtectedRoute>
+              <Shell>
+                <Prontuario />
+              </Shell>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Configuracoes */}
-      <Route
-        path="/configuracoes"
-        element={
-          <ProtectedRoute>
-            <Shell>
-              <Configuracoes />
-            </Shell>
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/configuracoes"
+          element={
+            <ProtectedRoute>
+              <Shell>
+                <Configuracoes />
+              </Shell>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Relatorios */}
-      <Route
-        path="/relatorios"
-        element={
-          <ProtectedRoute>
-            <Shell>
-              <Relatorios />
-            </Shell>
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/relatorios"
+          element={
+            <ProtectedRoute>
+              <Shell>
+                <Relatorios />
+              </Shell>
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Catch-all for modules not yet migrated */}
-      <Route
-        path="/:module"
-        element={
-          <ProtectedRoute>
-            <Shell>
-              <PlaceholderView />
-            </Shell>
-          </ProtectedRoute>
-        }
-      />
+        {/* Catch-all for modules not yet migrated */}
+        <Route
+          path="/:module"
+          element={
+            <ProtectedRoute>
+              <Shell>
+                <PlaceholderView />
+              </Shell>
+            </ProtectedRoute>
+          }
+        />
 
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </Suspense>
   );
 }

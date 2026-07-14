@@ -10,7 +10,7 @@
 import { create } from 'zustand';
 import { SupabaseService } from '../services/supabase';
 import { StorageService } from '../services/storage';
-import { APP_CONFIG } from '../utils/constants';
+import { APP_CONFIG } from '../utils';
 
 const SESSION_KEY = APP_CONFIG.session.storageKey;
 
@@ -167,13 +167,6 @@ export const useAuthStore = create((set, get) => ({
   },
 
   /**
-   * Login com GitHub OAuth — redireciona o navegador para o GitHub
-   */
-  loginWithGithub: async () => {
-    return get()._socialLogin(() => SupabaseService.signInWithGithub(), 'GitHub');
-  },
-
-  /**
    * Login com Google OAuth — redireciona o navegador para o Google
    */
   loginWithGoogle: async () => {
@@ -181,7 +174,7 @@ export const useAuthStore = create((set, get) => ({
   },
 
   /**
-   * Helper genérico para login social (GitHub, Google, etc.)
+   * Helper genérico para login social (Google)
    */
   _socialLogin: async (loginFn, providerName) => {
     set({ loading: true, error: null });
@@ -245,14 +238,6 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  /**
-   * Clear error state
-   */
-  clearError: () => set({ error: null }),
-
-  /**
-   * Clear error state
-   */
   clearError: () => set({ error: null }),
 
   /**

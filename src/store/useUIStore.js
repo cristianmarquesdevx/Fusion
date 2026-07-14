@@ -6,8 +6,7 @@
 
 import { create } from 'zustand';
 import { StorageService } from '../services/storage';
-import { APP_CONFIG } from '../utils/constants';
-import { Helpers } from '../utils/helpers';
+import { APP_CONFIG, Helpers } from '../utils';
 
 const THEME_KEY = APP_CONFIG.theme.storageKey;
 
