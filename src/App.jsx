@@ -7,10 +7,12 @@ import { useUIStore } from './store/useUIStore';
 import Shell from './components/layout/Shell';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 
+// Import direto do Dashboard para diagnóstico do erro #300
+import Dashboard from './pages/Dashboard';
+
 // Lazy-loaded pages for code splitting
 const Login = lazy(() => import('./pages/Login'));
 const AuthCallback = lazy(() => import('./pages/AuthCallback'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Clientes = lazy(() => import('./pages/Clientes'));
 const Agenda = lazy(() => import('./pages/Agenda'));
 const FilaAtendimento = lazy(() => import('./pages/FilaAtendimento'));
