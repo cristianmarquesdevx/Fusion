@@ -5,6 +5,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/useAuthStore';
 import { useUIStore } from './store/useUIStore';
 import Shell from './components/layout/Shell';
+import ErrorBoundary from './components/ui/ErrorBoundary';
 
 // Lazy-loaded pages for code splitting
 const Login = lazy(() => import('./pages/Login'));
@@ -158,6 +159,7 @@ export default function App() {
   }
 
   return (
+    <ErrorBoundary fallback="critical">
     <Suspense fallback={<RouteLoader />}>
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -353,5 +355,6 @@ export default function App() {
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Suspense>
+    </ErrorBoundary>
   );
 }
