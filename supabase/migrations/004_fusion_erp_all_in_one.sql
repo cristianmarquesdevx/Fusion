@@ -605,9 +605,10 @@ begin
 end;
 $$ language plpgsql;
 
--- 10.2. Funções helper de autenticação
+-- 10.2. Funções helper de autenticação (no schema public)
+-- NOTA: Criadas no schema public pois o schema auth é gerenciado pelo Supabase
 
-create or replace function auth.user_unidade_id()
+create or replace function public.user_unidade_id()
 returns uuid
 language sql
 stable
@@ -621,7 +622,7 @@ as $$
   where auth_user_id = auth.uid()
 $$;
 
-create or replace function auth.is_admin()
+create or replace function public.is_admin()
 returns boolean
 language sql
 stable
@@ -633,7 +634,7 @@ as $$
   )
 $$;
 
-create or replace function auth.user_role()
+create or replace function public.user_role()
 returns text
 language sql
 stable
@@ -644,35 +645,35 @@ as $$
   )
 $$;
 
-create or replace function auth.has_role(required_role text)
+create or replace function public.has_role(required_role text)
 returns boolean
 language sql
 stable
 as $$
   select exists (
     select 1
-    where auth.user_role() = required_role
-       or auth.is_admin()
+    where public.user_role() = required_role
+       or public.is_admin()
   )
 $$;
 
-create or replace function auth.is_gerente_or_admin()
+create or replace function public.is_gerente_or_admin()
 returns boolean
 language sql
 stable
 as $$
-  select auth.is_admin() or auth.user_role() = 'gerente'
+  select public.is_admin() or public.user_role() = 'gerente'
 $$;
 
-create or replace function auth.is_profissional()
+create or replace function public.is_profissional()
 returns boolean
 language sql
 stable
 as $$
-  select auth.user_role() in ('medico', 'esteticista', 'massoterapeuta', 'maquiadora')
+  select public.user_role() in ('medico', 'esteticista', 'massoterapeuta', 'maquiadora')
 $$;
 
-create or replace function auth.user_profissional_id()
+create or replace function public.user_profissional_id()
 returns uuid
 language sql
 stable
@@ -700,280 +701,280 @@ $$ language plpgsql;
 
 -- 10.3.1. unidades
 create policy select_unidades on unidades for select
-  using (auth.is_admin() or id = auth.user_unidade_id());
+  using (public.is_admin() or id = public.user_unidade_id());
 create policy insert_unidades on unidades for insert
-  with check (auth.is_admin());
+  with check (public.is_admin());
 create policy update_unidades on unidades for update
-  using (auth.is_admin() or id = auth.user_unidade_id())
-  with check (auth.is_admin() or id = auth.user_unidade_id());
+  using (public.is_admin() or id = public.user_unidade_id())
+  with check (public.is_admin() or id = public.user_unidade_id());
 create policy delete_unidades on unidades for delete
-  using (auth.is_admin());
+  using (public.is_admin());
 
 -- 10.3.2. profissionais
 create policy select_profissionais on profissionais for select
-  using (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  using (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy insert_profissionais on profissionais for insert
-  with check (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  with check (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 create policy update_profissionais on profissionais for update
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id())
-  with check (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id())
+  with check (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 create policy delete_profissionais on profissionais for delete
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 
 -- 10.3.3. servicos
 create policy select_servicos on servicos for select
-  using (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  using (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy insert_servicos on servicos for insert
-  with check (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  with check (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 create policy update_servicos on servicos for update
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id())
-  with check (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id())
+  with check (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 create policy delete_servicos on servicos for delete
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 
 -- 10.3.4. clientes
 create policy select_clientes on clientes for select
-  using (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  using (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy insert_clientes on clientes for insert
-  with check (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  with check (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy update_clientes on clientes for update
-  using (auth.is_admin() or unidade_id = auth.user_unidade_id())
-  with check (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  using (public.is_admin() or unidade_id = public.user_unidade_id())
+  with check (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy delete_clientes on clientes for delete
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 
 -- 10.3.5. prontuarios
 create policy select_prontuarios on prontuarios for select
-  using (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  using (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy insert_prontuarios on prontuarios for insert
-  with check (unidade_id = auth.user_unidade_id());
+  with check (unidade_id = public.user_unidade_id());
 create policy update_prontuarios on prontuarios for update
-  using (unidade_id = auth.user_unidade_id())
-  with check (unidade_id = auth.user_unidade_id());
+  using (unidade_id = public.user_unidade_id())
+  with check (unidade_id = public.user_unidade_id());
 create policy delete_prontuarios on prontuarios for delete
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 
 -- 10.3.6. salas
 create policy select_salas on salas for select
-  using (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  using (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy insert_salas on salas for insert
-  with check (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  with check (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 create policy update_salas on salas for update
-  using (auth.is_admin() or unidade_id = auth.user_unidade_id())
-  with check (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  using (public.is_admin() or unidade_id = public.user_unidade_id())
+  with check (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy delete_salas on salas for delete
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 
 -- 10.3.7. equipamentos
 create policy select_equipamentos on equipamentos for select
-  using (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  using (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy insert_equipamentos on equipamentos for insert
-  with check (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  with check (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 create policy update_equipamentos on equipamentos for update
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id())
-  with check (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id())
+  with check (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 create policy delete_equipamentos on equipamentos for delete
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 
 -- 10.3.8. usuarios
 create policy select_usuarios_self on usuarios for select
-  using (auth.is_gerente_or_admin() or auth_user_id = auth.uid());
+  using (public.is_gerente_or_admin() or auth_user_id = auth.uid());
 create policy select_usuarios_unidade on usuarios for select
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 create policy insert_usuarios on usuarios for insert
-  with check (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  with check (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 create policy update_usuarios on usuarios for update
-  using ((auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id()) or auth_user_id = auth.uid())
-  with check ((auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id()) or auth_user_id = auth.uid());
+  using ((public.is_gerente_or_admin() and unidade_id = public.user_unidade_id()) or auth_user_id = auth.uid())
+  with check ((public.is_gerente_or_admin() and unidade_id = public.user_unidade_id()) or auth_user_id = auth.uid());
 create policy delete_usuarios on usuarios for delete
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 
 -- 10.3.9. agendamentos
 create policy select_agendamentos_proprios on agendamentos for select
   using (
-    (auth.has_role('recepcionista') and unidade_id = auth.user_unidade_id())
-    or auth.is_gerente_or_admin()
-    or (auth.is_profissional() and profissional_id = auth.user_profissional_id() and unidade_id = auth.user_unidade_id())
+    (public.has_role('recepcionista') and unidade_id = public.user_unidade_id())
+    or public.is_gerente_or_admin()
+    or (public.is_profissional() and profissional_id = public.user_profissional_id() and unidade_id = public.user_unidade_id())
   );
 create policy insert_agendamentos on agendamentos for insert
-  with check (unidade_id = auth.user_unidade_id());
+  with check (unidade_id = public.user_unidade_id());
 create policy update_agendamentos_proprios on agendamentos for update
   using (
-    (auth.has_role('recepcionista') and unidade_id = auth.user_unidade_id())
-    or auth.is_gerente_or_admin()
-    or (auth.is_profissional() and profissional_id = auth.user_profissional_id() and unidade_id = auth.user_unidade_id())
+    (public.has_role('recepcionista') and unidade_id = public.user_unidade_id())
+    or public.is_gerente_or_admin()
+    or (public.is_profissional() and profissional_id = public.user_profissional_id() and unidade_id = public.user_unidade_id())
   )
-  with check (unidade_id = auth.user_unidade_id());
+  with check (unidade_id = public.user_unidade_id());
 create policy delete_agendamentos on agendamentos for delete
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 
 -- 10.3.10. sessoes_fila
 create policy select_sessoes_fila on sessoes_fila for select
   using (
-    (auth.has_role('recepcionista') and unidade_id = auth.user_unidade_id())
-    or auth.is_gerente_or_admin()
-    or (auth.is_profissional() and profissional_id = auth.user_profissional_id() and unidade_id = auth.user_unidade_id())
+    (public.has_role('recepcionista') and unidade_id = public.user_unidade_id())
+    or public.is_gerente_or_admin()
+    or (public.is_profissional() and profissional_id = public.user_profissional_id() and unidade_id = public.user_unidade_id())
   );
 create policy insert_sessoes_fila on sessoes_fila for insert
-  with check (unidade_id = auth.user_unidade_id());
+  with check (unidade_id = public.user_unidade_id());
 create policy update_sessoes_fila on sessoes_fila for update
   using (
-    (auth.has_role('recepcionista') and unidade_id = auth.user_unidade_id())
-    or auth.is_gerente_or_admin()
-    or (auth.is_profissional() and profissional_id = auth.user_profissional_id() and unidade_id = auth.user_unidade_id())
+    (public.has_role('recepcionista') and unidade_id = public.user_unidade_id())
+    or public.is_gerente_or_admin()
+    or (public.is_profissional() and profissional_id = public.user_profissional_id() and unidade_id = public.user_unidade_id())
   )
-  with check (unidade_id = auth.user_unidade_id());
+  with check (unidade_id = public.user_unidade_id());
 create policy delete_sessoes_fila on sessoes_fila for delete
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 
 -- 10.3.11. transacoes
 create policy select_transacoes on transacoes for select
-  using (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  using (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy insert_transacoes on transacoes for insert
-  with check ((auth.has_role('recepcionista') or auth.is_gerente_or_admin()) and unidade_id = auth.user_unidade_id());
+  with check ((public.has_role('recepcionista') or public.is_gerente_or_admin()) and unidade_id = public.user_unidade_id());
 create policy update_transacoes on transacoes for update
-  using ((auth.has_role('recepcionista') or auth.is_gerente_or_admin()) and unidade_id = auth.user_unidade_id())
-  with check (unidade_id = auth.user_unidade_id());
+  using ((public.has_role('recepcionista') or public.is_gerente_or_admin()) and unidade_id = public.user_unidade_id())
+  with check (unidade_id = public.user_unidade_id());
 create policy delete_transacoes on transacoes for delete
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 
 -- 10.3.12. pdv_vendas
 create policy select_pdv_vendas on pdv_vendas for select
-  using (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  using (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy insert_pdv_vendas on pdv_vendas for insert
-  with check (unidade_id = auth.user_unidade_id());
+  with check (unidade_id = public.user_unidade_id());
 create policy update_pdv_vendas on pdv_vendas for update
-  using (unidade_id = auth.user_unidade_id())
-  with check (unidade_id = auth.user_unidade_id());
+  using (unidade_id = public.user_unidade_id())
+  with check (unidade_id = public.user_unidade_id());
 create policy delete_pdv_vendas on pdv_vendas for delete
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 
 -- 10.3.13. pdv_venda_itens
 create policy select_pdv_venda_itens on pdv_venda_itens for select
-  using (auth.is_admin() or exists (
-    select 1 from pdv_vendas v where v.id = pdv_venda_itens.venda_id and v.unidade_id = auth.user_unidade_id()
+  using (public.is_admin() or exists (
+    select 1 from pdv_vendas v where v.id = pdv_venda_itens.venda_id and v.unidade_id = public.user_unidade_id()
   ));
 create policy insert_pdv_venda_itens on pdv_venda_itens for insert
   with check (exists (
-    select 1 from pdv_vendas v where v.id = pdv_venda_itens.venda_id and v.unidade_id = auth.user_unidade_id()
+    select 1 from pdv_vendas v where v.id = pdv_venda_itens.venda_id and v.unidade_id = public.user_unidade_id()
   ));
 
 -- 10.3.14. estoque_items
 create policy select_estoque on estoque_items for select
-  using (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  using (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy insert_estoque on estoque_items for insert
-  with check (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  with check (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 create policy update_estoque on estoque_items for update
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id())
-  with check (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id())
+  with check (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 create policy delete_estoque on estoque_items for delete
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 
 -- 10.3.15. estoque_entradas
 create policy select_estoque_entradas on estoque_entradas for select
-  using (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  using (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy insert_estoque_entradas on estoque_entradas for insert
-  with check (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  with check (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 
 -- 10.3.16. estoque_saidas
 create policy select_estoque_saidas on estoque_saidas for select
-  using (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  using (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy insert_estoque_saidas on estoque_saidas for insert
-  with check (unidade_id = auth.user_unidade_id());
+  with check (unidade_id = public.user_unidade_id());
 
 -- 10.3.17. pacotes
 create policy select_pacotes on pacotes for select
-  using (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  using (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy insert_pacotes on pacotes for insert
-  with check (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  with check (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 create policy update_pacotes on pacotes for update
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id())
-  with check (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id())
+  with check (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 create policy delete_pacotes on pacotes for delete
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 
 -- 10.3.18. planos
 create policy select_planos on planos for select
-  using (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  using (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy insert_planos on planos for insert
-  with check (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  with check (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 create policy update_planos on planos for update
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id())
-  with check (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id())
+  with check (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 create policy delete_planos on planos for delete
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 
 -- 10.3.19. assinaturas
 create policy select_assinaturas on assinaturas for select
-  using (auth.is_admin() or exists (
-    select 1 from clientes c where c.id = assinaturas.cliente_id and c.unidade_id = auth.user_unidade_id()
+  using (public.is_admin() or exists (
+    select 1 from clientes c where c.id = assinaturas.cliente_id and c.unidade_id = public.user_unidade_id()
   ));
 create policy insert_assinaturas on assinaturas for insert
   with check (exists (
-    select 1 from clientes c where c.id = assinaturas.cliente_id and c.unidade_id = auth.user_unidade_id()
+    select 1 from clientes c where c.id = assinaturas.cliente_id and c.unidade_id = public.user_unidade_id()
   ));
 create policy update_assinaturas on assinaturas for update
-  using (auth.is_gerente_or_admin() and exists (
-    select 1 from clientes c where c.id = assinaturas.cliente_id and c.unidade_id = auth.user_unidade_id()
+  using (public.is_gerente_or_admin() and exists (
+    select 1 from clientes c where c.id = assinaturas.cliente_id and c.unidade_id = public.user_unidade_id()
   ))
-  with check (auth.is_gerente_or_admin() and exists (
-    select 1 from clientes c where c.id = assinaturas.cliente_id and c.unidade_id = auth.user_unidade_id()
+  with check (public.is_gerente_or_admin() and exists (
+    select 1 from clientes c where c.id = assinaturas.cliente_id and c.unidade_id = public.user_unidade_id()
   ));
 
 -- 10.3.20. cliente_pacotes
 create policy select_cliente_pacotes on cliente_pacotes for select
-  using (auth.is_admin() or exists (
-    select 1 from clientes c where c.id = cliente_pacotes.cliente_id and c.unidade_id = auth.user_unidade_id()
+  using (public.is_admin() or exists (
+    select 1 from clientes c where c.id = cliente_pacotes.cliente_id and c.unidade_id = public.user_unidade_id()
   ));
 create policy insert_cliente_pacotes on cliente_pacotes for insert
   with check (exists (
-    select 1 from clientes c where c.id = cliente_pacotes.cliente_id and c.unidade_id = auth.user_unidade_id()
+    select 1 from clientes c where c.id = cliente_pacotes.cliente_id and c.unidade_id = public.user_unidade_id()
   ));
 create policy update_cliente_pacotes on cliente_pacotes for update
   using (exists (
-    select 1 from clientes c where c.id = cliente_pacotes.cliente_id and c.unidade_id = auth.user_unidade_id()
+    select 1 from clientes c where c.id = cliente_pacotes.cliente_id and c.unidade_id = public.user_unidade_id()
   ))
   with check (exists (
-    select 1 from clientes c where c.id = cliente_pacotes.cliente_id and c.unidade_id = auth.user_unidade_id()
+    select 1 from clientes c where c.id = cliente_pacotes.cliente_id and c.unidade_id = public.user_unidade_id()
   ));
 create policy delete_cliente_pacotes on cliente_pacotes for delete
-  using (auth.is_gerente_or_admin());
+  using (public.is_gerente_or_admin());
 
 -- 10.3.21. fidelidade_clientes
 create policy select_fidelidade_clientes on fidelidade_clientes for select
-  using (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  using (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy insert_fidelidade_clientes on fidelidade_clientes for insert
-  with check (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  with check (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 create policy update_fidelidade_clientes on fidelidade_clientes for update
-  using (auth.has_role('recepcionista') and unidade_id = auth.user_unidade_id())
-  with check (unidade_id = auth.user_unidade_id());
+  using (public.has_role('recepcionista') and unidade_id = public.user_unidade_id())
+  with check (unidade_id = public.user_unidade_id());
 create policy delete_fidelidade_clientes on fidelidade_clientes for delete
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 
 -- 10.3.22. fidelidade_historico
 create policy select_fidelidade_historico on fidelidade_historico for select
-  using (auth.is_admin() or exists (
-    select 1 from clientes c where c.id = fidelidade_historico.cliente_id and c.unidade_id = auth.user_unidade_id()
+  using (public.is_admin() or exists (
+    select 1 from clientes c where c.id = fidelidade_historico.cliente_id and c.unidade_id = public.user_unidade_id()
   ));
 create policy insert_fidelidade_historico on fidelidade_historico for insert
   with check (exists (
-    select 1 from clientes c where c.id = fidelidade_historico.cliente_id and c.unidade_id = auth.user_unidade_id()
+    select 1 from clientes c where c.id = fidelidade_historico.cliente_id and c.unidade_id = public.user_unidade_id()
   ));
 
 -- 10.3.23. lista_espera
 create policy select_lista_espera on lista_espera for select
-  using (auth.is_admin() or unidade_id = auth.user_unidade_id());
+  using (public.is_admin() or unidade_id = public.user_unidade_id());
 create policy insert_lista_espera on lista_espera for insert
-  with check (unidade_id = auth.user_unidade_id());
+  with check (unidade_id = public.user_unidade_id());
 create policy update_lista_espera on lista_espera for update
-  using (unidade_id = auth.user_unidade_id())
-  with check (unidade_id = auth.user_unidade_id());
+  using (unidade_id = public.user_unidade_id())
+  with check (unidade_id = public.user_unidade_id());
 create policy delete_lista_espera on lista_espera for delete
-  using (auth.is_gerente_or_admin() and unidade_id = auth.user_unidade_id());
+  using (public.is_gerente_or_admin() and unidade_id = public.user_unidade_id());
 
 -- 10.3.24. auditoria
 create policy select_auditoria on auditoria for select
-  using (auth.is_gerente_or_admin() and (unidade_id = auth.user_unidade_id() or auth.is_admin()));
+  using (public.is_gerente_or_admin() and (unidade_id = public.user_unidade_id() or public.is_admin()));
 create policy no_insert_auditoria on auditoria for insert
   with check (false);
 create policy no_update_auditoria on auditoria for update
