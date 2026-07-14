@@ -304,7 +304,6 @@ export default function PDV() {
             </div>
           </div>
         </Modal>
-      )}
     </div>
   );
 }
