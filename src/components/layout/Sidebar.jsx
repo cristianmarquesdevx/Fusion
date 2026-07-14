@@ -161,17 +161,13 @@ export default function Sidebar() {
         style={{ width: '248px' }}
         aria-label="Navegação principal"
       >
-        {/* Brand — logo ENORME em destaque */}
-        <div className="flex items-center gap-3 px-4 pt-5 pb-6">
+        {/* Brand — logo centralizada */}
+        <div className="flex justify-center px-4 pt-6 pb-8">
           <img
             src="/LOGO.png"
             alt="Fusion ERP"
-            className="w-20 object-contain rounded-xl ring-1 ring-white/15 shadow-sm shrink-0"
+            className="w-28 object-contain rounded-2xl ring-1 ring-white/15 shadow-md"
           />
-          <div>
-            <div className="font-display text-xl font-semibold text-white/90 tracking-[0.2px]">Fusion</div>
-            <div className="text-[10px] text-white/55 uppercase tracking-[1.2px]">ERP Estética</div>
-          </div>
         </div>
 
         {/* Navigation */}

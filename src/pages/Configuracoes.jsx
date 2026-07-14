@@ -159,7 +159,7 @@ function TabEquipe() {
 
       {/* Modal Novo Membro */}
       {modalOpen && (
-        <Modal onClose={() => setModalOpen(false)} title="Novo Membro da Equipe" maxWidth="max-w-sm">
+        <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Novo Membro da Equipe" maxWidth="max-w-sm">
           <div className="p-5 space-y-4">
             <div className="form-group">
               <label>Nome completo</label>
@@ -429,7 +429,7 @@ function TabMultiunidade() {
 
       {/* Modal Nova Unidade */}
       {modalOpen && (
-        <Modal onClose={() => setModalOpen(false)} title="Nova Unidade" maxWidth="max-w-sm">
+        <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Nova Unidade" maxWidth="max-w-sm">
           <div className="p-5 space-y-4">
             <div className="form-group">
               <label>Nome da unidade</label>
