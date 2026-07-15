@@ -312,7 +312,6 @@
         paymentState.externalId = result.data.externalId || result.data.id;
         paymentState.pixQrCode = result.data.brCode || result.data.pixQrCode || '';
         paymentState.pixQrCodeImage = result.data.brCodeBase64 || result.data.pixQrCodeImage || '';
-        paymentState.pixQrCodeImage = result.data.pixQrCodeImage || '';
         paymentState.status = 'waiting';
         if (callback) callback(null, result.data);
       } else {
