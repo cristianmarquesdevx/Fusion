@@ -18,8 +18,9 @@ import { SupabaseService } from './supabase';
 /**
  * Factory que cria um módulo sync com fallback
  */
-function createModule(table, defaultUnidadeId = null) {
-  const sync = createSupabaseSync(table, defaultUnidadeId);
+function createModule(table, unidadeId) {
+  // Se não informar unidadeId, o createSupabaseSync usará DEFAULT_UNIDADE
+  const sync = createSupabaseSync(table, unidadeId);
 
   return {
     /** Nome da tabela */

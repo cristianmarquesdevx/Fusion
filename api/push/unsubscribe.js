@@ -29,7 +29,14 @@ export default async function handler(req, res) {
   }
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-    return res.status(500).json({ error: 'Servidor mal configurado' });
+    const missing = [];
+    if (!SUPABASE_URL) missing.push('VITE_SUPABASE_URL / SUPABASE_URL');
+    if (!SUPABASE_SERVICE_KEY) missing.push('SUPABASE_SERVICE_ROLE_KEY');
+    console.error('[PushAPI] Erro de configuração — variáveis faltando:', missing.join(', '));
+    return res.status(500).json({
+      error: 'Servidor mal configurado',
+      details: `Variáveis obrigatórias: ${missing.join(', ')}. Configure-as no dashboard do Vercel.`,
+    });
   }
 
   try {

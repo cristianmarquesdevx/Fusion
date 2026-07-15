@@ -50,6 +50,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_push_subscriptions_updated_at ON push_subscriptions;
 CREATE TRIGGER trg_push_subscriptions_updated_at
   BEFORE UPDATE ON push_subscriptions
   FOR EACH ROW

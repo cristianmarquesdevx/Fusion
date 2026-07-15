@@ -44,8 +44,9 @@ export default function ProfessionalsBarChart({ data = [] }) {
       <svg width={width} height={chartHeight} viewBox={`0 0 ${width} ${chartHeight}`}>
         {data.map((d, i) => {
           const y = i * (barHeight + gap);
-          const barWidth = (d.receita / maxRevenue) * (width - 180);
-          const showWidth = animated ? barWidth : 0;
+          const maxBarWidth = Math.max(0, width - 180);
+          const barWidth = (d.receita / maxRevenue) * maxBarWidth;
+          const showWidth = animated ? Math.max(0, barWidth) : 0;
 
           return (
             <g key={i} className="transition-opacity duration-500">
@@ -73,7 +74,7 @@ export default function ProfessionalsBarChart({ data = [] }) {
               <rect
                 x={145}
                 y={y + 2}
-                width={width - 180}
+                width={maxBarWidth}
                 height={barHeight - 4}
                 rx={6}
                 className="fill-surface-2 dark:fill-surface-dark-2"
@@ -109,7 +110,7 @@ export default function ProfessionalsBarChart({ data = [] }) {
               <rect
                 x={145}
                 y={y + barHeight - 6}
-                width={((d.atendimentos / maxAtendimentos) * (width - 180)) || 0}
+                width={Math.max(0, (d.atendimentos / maxAtendimentos) * maxBarWidth) || 0}
                 height={3}
                 rx={1.5}
                 fill="currentColor"

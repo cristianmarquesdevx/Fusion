@@ -24,14 +24,47 @@ const mockConfig = {
   ],
   addMember: vi.fn(),
   toggleMemberStatus: vi.fn(),
+  updateMember: vi.fn(),
+  removeMember: vi.fn(),
   units: [
     { id: 'u1', nome: 'Vitta Jardins — Moema', endereco: 'Av. Ibirapuera, 3.500', telefone: '(11) 97777-6666', status: 'ativa', clientesAtivos: 187 },
     { id: 'u2', nome: 'Vitta Jardins — Pinheiros', endereco: 'Rua dos Pinheiros, 800', telefone: '(11) 95555-4444', status: 'inativa', clientesAtivos: 45 },
   ],
   addUnit: vi.fn(),
-  companyInfo: { nome: 'Vitta Jardins', razaoSocial: 'Vitta Jardins Estética Ltda.' },
+  updateUnit: vi.fn(),
+  removeUnit: vi.fn(),
+  companyInfo: { nome: 'Centro Vitta — Unidade Jardins', razaoSocial: 'Vitta Jardins Estética Ltda.', cnpj: '12.345.678/0001-90', endereco: 'Av. Paulista, 1.234 — Jardins', telefone: '(11) 99999-8888', email: 'contato@vittajardins.com.br', site: 'www.vittajardins.com.br', logo: null },
+  updateCompanyInfo: vi.fn(),
   nextUnitId: 'u3',
   nextMemberId: 'm4',
+  integrations: {
+    abacatepayApiKey: '',
+    abacatepayConfigured: false,
+    whatsappConfigured: true,
+    emailConfigured: true,
+    supabaseConfigured: true,
+  },
+  setAbacatepayKey: vi.fn(),
+  updateIntegration: vi.fn(),
+  getAbacatepayApiKey: vi.fn(() => ''),
+  notificationSettings: {
+    confirmacao: true,
+    lembrete: true,
+    atraso: true,
+    estoque: true,
+    semanal: false,
+  },
+  toggleNotification: vi.fn(),
+  setNotification: vi.fn(),
+  isNotificationActive: vi.fn(() => true),
+  publicBookingSettings: {
+    active: true,
+    limitProfessional: true,
+    requireDeposit: false,
+  },
+  togglePublicBookingSetting: vi.fn(),
+  setPublicBookingSetting: vi.fn(),
+  isPublicBookingActive: vi.fn(() => true),
 };
 
 const mockUI = { theme: 'dark', toggleTheme: vi.fn() };
@@ -187,8 +220,11 @@ describe('Configuracoes', () => {
 
     it('deve mostrar status das integracoes', () => {
       render(<Configuracoes />);
-      expect(screen.getByText('Conectado')).toBeInTheDocument();
-      expect(screen.getByText('Configurar')).toBeInTheDocument();
+      // Agora temos 2x "Conectado" (WhatsApp + Supabase)
+      const conectados = screen.getAllByText('Conectado');
+      expect(conectados.length).toBeGreaterThanOrEqual(1);
+      expect(screen.getByText('Não configurado')).toBeInTheDocument();
+      expect(screen.getByText('Configurado')).toBeInTheDocument();
     });
   });
 

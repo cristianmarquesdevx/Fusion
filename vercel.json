@@ -6,6 +6,12 @@
     { "source": "/agendar.html", "destination": "/agendar.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
+  "crons": [
+    {
+      "path": "/api/abacatepay/check-expired",
+      "schedule": "*/10 * * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/assets/(.*)",

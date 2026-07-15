@@ -176,6 +176,16 @@
 /* ============================================================
    STAGGER ANIMATION — linhas de tabela aparecem em sequência
    ============================================================ */
+@keyframes staggerFade {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 .stagger-enter > * {
   opacity: 0;
   animation: staggerFade 0.35s ease forwards;

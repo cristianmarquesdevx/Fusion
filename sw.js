@@ -6,8 +6,8 @@
 
 'use strict';
 
-var CACHE_STATIC = 'fusion-static-v2';
-var CACHE_DYNAMIC = 'fusion-dynamic-v2';
+var CACHE_STATIC = 'fusion-static-v3';
+var CACHE_DYNAMIC = 'fusion-dynamic-v3';
 
 var API_DOMAINS = ['supabase.com','supabase.co','njbkbhqioieqfzfaczqs.supabase.com'];
 
@@ -25,19 +25,27 @@ self.addEventListener('activate',function(e){
 
 self.addEventListener('fetch',function(e){
   var u=new URL(e.request.url);
+  // Não intercepta protocolos não-http (blob:, data:, etc) — browser lida nativamente
   if(!u.protocol.startsWith('http'))return;
+  e.respondWith(
+    safeRespond(e,u).catch(function(){
+      return new Response('Fusion ERP - Erro temporario',{status:503,headers:{'Content-Type':'text/plain'}});
+    })
+  );
+});
+
+function safeRespond(e,u){
   if(u.hostname==='fonts.googleapis.com'||u.hostname==='fonts.gstatic.com'||u.href.includes('supabase-js')){
-    e.respondWith(cacheFirst(e.request));return;
+    return cacheFirst(e.request);
   }
   if(isApi(u)){
-    if(e.request.method==='GET') e.respondWith(netFirst(e.request));
-    else e.respondWith(netQueue(e.request));
-    return;
+    if(e.request.method==='GET') return netFirst(e.request);
+    return netQueue(e.request);
   }
-  if(e.request.mode==='navigate'){e.respondWith(netFirst(e.request));return;}
-  if(isAsset(u)){e.respondWith(cacheFirst(e.request));return;}
-  e.respondWith(fetch(e.request).catch(function(){return caches.match(e.request);}));
-});
+  if(e.request.mode==='navigate') return netFirst(e.request);
+  if(isAsset(u)) return cacheFirst(e.request);
+  return fetch(e.request).catch(function(){return caches.match(e.request);});
+}
 
 function cacheFirst(r){
   return caches.match(r).then(function(c){

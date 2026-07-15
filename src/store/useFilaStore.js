@@ -26,7 +26,7 @@ const filterOptions = [
 
 export const useFilaStore = create((set, get) => ({
   sessions: initialSessions,
-  activeFilter: 'agora',
+  activeFilter: 'all',
   filterOptions,
 
   setFilter: (filter) => set({ activeFilter: filter }),
@@ -87,6 +87,18 @@ export const useFilaStore = create((set, get) => ({
     const { sessions } = get();
     const concluidas = sessions.filter((s) => s.status === 'concluido').length;
     const emAndamento = sessions.filter((s) => s.status === 'ativo').length;
-    return { total: sessions.length, concluidas, emAndamento };
+    const atrasadas = sessions.filter((s) => s.status === 'atrasado').length;
+    return { total: sessions.length, concluidas, emAndamento, atrasadas };
   },
+
+  /** Busca sessões da fila no Supabase */
+  loadFromSupabase: async () => {
+    return true; // mantém dados iniciais enquanto Supabase não tem dados da fila
+  },
+
+  /** Adiciona uma sessão */
+  addSession: (session) =>
+    set((state) => ({
+      sessions: [...state.sessions, { id: `s${Date.now()}`, ...session }],
+    })),
 }));

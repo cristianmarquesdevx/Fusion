@@ -12,6 +12,15 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useClientStore } from '../../store/useClientStore';
 
+/** Simple debounce helper */
+function debounce(fn, delay) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
 /* ═══════════════════════════════════════════════════════════════
    CHECKBOX GROUP
    ═══════════════════════════════════════════════════════════════ */
@@ -1322,11 +1331,3 @@ export default function AnamneseForm({ clientName, onSave }) {
   );
 }
 
-// ─── Debounce helper ───
-function debounce(fn, delay) {
-  let timer;
-  return function (...args) {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn.apply(this, args), delay);
-  };
-}

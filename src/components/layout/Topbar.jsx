@@ -10,6 +10,7 @@ import { useAuthListener } from '../../hooks/useAuthListener';
 import usePushNotifications from '../../hooks/usePushNotifications';
 import useLocalNotifications from '../../hooks/useLocalNotifications';
 import { Helpers } from '../../utils/helpers';
+import SendTestPushButton from '../ui/SendTestPushButton';
 
 export default function Topbar() {
   const navigate = useNavigate();
@@ -73,18 +74,18 @@ export default function Topbar() {
   return (
     <>
     <header className="sticky top-0 z-10 flex items-center gap-4 px-4 sm:px-8 py-4 border-b border-border dark:border-border-dark bg-bg dark:bg-bg-dark">
-      {/* Menu toggle (mobile) */}
+      {/* Hamburger — mobile (<= 859px, mesmo breakpoint do Sidebar) */}
       <button
         onClick={toggleSidebar}
-        className="md:hidden p-1.5 -ml-1.5"
+        className="hidden max-[859px]:flex items-center justify-center w-9 h-9 shrink-0 rounded-sm border border-border dark:border-border-dark bg-surface dark:bg-surface-dark text-ink-soft dark:text-ink-dark-soft hover:text-ink dark:hover:text-ink-dark hover:bg-surface-2 dark:hover:bg-surface-dark-2 transition-colors"
         aria-label="Abrir menu"
       >
         <svg
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          strokeWidth="1.8"
-          className="w-5.5 h-5.5"
+          strokeWidth="2"
+          className="w-4 h-4"
         >
           <path d="M4 6h16M4 12h16M4 18h16" />
         </svg>
@@ -107,8 +108,8 @@ export default function Topbar() {
 
       <div className="flex-1" />
 
-      {/* Connectivity indicator */}
-      <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11.5px] font-medium bg-surface dark:bg-surface-dark-2 border border-border dark:border-border-dark">
+      {/* Connectivity indicator — só em telas grandes (sidebar fixa) */}
+      <div className="max-[859px]:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11.5px] font-medium bg-surface dark:bg-surface-dark-2 border border-border dark:border-border-dark">
         {isOnline ? (
           <>
             <span className="relative flex w-2 h-2">
@@ -134,9 +135,9 @@ export default function Topbar() {
         )}
       </div>
 
-      {/* Update available banner */}
+      {/* Update available banner — só em telas grandes */}
       {updateAvailable && (
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-medium bg-gold-soft dark:bg-gold-dark-soft text-gold dark:text-gold-dark border border-gold/30 dark:border-gold-dark/30 animate-fade-in">
+        <div className="max-[859px]:hidden flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-medium bg-gold-soft dark:bg-gold-dark-soft text-gold dark:text-gold-dark border border-gold/30 dark:border-gold-dark/30 animate-fade-in">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3">
             <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             <path d="M12 8v4M12 16h.01" />
@@ -306,6 +307,11 @@ export default function Topbar() {
               </div>
             )}
 
+            {/* Botão de teste — visível quando inscrito */}
+            {status.subscribed && status.permission === 'granted' && (
+              <SendTestPushButton />
+            )}
+
             {/* List */}
             <div className="max-h-[360px] overflow-y-auto">
               {storeNotifications.length === 0 ? (
@@ -397,10 +403,10 @@ export default function Topbar() {
         )}
       </div>
 
-      {/* Logout */}
+      {/* Logout — só em telas grandes */}
       <button
         onClick={() => logout(navigate)}
-        className="hidden sm:flex w-9 h-9 items-center justify-center rounded-sm border border-border dark:border-border-dark bg-surface dark:bg-surface-dark text-ink-soft dark:text-ink-dark-soft hover:text-rose dark:hover:text-rose-dark transition-colors"
+        className="max-[859px]:hidden flex w-9 h-9 items-center justify-center rounded-sm border border-border dark:border-border-dark bg-surface dark:bg-surface-dark text-ink-soft dark:text-ink-dark-soft hover:text-rose dark:hover:text-rose-dark transition-colors"
         aria-label="Sair"
         title="Sair"
       >

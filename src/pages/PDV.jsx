@@ -1,7 +1,7 @@
 /** @format */
 
 import React, { useState, useCallback } from 'react';
-import { usePDVStore } from '../store';
+import { usePDVStore, useConfigStore } from '../store';
 import { Helpers } from '../utils';
 import { SearchInput, Modal } from '../components/ui';
 
@@ -79,12 +79,20 @@ export default function PDV() {
   const {
     cart, searchTerm, discount, paymentMethod, clientName, notes,
     getFilteredProducts, getCartSummary, addToCart, removeFromCart, updateQty,
-    setSearchTerm, setDiscount, setPaymentMethod, setClientName, setNotes, clearCart, finalizeSale,
+    setSearchTerm, setDiscount, setPaymentMethod, setClientName, setNotes, clearCart,
   } = usePDVStore();
 
   const [discountModal, setDiscountModal] = useState(false);
   const [discountType, setDiscountType] = useState('porcentagem');
   const [discountValue, setDiscountValue] = useState(0);
+  const getAbacatepayApiKey = useConfigStore((s) => s.getAbacatepayApiKey);
+  const [paymentModal, setPaymentModal] = useState({ open: false, loading: false, type: null, data: null });
+  const [toast, setToast] = useState(null);
+
+  const showToast = useCallback((type, message) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 4000);
+  }, []);
 
   const products = getFilteredProducts();
   const summary = getCartSummary();
@@ -101,17 +109,105 @@ export default function PDV() {
     setDiscountValue(0);
   };
 
-  const [toast, setToast] = useState(null);
-
-  const handleFinalize = useCallback(() => {
-    const result = finalizeSale();
-    if (result.success) {
-      setToast({ type: 'success', message: `Venda finalizada! Total: ${Helpers.formatCurrency(result.sale.total)}` });
-    } else {
-      setToast({ type: 'error', message: result.error });
+  // ─── Finalizar venda com AbacatePay ───────────────────────
+  const handleFinalize = useCallback(async () => {
+    if (cart.length === 0) {
+      showToast('error', 'Carrinho vazio');
+      return;
     }
-    setTimeout(() => setToast(null), 4000);
-  }, [finalizeSale]);
+
+    const total = summary.total;
+    const nome = clientName.trim() || 'Cliente PDV';
+
+    if (paymentMethod === 'pix') {
+      // ─── PIX Dinâmico ──────────────────────────────────────
+      setPaymentModal({ open: true, loading: true, type: 'pix', data: null });
+      try {
+        const apiKey = getAbacatepayApiKey();
+        const res = await fetch('/api/abacatepay/create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customer: { name: nome, cellphone: '' },
+            value: total,
+            description: `Venda PDV: ${cart.map(i => i.nome).join(', ')}`,
+            ...(apiKey ? { apiKey } : {}),
+          }),
+        });
+        const result = await res.json();
+        if (result.success && result.data) {
+          setPaymentModal({
+            open: true,
+            loading: false,
+            type: 'pix',
+            data: result.data,
+          });
+        } else {
+          setPaymentModal({ open: false, loading: false, type: null, data: null });
+          showToast('error', result.error || 'Erro ao gerar PIX');
+        }
+      } catch (err) {
+        setPaymentModal({ open: false, loading: false, type: null, data: null });
+        showToast('error', 'Erro de conexão ao gerar PIX');
+      }
+    } else if (paymentMethod === 'maquininha' || paymentMethod === 'credito' || paymentMethod === 'debito') {
+      // ─── Checkout hospedado (maquininha / cartão) ──────────
+      setPaymentModal({ open: true, loading: true, type: 'checkout', data: null });
+      try {
+        const items = cart.map(i => ({ name: i.nome, quantity: i.qty, value: i.valor }));
+        const apiKey = getAbacatepayApiKey();
+        const res = await fetch('/api/abacatepay/create-hosted-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customer: { name: nome },
+            value: total,
+            description: `Venda PDV - ${nome}`,
+            items,
+            returnUrl: window.location.origin + '/pdv',
+            ...(apiKey ? { apiKey } : {}),
+          }),
+        });
+        const result = await res.json();
+        if (result.success && result.data?.url) {
+          setPaymentModal({
+            open: true,
+            loading: false,
+            type: 'checkout',
+            data: result.data,
+          });
+        } else {
+          setPaymentModal({ open: false, loading: false, type: null, data: null });
+          showToast('error', result.error || 'Erro ao criar checkout');
+        }
+      } catch (err) {
+        setPaymentModal({ open: false, loading: false, type: null, data: null });
+        showToast('error', 'Erro de conexão ao criar checkout');
+      }
+    } else {
+      // ─── Dinheiro (offline) ────────────────────────────────
+      showToast('success', `Venda finalizada! Total: ${Helpers.formatCurrency(total)}`);
+      clearCart();
+    }
+  }, [cart, summary, paymentMethod, clientName, showToast, clearCart]);
+
+  // ─── Confirma pagamento manual (após PIX ou maquininha) ─────
+  const handlePaymentConfirmed = () => {
+    showToast('success', `Pagamento confirmado! Total: ${Helpers.formatCurrency(summary.total)}`);
+    setPaymentModal({ open: false, loading: false, type: null, data: null });
+    clearCart();
+  };
+
+  // ─── Copiar código PIX ───────────────────────────────────────
+  const copyPixCode = () => {
+    const code = paymentModal.data?.brCode || paymentModal.data?.pixQrCode || '';
+    if (!code) return;
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(code).then(() => {
+        showToast('success', 'Código PIX copiado!');
+      }).catch(() => {});
+    }
+  };
 
   return (
     <div className="animate-fade-in pb-6">
@@ -121,7 +217,7 @@ export default function PDV() {
           PDV — Ponto de Venda
         </h1>
         <p className="text-sm text-ink-soft dark:text-ink-dark-soft mt-1.5">
-          Cobrança integrada ao prontuário · cada venda já desconta do estoque e credita fidelidade
+          Cobrança integrada ao prontuário · PIX Dinâmico · Maquininha · cada venda já desconta do estoque e credita fidelidade
         </p>
       </div>
 
@@ -165,9 +261,10 @@ export default function PDV() {
                 onChange={(e) => setPaymentMethod(e.target.value)}
                 className="input !py-1.5 !px-2.5 text-xs w-auto"
               >
-                <option value="credito">Crédito</option>
-                <option value="debito">Débito</option>
-                <option value="pix">Pix</option>
+                <option value="pix">PIX Dinâmico</option>
+                <option value="maquininha">Maquininha</option>
+                <option value="credito">Cartão Crédito</option>
+                <option value="debito">Cartão Débito</option>
                 <option value="dinheiro">Dinheiro</option>
               </select>
             </div>
@@ -233,7 +330,9 @@ export default function PDV() {
                 disabled={cart.length === 0}
                 className="btn btn-sm flex-[2]"
               >
-                Finalizar venda
+                {paymentMethod === 'pix' ? 'Gerar PIX' :
+                 paymentMethod === 'maquininha' ? 'Abrir na Maquininha' :
+                 'Finalizar venda'}
               </button>
             </div>
           </div>
@@ -254,6 +353,136 @@ export default function PDV() {
           </div>
         </div>
       )}
+
+      {/* ─── Modal Pagamento PIX ───────────────────────────────── */}
+      <Modal
+        open={paymentModal.open && paymentModal.type === 'pix'}
+        onClose={() => !paymentModal.loading && setPaymentModal({ open: false, loading: false, type: null, data: null })}
+        title="PIX Dinâmico"
+        maxWidth="max-w-sm"
+      >
+        <div className="p-4 text-center space-y-4">
+          {paymentModal.loading ? (
+            <>
+              <div className="flex justify-center py-8">
+                <svg className="animate-spin h-12 w-12 text-brand" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              </div>
+              <p className="text-sm text-ink-soft">Gerando PIX Dinâmico...</p>
+            </>
+          ) : paymentModal.data ? (
+            <>
+              <div className="flex justify-center">
+                <span className="px-3 py-1 text-[10px] font-bold rounded-full bg-brand-soft/20 text-brand uppercase tracking-wider">
+                  PIX Dinâmico
+                </span>
+              </div>
+
+              <div className="font-mono text-2xl font-bold text-ink tabular-nums">
+                {Helpers.formatCurrency(summary.total)}
+              </div>
+
+              {/* QR Code */}
+              <div className="qr-wrapper bg-white rounded-xl p-3 inline-block shadow-sm border border-border">
+                {paymentModal.data.brCodeBase64 || paymentModal.data.pixQrCodeImage ? (
+                  <img
+                    src={paymentModal.data.brCodeBase64 || paymentModal.data.pixQrCodeImage}
+                    alt="QR Code PIX"
+                    className="w-48 h-48 mx-auto"
+                  />
+                ) : (
+                  <div className="w-48 h-48 flex items-center justify-center bg-surface-2 rounded-lg text-ink-faint text-sm">
+                    QR Code
+                  </div>
+                )}
+              </div>
+
+              {/* Código copia-e-cola */}
+              <div
+                onClick={copyPixCode}
+                className="pix-code bg-surface-2 border border-dashed border-border rounded-lg p-3 text-xs font-mono break-all cursor-pointer hover:border-brand transition-colors text-ink-soft"
+              >
+                {paymentModal.data.brCode || paymentModal.data.pixQrCode || '---'}
+              </div>
+              <p className="text-[10px] text-ink-faint -mt-2">Clique para copiar o código PIX</p>
+
+              {/* Ações */}
+              <div className="flex flex-col gap-2 pt-2">
+                <button onClick={handlePaymentConfirmed} className="btn btn-sm">
+                  ✅ Pagamento confirmado
+                </button>
+                <button
+                  onClick={() => setPaymentModal({ open: false, loading: false, type: null, data: null })}
+                  className="btn-ghost btn-sm"
+                >
+                  Fechar
+                </button>
+              </div>
+            </>
+          ) : null}
+        </div>
+      </Modal>
+
+      {/* ─── Modal Checkout (Maquininha / Cartão) ──────────────── */}
+      <Modal
+        open={paymentModal.open && paymentModal.type === 'checkout'}
+        onClose={() => !paymentModal.loading && setPaymentModal({ open: false, loading: false, type: null, data: null })}
+        title="Pagamento"
+        maxWidth="max-w-sm"
+      >
+        <div className="p-4 text-center space-y-4">
+          {paymentModal.loading ? (
+            <>
+              <div className="flex justify-center py-8">
+                <svg className="animate-spin h-12 w-12 text-brand" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              </div>
+              <p className="text-sm text-ink-soft">Criando checkout seguro...</p>
+            </>
+          ) : paymentModal.data ? (
+            <>
+              <div className="text-4xl mb-2">
+                {paymentMethod === 'maquininha' ? '💳' : '🛒'}
+              </div>
+              <h3 className="font-display text-lg font-semibold">
+                {paymentMethod === 'maquininha' ? 'Pagamento na Maquininha' : 'Checkout'}
+              </h3>
+              <div className="font-mono text-2xl font-bold text-ink tabular-nums">
+                {Helpers.formatCurrency(summary.total)}
+              </div>
+              <p className="text-sm text-ink-soft">
+                {paymentMethod === 'maquininha'
+                  ? 'Abra o link abaixo na maquininha de cartão para processar o pagamento.'
+                  : 'Você será redirecionado para o checkout seguro.'}
+              </p>
+
+              <div className="flex flex-col gap-2 pt-2">
+                <a
+                  href={paymentModal.data.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-sm"
+                >
+                  {paymentMethod === 'maquininha' ? 'Abrir na Maquininha' : 'Ir para o pagamento'}
+                </a>
+                <button onClick={handlePaymentConfirmed} className="btn-ghost btn-sm">
+                  ✅ Pagamento confirmado
+                </button>
+                <button
+                  onClick={() => setPaymentModal({ open: false, loading: false, type: null, data: null })}
+                  className="text-xs text-ink-faint underline hover:text-ink-soft"
+                >
+                  Fechar
+                </button>
+              </div>
+            </>
+          ) : null}
+        </div>
+      </Modal>
 
       {/* Modal Desconto */}
       <Modal open={discountModal} onClose={() => setDiscountModal(false)} title="Adicionar Desconto" maxWidth="max-w-sm">

@@ -11,6 +11,9 @@ desktop.ini
 coverage/
 config/env.generated.js
 
+# Supabase CLI temp files
+supabase/.temp/
+
 # Vite
 *.tsbuildinfo
 next-env.d.ts

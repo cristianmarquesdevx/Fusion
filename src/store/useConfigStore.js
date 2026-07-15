@@ -27,6 +27,32 @@ const initialState = {
   ],
   nextUnitId: 'u4',
   nextMemberId: 'm6',
+
+  /* ═══ Integrações ═══ */
+  integrations: {
+    abacatepayApiKey: '',
+    abacatepayConfigured: false,
+    whatsappConfigured: true,
+    emailConfigured: true,
+    supabaseConfigured: true,
+  },
+
+  /* ═══ Notificações ═══ */
+  notificationSettings: {
+    confirmacao: true,
+    lembrete: true,
+    atraso: true,
+    estoque: true,
+    semanal: false,
+  },
+
+  /* ═══ Agendamento Público ═══ */
+  publicBookingSettings: {
+    active: true,
+    limitProfessional: true,
+    requireDeposit: false,
+  },
+
   activeTab: 'unidade',
   loading: false,
 };
@@ -34,8 +60,16 @@ const initialState = {
 export const useConfigStore = create((set, get) => ({
   ...initialState,
 
+  /* ═══ Navegação ═══ */
   setActiveTab: (tab) => set({ activeTab: tab }),
 
+  /* ═══ Unidade (companyInfo) ═══ */
+  updateCompanyInfo: (info) =>
+    set((state) => ({
+      companyInfo: { ...state.companyInfo, ...info },
+    })),
+
+  /* ═══ Multiunidade ═══ */
   addUnit: (unit) => {
     const state = get();
     unit.id = state.nextUnitId;
@@ -45,6 +79,19 @@ export const useConfigStore = create((set, get) => ({
     set({ units: [...state.units, unit], nextUnitId: `u${num}` });
   },
 
+  updateUnit: (id, data) =>
+    set((state) => ({
+      units: state.units.map((u) =>
+        u.id === id ? { ...u, ...data } : u
+      ),
+    })),
+
+  removeUnit: (id) =>
+    set((state) => ({
+      units: state.units.filter((u) => u.id !== id),
+    })),
+
+  /* ═══ Equipe ═══ */
   addMember: (member) => {
     const state = get();
     member.id = state.nextMemberId;
@@ -53,11 +100,76 @@ export const useConfigStore = create((set, get) => ({
     set({ team: [...state.team, member], nextMemberId: `m${num}` });
   },
 
-  toggleMemberStatus: (id) => {
+  updateMember: (id, data) =>
+    set((state) => ({
+      team: state.team.map((m) =>
+        m.id === id ? { ...m, ...data } : m
+      ),
+    })),
+
+  toggleMemberStatus: (id) =>
     set((state) => ({
       team: state.team.map((m) =>
         m.id === id ? { ...m, ativo: !m.ativo } : m
       ),
-    }));
-  },
+    })),
+
+  removeMember: (id) =>
+    set((state) => ({
+      team: state.team.filter((m) => m.id !== id),
+    })),
+
+  /* ═══ Integrações ═══ */
+  updateIntegration: (key, value) =>
+    set((state) => ({
+      integrations: { ...state.integrations, [key]: value },
+    })),
+
+  setAbacatepayKey: (apiKey) =>
+    set((state) => ({
+      integrations: {
+        ...state.integrations,
+        abacatepayApiKey: apiKey,
+        abacatepayConfigured: !!apiKey && apiKey.length > 10,
+      },
+    })),
+
+  /* ═══ Notificações ═══ */
+  toggleNotification: (key) =>
+    set((state) => ({
+      notificationSettings: {
+        ...state.notificationSettings,
+        [key]: !state.notificationSettings[key],
+      },
+    })),
+
+  setNotification: (key, value) =>
+    set((state) => ({
+      notificationSettings: { ...state.notificationSettings, [key]: value },
+    })),
+
+  /* ═══ Agendamento Público ═══ */
+  togglePublicBookingSetting: (key) =>
+    set((state) => ({
+      publicBookingSettings: {
+        ...state.publicBookingSettings,
+        [key]: !state.publicBookingSettings[key],
+      },
+    })),
+
+  setPublicBookingSetting: (key, value) =>
+    set((state) => ({
+      publicBookingSettings: { ...state.publicBookingSettings, [key]: value },
+    })),
+
+  /* ═══ Helpers ═══ */
+
+  /** Retorna a chave da AbacatePay atual (para ser usada nas chamadas API) */
+  getAbacatepayApiKey: () => get().integrations.abacatepayApiKey,
+
+  /** Verifica se uma notificação específica está ativa */
+  isNotificationActive: (key) => get().notificationSettings[key] === true,
+
+  /** Verifica se o agendamento público está ativo */
+  isPublicBookingActive: () => get().publicBookingSettings.active === true,
 }));

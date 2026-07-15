@@ -164,6 +164,20 @@ export const SupabaseService = {
     return this._status;
   },
 
+  /**
+   * Verifica se o usuário tem uma sessão ativa no Supabase Auth.
+   * Retorna true apenas se houver sessão REAL do Supabase (não demo local).
+   */
+  async isAuthenticated() {
+    if (!this.isReady()) return false;
+    try {
+      const { data, error } = await supabaseClient.auth.getSession();
+      return !error && !!data?.session;
+    } catch {
+      return false;
+    }
+  },
+
   /* ═══════════════════════════════════════════════════════
      AUTH
      ═══════════════════════════════════════════════════════ */

@@ -82,8 +82,10 @@ export default function WeekGrid({ timeSlots, weekDays, weekGrid, onCellClick, o
     dragState?.row === rowIdx && dragState?.col === colIdx;
 
   return (      <div className="card overflow-hidden select-none">
+      {/* Scroll wrapper para mobile */}
+      <div className="overflow-x-auto -mx-4 sm:-mx-0 px-4 sm:px-0">
       {/* Grid header */}
-      <div className="grid grid-cols-[64px_repeat(6,1fr)] border-b border-border dark:border-border-dark">
+      <div className="grid grid-cols-[64px_repeat(6,1fr)] min-w-[700px] border-b border-border dark:border-border-dark">
         <div className="px-3 py-3 text-xs font-semibold text-ink-faint dark:text-ink-dark-faint uppercase tracking-wider">
           Horário
         </div>
@@ -214,6 +216,7 @@ export default function WeekGrid({ timeSlots, weekDays, weekGrid, onCellClick, o
           })}
         </div>
       ))}
+      </div>
 
       {/* Drag helper — mostra info do item sendo arrastado */}
       {dragState && (

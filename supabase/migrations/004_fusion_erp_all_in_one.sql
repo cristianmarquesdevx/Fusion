@@ -1858,6 +1858,53 @@ begin
   raise notice '2. Associe o auth user à tabela usuarios:';
   raise notice '   INSERT INTO usuarios (auth_user_id, unidade_id, nome, email, tipo)';   raise notice '   VALUES (''<auth-user-id>'', ''a0000000-0000-0000-0000-000000000001'', ''Admin'', ''admin@fusion.com'', ''admin'');';
   raise notice '3. Database > Replication > Habilite as tabelas para real-time';
+  raise notice '4. Execute a migration 005_push_subscriptions.sql para notificações push';
   raise notice '============================================';
 end;
 $$;
+
+-- ═══════════════════════════════════════════════════════════════════
+-- 16. PUSH SUBSCRIPTIONS (Notificações Push)
+-- ═══════════════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  endpoint TEXT NOT NULL,
+  keys JSONB NOT NULL,
+  user_agent TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(endpoint)
+);
+
+CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user_id ON push_subscriptions(user_id);
+CREATE INDEX IF NOT EXISTS idx_push_subscriptions_endpoint ON push_subscriptions(endpoint);
+
+ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "push_subscriptions_select_own"
+  ON push_subscriptions FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "push_subscriptions_insert_own"
+  ON push_subscriptions FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "push_subscriptions_delete_own"
+  ON push_subscriptions FOR DELETE
+  USING (auth.uid() = user_id);
+
+CREATE OR REPLACE FUNCTION update_push_subscription_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_push_subscriptions_updated_at ON push_subscriptions;
+CREATE TRIGGER trg_push_subscriptions_updated_at
+  BEFORE UPDATE ON push_subscriptions
+  FOR EACH ROW
+  EXECUTE FUNCTION update_push_subscription_timestamp();

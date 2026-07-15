@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint src --ext .js,.jsx"
+    "lint": "eslint src --ext .js,.jsx",
+    "check:push": "node scripts/check-push-setup.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.1",

@@ -28,6 +28,7 @@ export default function CadastroModal({ open, onClose, editingClient }) {
   const updateClient = useClientStore((s) => s.updateClient);
   const [form, setForm] = useState(emptyForm);
   const [toast, setToast] = useState(null);
+  const [saving, setSaving] = useState(false);
   const isEditing = !!editingClient;
 
   // Preenche formulário quando edita
@@ -50,12 +51,14 @@ export default function CadastroModal({ open, onClose, editingClient }) {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.nome.trim() || !form.tel.trim()) {
       setToast({ type: 'error', msg: 'Preencha nome e telefone para cadastrar.' });
       setTimeout(() => setToast(null), 3000);
       return;
     }
+
+    setSaving(true);
 
     const data = {
       nome: form.nome.trim(),
@@ -65,10 +68,10 @@ export default function CadastroModal({ open, onClose, editingClient }) {
     };
 
     if (isEditing) {
-      updateClient(editingClient.id, data);
+      await updateClient(editingClient.id, data);
       setToast({ type: 'success', msg: `Cliente "${form.nome.trim()}" atualizada com sucesso!` });
     } else {
-      addClient({
+      await addClient({
         ...data,
         desde: String(new Date().getFullYear()),
         ultima: '—',
@@ -77,6 +80,8 @@ export default function CadastroModal({ open, onClose, editingClient }) {
       });
       setToast({ type: 'success', msg: `Cliente "${form.nome.trim()}" cadastrada com sucesso!` });
     }
+
+    setSaving(false);
 
     setTimeout(() => {
       setToast(null);
@@ -164,8 +169,18 @@ export default function CadastroModal({ open, onClose, editingClient }) {
           <button type="button" onClick={onClose} className="btn btn-ghost">
             Cancelar
           </button>
-          <button type="submit" className="btn">
-            {isEditing ? 'Salvar alterações' : 'Cadastrar cliente'}
+          <button type="submit" className="btn" disabled={saving}>
+            {saving ? (
+              <span className="flex items-center gap-2">
+                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Salvando…
+              </span>
+            ) : (
+              isEditing ? 'Salvar alterações' : 'Cadastrar cliente'
+            )}
           </button>
         </div>
       </form>

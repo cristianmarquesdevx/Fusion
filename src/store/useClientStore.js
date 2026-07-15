@@ -6,7 +6,8 @@
 
 import { create } from 'zustand';
 import { supabaseData } from '../services/supabase-data';
-import { withSupabaseFallback, trySync } from '../hooks/useSupabaseInit';
+import { SupabaseService } from '../services/supabase';
+
 
 const initialClients = [
   { id: '1', nome: 'Marina Costa', tel: '(11) 98221-4410', email: 'marina.costa@email.com', desde: '2022', ultima: 'Hoje, 09:00', pacote: 'Limpeza facial · 4/10 sessões', status: 'Em dia' },
@@ -149,33 +150,79 @@ export const useClientStore = create((set, get) => ({
   supabaseLoaded: false,
   supabaseEnabled: supabaseData.isReady,
 
-  /** Carrega clientes do Supabase (com fallback local) */
+  /** Converte formato da store para o formato do Supabase */
+  _toSupabase(data) {
+    const sb = {};
+    if (data.nome) sb.nome = data.nome;
+    if (data.tel) sb.telefone = data.tel;
+    if (data.email) sb.email = data.email;
+    if (data.cpf) sb.cpf = data.cpf;
+    if (data.desde) sb.cliente_desde = `${data.desde}-01-01`;
+    if (data.endereco) sb.endereco = data.endereco;
+    if (data.data_nascimento) sb.data_nascimento = data.data_nascimento;
+    if (data.observacoes) sb.observacoes = data.observacoes;
+    sb.ativo = true;
+    return sb;
+  },
+
+  /** Converte formato do Supabase para o formato da store */
+  _fromSupabase(c) {
+    return {
+      id: String(c.id),
+      nome: c.nome || '',
+      tel: c.telefone || '',
+      email: c.email || '',
+      cpf: c.cpf || '',
+      desde: c.cliente_desde
+        ? String(new Date(c.cliente_desde).getFullYear())
+        : String(new Date().getFullYear()),
+      ultima: c.ultima_visita
+        ? new Date(c.ultima_visita).toLocaleDateString('pt-BR')
+        : '—',
+      endereco: c.endereco || '',
+      data_nascimento: c.data_nascimento || '',
+      observacoes: c.observacoes || '',
+      // Campos derivados (não estão no banco)
+      pacote: '—',
+      status: c.ativo !== false ? 'Em dia' : 'Inativo',
+    };
+  },
+
+  /** Carrega clientes do Supabase (com fallback local garantido) */
   loadFromSupabase: async () => {
-    const data = await withSupabaseFallback(
-      () => supabaseData.clientes.load({ order: { field: 'nome', ascending: true } }),
-      null
-    );
-    if (data && Array.isArray(data) && data.length > 0) {
-      // Mapeia campos do Supabase para o formato da store
-      const mapped = data.map((c, i) => ({
-        id: String(c.id || i + 1),
-        nome: c.nome || c.name || '',
-        tel: c.telefone || c.tel || '',
-        email: c.email || '',
-        desde: c.desde || String(new Date().getFullYear()),
-        ultima: c.ultima_visita || c.ultima || '',
-        pacote: c.pacote || c.pacote_ativo || 'Sem pacote ativo',
-        status: c.status || 'Em dia',
-      }));
-      set({
-        clients: mapped,
-        total: mapped.length,
-        nextId: mapped.length + 1,
-        supabaseLoaded: true,
-      });
-    } else {
-      set({ supabaseLoaded: false });
+    try {
+      if (!supabaseData.isReady) {
+        console.log('[Clientes] Supabase offline, usando dados locais');
+        set({ supabaseLoaded: false });
+        return;
+      }
+      
+      const data = await supabaseData.clientes.load({ order: { field: 'nome', ascending: true } });
+      
+      if (data && Array.isArray(data) && data.length > 0) {
+        const mapped = data.map((c) => get()._fromSupabase(c));
+        // Sanity check: descarta registros sem nome válido
+        const validData = mapped.filter((c) => c.nome && c.nome.trim().length > 0);
+        if (validData.length > 0) {
+          set({
+            clients: validData,
+            total: validData.length,
+            nextId: validData.length + 1,
+            supabaseLoaded: true,
+          });
+          console.log('[Clientes] Carregados', validData.length, 'clientes do Supabase');
+          return;
+        }
+        console.warn('[Clientes] Dados do Supabase sem nomes válidos, usando fallback local');
+      } else {
+        console.log('[Clientes] Supabase retornou', data?.length ?? 'null', 'registros, mantendo dados locais');
+      }
+    } catch (e) {
+      console.warn('[Clientes] Erro ao carregar do Supabase:', e.message);
     }
+    
+    // Fallback garantido: nunca perde os dados mockados
+    set({ supabaseLoaded: false });
   },
 
   setSearchTerm: (term) => set({ searchTerm: term }),
@@ -189,36 +236,80 @@ export const useClientStore = create((set, get) => ({
 
   clearFilters: () => set({ activeFilters: {} }),
 
-  addClient: (cliente) => {
+  addClient: async (cliente) => {
     const state = get();
-    const newId = String(state.nextId);
-    const newClient = { id: newId, ...cliente };
-    // Tenta sync com Supabase (não bloqueia UI)
-    trySync(() => supabaseData.clientes.save(cliente));
+    
+    // ⚡ 1. ADICIONA LOCAL IMEDIATAMENTE — sem esperar Supabase
+    const newClient = { id: String(state.nextId), ...cliente, desde: cliente.desde || String(new Date().getFullYear()), ultima: '—', pacote: 'Sem pacote ativo', status: 'Em dia' };
     set({
       clients: [...state.clients, newClient],
       nextId: state.nextId + 1,
       total: state.total + 1,
     });
+
+    // 2. VERIFICA AUTENTICAÇÃO ANTES DE SINCRONIZAR
+    // Se o usuário não tem sessão Supabase real (ex: login demo), pula sync
+    if (!await SupabaseService.isAuthenticated()) {
+      console.log('[Clientes] Sem sessão Supabase — cliente mantido apenas local');
+      return { success: true, data: newClient };
+    }
+
+    const supabaseData_payload = get()._toSupabase(cliente);
+    supabaseData.clientes.save(supabaseData_payload).then((result) => {
+      if (result.success && result.data?.id) {
+        // Atualiza o ID real do Supabase no registro local
+        set((s) => ({
+          clients: s.clients.map((c) =>
+            c.id === newClient.id ? { ...c, id: String(result.data.id) } : c
+          ),
+        }));
+        console.log('[Clientes] Cliente sincronizado com Supabase:', result.data.id);
+      }
+    }).catch((e) => {
+      console.warn('[Clientes] Erro ao sincronizar com Supabase (mantido local):', e?.message || e);
+    });
+
+    return { success: true, data: newClient };
   },
 
-  updateClient: (id, data) => {
-    // Tenta sync com Supabase
-    trySync(() => supabaseData.clientes.update(id, data));
+  updateClient: async (id, data) => {
+    // ⚡ 1. ATUALIZA LOCAL IMEDIATAMENTE
     set((state) => ({
       clients: state.clients.map((c) =>
-        c.id === id ? { ...c, ...data } : c
+        String(c.id) === String(id) ? { ...c, ...data } : c
       ),
     }));
+
+    // 2. VERIFICA AUTENTICAÇÃO ANTES DE SINCRONIZAR
+    if (!await SupabaseService.isAuthenticated()) {
+      console.log('[Clientes] Sem sessão Supabase — atualização mantida apenas local');
+      return;
+    }
+
+    const supabaseData_payload = get()._toSupabase(data);
+    supabaseData.clientes.update(id, supabaseData_payload).catch((e) => {
+      console.warn('[Clientes] Erro ao sincronizar atualização com Supabase:', e?.message || e);
+    });
   },
 
-  deleteClient: (id) => {
-    // Tenta sync com Supabase
-    trySync(() => supabaseData.clientes.remove(id));
+  deleteClient: async (id) => {
+    // ⚡ 1. REMOVE LOCAL IMEDIATAMENTE
     set((state) => ({
-      clients: state.clients.filter((c) => c.id !== id),
-      total: state.total - 1,
+      clients: state.clients.filter((c) => String(c.id) !== String(id)),
+      total: Math.max(0, state.total - 1),
     }));
+
+    // 2. VERIFICA AUTENTICAÇÃO ANTES DE SINCRONIZAR
+    if (!await SupabaseService.isAuthenticated()) {
+      console.log('[Clientes] Sem sessão Supabase — remoção mantida apenas local');
+      return;
+    }
+
+    supabaseData.clientes.remove(id).then(() => {
+      console.log('[Clientes] Cliente removido do Supabase:', id);
+    }).catch((e) => {
+      console.warn('[Clientes] Erro ao remover do Supabase:', e?.message || e);
+    });
   },
 
   getFilteredClients: () => {

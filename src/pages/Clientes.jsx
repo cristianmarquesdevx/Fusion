@@ -17,12 +17,12 @@ export default function Clientes() {
     filterOptions,
     prontData,
     total,
+    loadFromSupabase,
   } = useClientStore();
 
   const user = useAuthStore((s) => s.user);
   const filteredClients = useClientStore((s) => s.getFilteredClients());
   const deleteClient = useClientStore((s) => s.deleteClient);
-  const loadFromSupabase = useClientStore((s) => s.loadFromSupabase);
   const addNotification = useUIStore((s) => s.addNotification);
   const [cadastroOpen, setCadastroOpen] = useState(false);
   const [prontOpen, setProntOpen] = useState(false);
@@ -35,8 +35,12 @@ export default function Clientes() {
   const [pageSize, setPageSize] = useState(20);
   const filterRef = useRef(null);
 
-  // Load from Supabase on mount
-  useEffect(() => { loadFromSupabase(); }, [loadFromSupabase]);
+  // Carrega clientes do Supabase com fallback garantido para dados locais
+  useEffect(() => {
+    loadFromSupabase().catch(() => {
+      // Fallback silencioso — dados locais sempre disponíveis
+    });
+  }, [loadFromSupabase]);
 
   // Close filter menu on outside click
   useEffect(() => {

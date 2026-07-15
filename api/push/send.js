@@ -26,7 +26,8 @@ import webpush from 'web-push';
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const VAPID_PUBLIC_KEY = process.env.VITE_VAPID_PUBLIC_KEY;
+// Tenta ambas as nomenclaturas (com/sem prefixo VITE_) para compatibilidade
+const VAPID_PUBLIC_KEY = process.env.VITE_VAPID_PUBLIC_KEY || process.env.VAPID_PUBLIC_KEY;
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY;
 const VAPID_EMAIL = process.env.VAPID_EMAIL || 'admin@fusionerp.com';
 

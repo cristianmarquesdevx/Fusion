@@ -63,8 +63,34 @@
   .success-screen p { color: var(--ink-soft); max-width: 380px; margin: 0 auto; }
   .step-content { display: none; }
   .step-content.active { display: block; animation: fadein .3s ease; }
+  .check-group { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .check-item, .radio-item { display: flex; align-items: center; gap: 8px; font-size: 14px; padding: 8px 12px; border-radius: 8px; border: 1.5px solid var(--border); cursor: pointer; transition: all .15s; }
+  .check-item:hover, .radio-item:hover { border-color: var(--brand); }
+  .check-item:has(input:checked), .radio-item:has(input:checked) { border-color: var(--brand); background: var(--brand-soft); font-weight: 500; }
+  .check-item input, .radio-item input { accent-color: var(--brand); width: 16px; height: 16px; }
+
+  /* Pagamento PIX */
+  .payment-card { text-align: center; padding: 24px 16px; }
+  .payment-card .pix-header { margin-bottom: 20px; }
+  .payment-card .pix-header h3 { font-family:'Fraunces',serif; font-size: 18px; font-weight: 600; }
+  .payment-card .pix-header p { font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
+  .payment-card .pix-value { font-size: 28px; font-weight: 700; font-family: 'Fraunces', serif; color: var(--brand); margin: 12px 0; }
+  .payment-card .qr-wrapper { background: #fff; border-radius: 16px; padding: 16px; display: inline-block; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin: 12px 0; }
+  .payment-card .qr-wrapper img { width: 200px; height: 200px; display: block; }
+  .payment-card .pix-code { background: var(--bg); border: 1px dashed var(--border); border-radius: 8px; padding: 10px 14px; font-size: 11px; font-family: monospace; word-break: break-all; color: var(--ink-soft); margin: 16px 0; cursor: pointer; transition: all .2s; }
+  .payment-card .pix-code:hover { border-color: var(--brand); color: var(--ink); }
+  .payment-card .pix-code.copied { border-color: var(--sage); background: var(--brand-soft); color: var(--sage); }
+  .payment-card .status-waiting { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; color: var(--ink-soft); margin: 16px 0; }
+  .payment-card .status-waiting .spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin .8s linear infinite; }
+  .payment-card .status-paid { display: none; align-items: center; justify-content: center; gap: 8px; font-size: 16px; font-weight: 600; color: var(--sage); margin: 16px 0; }
+  .payment-card .status-paid .check-icon { width: 32px; height: 32px; border-radius: 50%; background: var(--sage); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .payment-card .payment-success { display: none; }
+  .payment-card .payment-success.show { display: block; animation: fadein .4s ease; }
+  .payment-card .btn-skip { font-size: 12px; color: var(--ink-faint); background: none; border: none; cursor: pointer; text-decoration: underline; margin-top: 8px; }
+  .payment-card .btn-skip:hover { color: var(--ink-soft); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 600px) { .check-group { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } .service-grid { grid-template-columns: 1fr; } .time-grid { grid-template-columns: repeat(3, 1fr); } }
   @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } .service-grid { grid-template-columns: 1fr; } .time-grid { grid-template-columns: repeat(3, 1fr); } }
 </style>
 </head>
 <body>
@@ -94,7 +120,15 @@
       </div>
       <div class="step-wrap">
         <div class="step" data-step="4">4</div>
-        <div class="step-label">Confirmação</div>
+        <div class="step-label">Saúde</div>
+      </div>
+      <div class="step-wrap">
+        <div class="step" data-step="5">5</div>
+        <div class="step-label">Confirmar</div>
+      </div>
+      <div class="step-wrap">
+        <div class="step" data-step="6">6</div>
+        <div class="step-label">Pagamento</div>
       </div>
     </div>
 
@@ -202,8 +236,85 @@
       </div>
     </div>
 
-    <!-- STEP 4 -->
+    <!-- STEP 4 — PRÉ-ANAMNESE -->
     <div class="step-content" data-step="4">
+      <h2 style="font-family:'Fraunces',serif;font-size:20px;margin-bottom:6px;">Informações de saúde</h2>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:20px;">Estas informações ajudam o profissional a se preparar para seu atendimento. São confidenciais.</p>
+
+      <div class="form-group">
+        <label>Possui alguma condição de saúde? <span style="font-weight:400;color:var(--ink-faint);">(opcional)</span></label>
+        <div class="check-group" id="anamneseCondicoes">
+          <label class="check-item"><input type="checkbox" value="Diabetes"> Diabetes</label>
+          <label class="check-item"><input type="checkbox" value="Hipertensão"> Hipertensão</label>
+          <label class="check-item"><input type="checkbox" value="Problemas cardíacos"> Problemas cardíacos</label>
+          <label class="check-item"><input type="checkbox" value="Hipotireoidismo"> Hipotireoidismo</label>
+          <label class="check-item"><input type="checkbox" value="Anemia"> Anemia</label>
+          <label class="check-item"><input type="checkbox" value="Doença autoimune"> Doença autoimune</label>
+          <label class="check-item"><input type="checkbox" value="Cicatrização lenta"> Cicatrização lenta</label>
+          <label class="check-item"><input type="checkbox" value="Queloides"> Queloides</label>
+          <label class="check-item"><input type="checkbox" value="Outro"> Outro</label>
+        </div>
+        <input type="text" class="form-input" id="anamneseOutraCondicao" placeholder="Qual condição?" style="margin-top:6px;display:none;">
+      </div>
+
+      <div class="form-group">
+        <label>Tem alergia a algo? <span style="font-weight:400;color:var(--ink-faint);">(opcional)</span></label>
+        <div class="check-group" id="anamneseAlergias">
+          <label class="check-item"><input type="checkbox" value="Medicamentos"> Medicamentos</label>
+          <label class="check-item"><input type="checkbox" value="Cosméticos"> Cosméticos</label>
+          <label class="check-item"><input type="checkbox" value="Látex"> Látex</label>
+          <label class="check-item"><input type="checkbox" value="Metais"> Metais</label>
+          <label class="check-item"><input type="checkbox" value="Fita adesiva"> Fita adesiva</label>
+          <label class="check-item"><input type="checkbox" value="Produtos químicos"> Produtos químicos</label>
+          <label class="check-item"><input type="checkbox" value="Outro"> Outro</label>
+        </div>
+        <input type="text" class="form-input" id="anamneseOutraAlergia" placeholder="Qual alergia?" style="margin-top:6px;display:none;">
+      </div>
+
+      <div class="form-group">
+        <label>Usa algum medicamento contínuo?</label>
+        <div class="radio-group" id="anamneseMedicamentos">
+          <label class="radio-item"><input type="radio" name="medicamentos" value="nao" checked> Não</label>
+          <label class="radio-item"><input type="radio" name="medicamentos" value="sim"> Sim</label>
+        </div>
+        <input type="text" class="form-input" id="anamneseQuaisMedicamentos" placeholder="Quais medicamentos?" style="margin-top:6px;display:none;">
+      </div>
+
+      <div class="form-group">
+        <label>Já realizou procedimentos estéticos antes?</label>
+        <div class="radio-group" id="anamneseProcedimentosAnteriores">
+          <label class="radio-item"><input type="radio" name="proc-anteriores" value="nao" checked> Não</label>
+          <label class="radio-item"><input type="radio" name="proc-anteriores" value="sim"> Sim</label>
+        </div>
+        <input type="text" class="form-input" id="anamneseQuaisProcedimentos" placeholder="Quais procedimentos? Quando?" style="margin-top:6px;display:none;">
+      </div>
+
+      <div class="form-group">
+        <label>Há alguma contraindicação que devemos saber?</label>
+        <div class="check-group" id="anamneseContraindicacoes">
+          <label class="check-item"><input type="checkbox" value="Gestante"> Gestante</label>
+          <label class="check-item"><input type="checkbox" value="Lactante"> Lactante</label>
+          <label class="check-item"><input type="checkbox" value="Herpes ativa"> Herpes ativa no local</label>
+          <label class="check-item"><input type="checkbox" value="Feridas"> Feridas/cortes no local</label>
+          <label class="check-item"><input type="checkbox" value="Cirurgia recente"> Cirurgia recente (menos de 3 meses)</label>
+          <label class="check-item"><input type="checkbox" value="Ácidos recentes"> Uso de ácidos nos últimos 7 dias</label>
+          <label class="check-item"><input type="checkbox" value="Roacutan"> Roacutan nos últimos 6 meses</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Observações ou objetivo com o procedimento</label>
+        <textarea class="form-input" id="anamneseObservacoes" rows="3" placeholder="Conte-nos o que você espera alcançar ou alguma informação adicional que achemos relevante..." style="resize:vertical;"></textarea>
+      </div>
+
+      <div class="btn-wrap">
+        <button class="btn btn-ghost" id="btnStep4Voltar">Voltar</button>
+        <button class="btn btn-primary" id="btnStep4Avancar">Revisar agendamento</button>
+      </div>
+    </div>
+
+    <!-- STEP 5 — CONFIRMAÇÃO -->
+    <div class="step-content" data-step="5">
       <h2 style="font-family:'Fraunces',serif;font-size:20px;margin-bottom:18px;">Confirme seu agendamento</h2>
       <div id="confirmacaoContent">
         <div class="summary-row"><span class="summary-label">Nome</span><span class="summary-value" id="resumoNome">—</span></div>
@@ -214,18 +325,26 @@
         <div class="summary-row"><span class="summary-label">Data</span><span class="summary-value" id="resumoData">—</span></div>
         <div class="summary-row"><span class="summary-label">Horário</span><span class="summary-value" id="resumoHora">—</span></div>
       </div>
+      <h3 style="font-family:'Fraunces',serif;font-size:16px;margin:18px 0 8px;padding-top:14px;border-top:1px solid var(--border);">Informações de saúde</h3>
+      <div id="resumoAnamnese" style="font-size:13px;color:var(--ink-soft);line-height:1.7;">
+        Nenhuma informação de saúde informada.
+      </div>
       <div class="btn-wrap">
-        <button class="btn btn-ghost" id="btnStep4Voltar">Voltar</button>
+        <button class="btn btn-ghost" id="btnStep5Voltar">Voltar</button>
         <button class="btn btn-primary" id="btnConfirmarAgendamento">Confirmar agendamento</button>
       </div>
     </div>
 
     <!-- SUCCESS -->
     <div class="step-content" data-step="success">
+      <div id="paymentStatus">
+        <!-- STEP 6 — Payment screen (injected by JS) -->
+      </div>
+
       <div class="success-screen">
         <div class="check">✓</div>
         <h2>Agendamento confirmado!</h2>
-        <p>Enviamos um lembrete para o telefone informado. Você pode agendar outro horário ou fechar esta página.</p>
+        <p id="successMessage">Enviamos um lembrete para o telefone informado. Você pode agendar outro horário ou fechar esta página.</p>
         <button class="btn btn-primary" id="btnNovoAgendamento" style="margin-top:24px;">Novo agendamento</button>
       </div>
     </div>

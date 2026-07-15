@@ -13,7 +13,7 @@
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || null;
 
 /** Base URL da API de push. Em produção aponta para o mesmo domínio. */
-const PUSH_API_BASE = import.meta.env.VITE_PUSH_API_URL || '/api/push';
+export const PUSH_API_BASE = import.meta.env.VITE_PUSH_API_URL || '/api/push';
 
 const STORAGE_KEYS = {
   SUBSCRIPTION: 'fusion_push_subscription',
@@ -80,12 +80,13 @@ export async function subscribe() {
     localStorage.setItem(STORAGE_KEYS.SUBSCRIPTION, JSON.stringify(subscription));
 
     // Envia a subscription para o backend
-    sendSubscriptionToBackend(subscription).catch(() => {
-      // Falha ao sincronizar com backend não impede o uso local
+    sendSubscriptionToBackend(subscription).catch((err) => {
+      console.warn('[PushService] Falha ao sincronizar subscription com backend:', err?.message || err);
     });
 
     return subscription;
   } catch (err) {
+    console.warn('[PushService] Erro ao inscrever para push:', err?.message || err);
     return null;
   }
 }
@@ -106,7 +107,7 @@ export async function unsubscribe() {
     }
     localStorage.removeItem(STORAGE_KEYS.SUBSCRIPTION);
   } catch (err) {
-    // Ignora erro ao desinscrever
+    console.warn('[PushService] Erro ao desinscrever push:', err?.message || err);
   }
 }
 
@@ -120,7 +121,8 @@ export async function getSubscription() {
   try {
     const registration = await getRegistration();
     return await registration.pushManager.getSubscription();
-  } catch {
+  } catch (err) {
+    console.warn('[PushService] Erro ao obter subscription:', err?.message || err);
     return null;
   }
 }
@@ -151,7 +153,7 @@ export async function showLocalNotification(title, options = {}) {
       ...options,
     });
   } catch (err) {
-    // Ignora erro ao exibir notificação
+    console.warn('[PushService] Erro ao exibir notificação local:', err?.message || err);
   }
 }
 
@@ -238,8 +240,8 @@ export async function getPushStatus() {
     try {
       subscription = await getSubscription();
       subscribed = !!subscription;
-    } catch {
-      // ignore
+    } catch (err) {
+      console.warn('[PushService] Erro ao verificar status push:', err?.message || err);
     }
   }
 
@@ -263,7 +265,8 @@ async function getCurrentUserId() {
     const { useAuthStore } = await import('../store/useAuthStore');
     const user = useAuthStore.getState?.()?.user;
     return user?.id || null;
-  } catch {
+  } catch (err) {
+    console.warn('[PushService] Erro ao obter userId:', err?.message || err);
     return null;
   }
 }
@@ -329,8 +332,9 @@ export async function initPushService() {
     if (sub) {
       localStorage.setItem(STORAGE_KEYS.SUBSCRIPTION, JSON.stringify(sub));
     }
-  } catch {
+  } catch (err) {
     // SW ainda não registrado — tenta de novo depois
+    console.warn('[PushService] init: SW não disponível ainda:', err?.message || err);
   }
 
   // Limpa notificações expiradas
