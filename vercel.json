@@ -34,5 +34,11 @@
       ]
     }
   ],
-  "trailingSlash": false
+  "trailingSlash": false,
+  "crons": [
+    {
+      "path": "/api/abacatepay/check-expired",
+      "schedule": "0 0 * * *"
+    }
+  ]
 }
