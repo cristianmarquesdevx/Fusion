@@ -37,11 +37,13 @@ function supabaseHeaders() {
  * Busca uma cobrança pelo externalId.
  */
 async function findCharge(externalId) {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/pix_charges?external_id=eq.${encodeURIComponent(externalId)}&limit=1`,
-    { headers: supabaseHeaders() }
-  );
-  if (!res.ok) return null;
+  const url = `${SUPABASE_URL}/rest/v1/pix_charges?external_id=eq.${encodeURIComponent(externalId)}&limit=1`;
+  const res = await fetch(url, { headers: supabaseHeaders() });
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error(`[AbacatePay Webhook] findCharge HTTP ${res.status} para externalId=${externalId}: ${errBody.slice(0, 500)}`);
+    return null;
+  }
   const data = await res.json();
   return Array.isArray(data) && data.length > 0 ? data[0] : null;
 }
@@ -50,14 +52,16 @@ async function findCharge(externalId) {
  * Atualiza o status de uma cobrança.
  */
 async function updateCharge(externalId, updates) {
-  await fetch(
-    `${SUPABASE_URL}/rest/v1/pix_charges?external_id=eq.${encodeURIComponent(externalId)}`,
-    {
-      method: 'PATCH',
-      headers: supabaseHeaders(),
-      body: JSON.stringify(updates),
-    }
-  );
+  const url = `${SUPABASE_URL}/rest/v1/pix_charges?external_id=eq.${encodeURIComponent(externalId)}`;
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: supabaseHeaders(),
+    body: JSON.stringify(updates),
+  });
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error(`[AbacatePay Webhook] updateCharge HTTP ${res.status} para externalId=${externalId}: ${errBody.slice(0, 500)}`);
+  }
 }
 
 /**
