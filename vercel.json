@@ -6,12 +6,9 @@
     { "source": "/agendar.html", "destination": "/agendar.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
-  "crons": [
-    {
-      "path": "/api/abacatepay/check-expired",
-      "schedule": "*/10 * * * *"
-    }
-  ],
+  // Cron job removido temporariamente para diagnóstico.
+  // O plano Hobby do Vercel limita a 1 execução/dia.
+  // Reativar quando migrar para Pro ou ajustar schedule para "0 0 * * *".
   "headers": [
     {
       "source": "/assets/(.*)",
