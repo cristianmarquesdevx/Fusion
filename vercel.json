@@ -6,7 +6,6 @@
     { "source": "/agendar.html", "destination": "/agendar.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
-  "_cron_note": "Removido temporariamente para diagnostico. Hobby plan limita a 1 exec/dia. Reativar no Pro ou schedule '0 0 * * *'".
   "headers": [
     {
       "source": "/assets/(.*)",
