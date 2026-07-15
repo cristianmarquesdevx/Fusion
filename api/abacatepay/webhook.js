@@ -160,17 +160,49 @@ export default async function handler(req, res) {
       dataId: data?.id || data?.transparent?.id || 'sem ID',
     });
 
+    // ─── Diagnóstico: testa conexão com Supabase ─────────────────
+    const envCheck = {
+      hasUrl: !!SUPABASE_URL,
+      hasKey: !!SUPABASE_SERVICE_KEY,
+      urlPrefix: SUPABASE_URL ? SUPABASE_URL.slice(0, 20) + '...' : 'MISSING',
+      keyPrefix: SUPABASE_SERVICE_KEY ? SUPABASE_SERVICE_KEY.slice(0, 10) + '...' : 'MISSING',
+    };
+    console.log('[AbacatePay Webhook] Env check:', JSON.stringify(envCheck));
+
+    // ─── Diagnóstico: testa se a tabela pix_charges responde ────
+    let tableTest = 'not_tested';
+    if (SUPABASE_URL && SUPABASE_SERVICE_KEY) {
+      try {
+        const testRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/pix_charges?limit=1`,
+          {
+            headers: {
+              'apikey': SUPABASE_SERVICE_KEY,
+              'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+            },
+          }
+        );
+        tableTest = `HTTP ${testRes.status}`;
+      } catch (e) {
+        tableTest = `ERROR: ${e.message}`;
+      }
+    }
+
     // ─── Roteamento por tipo de evento ───────────────────────────
+    let handlerResult = 'not_executed';
     if (event.startsWith('transparent.')) {
       await handleTransparentEvent(event, data);
+      handlerResult = 'ok';
     } else if (event.startsWith('subscription.')) {
       await handleSubscriptionEvent(event, data);
+      handlerResult = 'ok';
     } else {
       console.log(`[AbacatePay Webhook] Evento desconhecido: ${event}`);
+      handlerResult = 'unknown_event';
     }
 
     // Sempre retorna 200 para confirmar recebimento
-    return res.status(200).json({ received: true });
+    return res.status(200).json({ received: true, _debug: { envCheck, tableTest, handlerResult } });
 
   } catch (err) {
     console.error('[AbacatePay Webhook] Erro:', err);
