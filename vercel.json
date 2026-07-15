@@ -6,9 +6,7 @@
     { "source": "/agendar.html", "destination": "/agendar.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
-  // Cron job removido temporariamente para diagnóstico.
-  // O plano Hobby do Vercel limita a 1 execução/dia.
-  // Reativar quando migrar para Pro ou ajustar schedule para "0 0 * * *".
+  "_cron_note": "Removido temporariamente para diagnostico. Hobby plan limita a 1 exec/dia. Reativar no Pro ou schedule '0 0 * * *'".
   "headers": [
     {
       "source": "/assets/(.*)",
