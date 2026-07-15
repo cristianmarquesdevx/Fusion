@@ -23,6 +23,7 @@ const BI = lazy(() => import('./pages/BI'));
 const PlanosRecorrentes = lazy(() => import('./pages/PlanosRecorrentes'));
 const ListaEspera = lazy(() => import('./pages/ListaEspera'));
 const Salas = lazy(() => import('./pages/Salas'));
+const PixCharges = lazy(() => import('./pages/PixCharges'));
 const Configuracoes = lazy(() => import('./pages/Configuracoes'));
 const Relatorios = lazy(() => import('./pages/Relatorios'));
 const Prontuario = lazy(() => import('./pages/Prontuario'));
@@ -296,6 +297,16 @@ export default function App() {
               <ProtectedRoute>
                 <Shell>
                   <Prontuario />
+                </Shell>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pix-cobrancas"
+            element={
+              <ProtectedRoute>
+                <Shell>
+                  <PixCharges />
                 </Shell>
               </ProtectedRoute>
             }

@@ -16,6 +16,7 @@ export { useFinanceiroStore } from './useFinanceiroStore';
 export { useListaEsperaStore } from './useListaEsperaStore';
 export { usePacotesStore } from './usePacotesStore';
 export { usePDVStore } from './usePDVStore';
+export { usePixChargesStore, getStatusInfo } from './usePixChargesStore';
 export { usePlanosStore } from './usePlanosStore';
 export { useSalasStore } from './useSalasStore';
 export { useUIStore } from './useUIStore';

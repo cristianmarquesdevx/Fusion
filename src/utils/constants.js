@@ -228,6 +228,7 @@ export const MODULOS = [
   { id: 'planos-recorrentes', nome: 'Planos Recorrentes', icone: 'repeat', grupo: 'Relacionamento' },
   { id: 'lista-espera', nome: 'Lista de Espera', icone: 'clock', grupo: 'Relacionamento' },
   { id: 'bi', nome: 'Business Intelligence', icone: 'chart', grupo: 'Inteligência' },
+  { id: 'pix-cobrancas', nome: 'Cobranças PIX', icone: 'wallet', grupo: 'Gestão' },
   { id: 'financeiro', nome: 'Financeiro', icone: 'wallet', grupo: 'Gestão' },
   { id: 'relatorios', nome: 'Relatórios', icone: 'file', grupo: 'Gestão' },
   { id: 'configuracoes', nome: 'Configurações', icone: 'settings', grupo: 'Gestão' },
